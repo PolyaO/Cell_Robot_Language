@@ -35,7 +35,7 @@
 %right NOT MXTRUE MXFALSE MXEQ MXLT MXGT MXLTE MXGTE ELEQ ELLT ELGT ELLTE ELGTE GET SIZE REDUCE EXTEND
 %nonassoc '=' '[' ']' '(' ')'
 %type <int> expr rval scope stmts stmt complex_expr_stmt complex_expr_stmts dim_list arg_list unary primary task
-%nterm programm tasks
+%nterm programm tasks newline_opt
 
 %%
 programm
@@ -47,21 +47,21 @@ tasks
     | tasks task                       {}
     ;
 task
-    : TASK IDENTIFIER arg_list '(' '\n' stmts  RESULT IDENTIFIER '\n' ')' '\n' {$$ = ast.make_task($2, $3, $6, $8);}
+    : TASK IDENTIFIER arg_list '(' '\n' stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, $6, $8);}
     ;
 scope
-    : '(' '\n' stmts ')' '\n'           {$$ = $3;}
+    : '(' '\n' stmts ')' '\n'   {$$ = $3;}
     ;
 stmts
-    : stmt                             {$$ = ast.new_body(); ast.add_to_body($$, $1);}
+    : stmt newline_opt                 {$$ = ast.new_body(); ast.add_to_body($$, $1);}
     | stmts stmt                       {$$ = $1; ast.add_to_body($$, $2);}
     | complex_expr_stmts               {$$ = ast.new_body(); ast.add_to_body($$, $1);}
     | stmts complex_expr_stmts         {$$ = $1; ast.add_to_body($$, $2);}
     ;
 stmt
-    : PLEASE expr THANKS '\n'           {ast.set_politely_asked($2); $$ = $2;}
-    | expr '\n'                         {$$ = $1;}
-    | complex_expr_stmt                 {$$ = $1;}
+    : PLEASE expr THANKS '\n'               {ast.set_politely_asked($2); $$ = $2;}
+    | expr '\n'                             {$$ = $1;}
+    | complex_expr_stmt                     {$$ = $1;}
     ;
 expr
     : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_int_var($2, $4);}
@@ -126,5 +126,9 @@ primary
     | GET_ENVIRONMENT           {$$ = ast.make_get_env();}
     | '(' rval ')'              {$$ = $2;}
     | primary '[' dim_list ']'  {$$ = ast.make_idx($1, $3);}
+    ;
+newline_opt
+    : %empty
+    | newline_opt '\n'
     ;
 %%

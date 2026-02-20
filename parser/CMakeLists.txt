@@ -13,7 +13,7 @@ set(FLEX_Lexer_OUTPUTS
     ${CMAKE_CURRENT_BINARY_DIR}/lexer.hpp
 )
 
-BISON_TARGET(Parser ${CMAKE_CURRENT_SOURCE_DIR}/parser.yy
+BISON_TARGET(Parser ${CMAKE_CURRENT_SOURCE_DIR}/parse.yy
              ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
              DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.hpp
              COMPILE_FLAGS "-Wcounterexamples")

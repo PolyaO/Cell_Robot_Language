@@ -60,6 +60,8 @@ BLANC       [ \t\r]
 "ELLTE"            return par::make_ELLTE(loc);
 "ELGTE"            return par::make_ELGTE(loc);
 
+"AND"              return par::make_AND(loc);
+
 "MXTRUE"           return par::make_MXTRUE(loc);
 "MXFALSE"          return par::make_MXFALSE(loc);
 

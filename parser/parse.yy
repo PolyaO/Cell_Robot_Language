@@ -99,6 +99,7 @@ rval
     | rval '-' rval   {$$ = ast.make_sub($1, $3);}
     | rval '*' rval   {$$ = ast.make_mul($1, $3);}
     | rval '/' rval   {$$ = ast.make_div($1, $3);}
+    | rval '[' dim_list ']'  {$$ = ast.make_idx($1, $3);}
     | unary           {$$ = $1;}
     ;
 unary
@@ -125,5 +126,4 @@ primary
     | GET IDENTIFIER            {$$ = ast.make_get_task_res($2);}
     | GET_ENVIRONMENT           {$$ = ast.make_get_env();}
     | '(' rval ')'              {$$ = $2;}
-    | primary '[' dim_list ']'  {$$ = ast.make_idx($1, $3);}
     ;

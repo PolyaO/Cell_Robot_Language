@@ -13,11 +13,10 @@ class AstMaker {
     void set_successfully_parsed(bool success);
     bool get_successfully_parsed();
 
-    int new_body();
     int new_arg_list(std::string_view arg);
     int new_arg_list();
     int new_dim_list(int dim);
-    void add_to_body(int body, int expr);
+    void add_to_scope(int scope, int expr);
     void add_to_arg_list(int list, std::string_view arg);
     void add_to_dim_list(int list, int dim);
 
@@ -42,11 +41,12 @@ class AstMaker {
     int make_for(std::string_view counter, std::string_view boundary,
                  std::string_view step, int exprs);
     int make_switch(int rval, bool condition, int exprs);
-    // here will be one more make_switch with single expr
     int make_switch(int rval, bool condition1, int exprs1, bool condition2,
                     int exprs2);
+    int make_scope();
 
     int make_and(int rval1, int rval2);
+    int make_or(int rval1, int rval2);
     int make_sum(int rval1, int rval2);
     int make_sub(int rval1, int rval2);
     int make_div(int rval1, int rval2);

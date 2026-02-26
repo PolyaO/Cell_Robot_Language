@@ -30,6 +30,7 @@
 %token VAR SIZE LOGITIZE DIGITIZE REDUCE EXTEND
 %token MOVE ROTATE_LEFT ROTATE_RIGHT GET_ENVIRONMENT
 %token PLEASE THANKS
+%left OR
 %left AND
 %left '+' '-'
 %left '*' '/'
@@ -78,8 +79,8 @@ stmt
     | complex_expr_stmt   newline_opt        %prec LOWEST {$$ = $1;}
     ;
 stmts
-    : stmt                 {$$ = ast.new_body(); ast.add_to_body($$, $1);}
-    | stmts stmt           {$$ = $1; ast.add_to_body($$, $2);}
+    : stmt                 {$$ = ast.make_scope(); ast.add_to_scope($$, $1);}
+    | stmts stmt           {$$ = $1; ast.add_to_scope($$, $2);}
     ;
 newline_opt
     : %empty
@@ -89,12 +90,14 @@ dim_list
     : INTEGER              {$$ = ast.new_dim_list($1);}
     | dim_list ',' INTEGER {$$ = $1; ast.add_to_dim_list($1, $3);}
     ;
-arg_list: %empty              {$$ = ast.new_arg_list();}
+arg_list
+    : %empty              {$$ = ast.new_arg_list();}
     | IDENTIFIER              {$$ = ast.new_arg_list($1);}
     | arg_list ',' IDENTIFIER {$$ = $1; ast.add_to_arg_list($1, $3);}
     ;
 rval
     : rval AND rval   {$$ = ast.make_and($1, $3);}
+    | rval OR  rval   {$$ = ast.make_or($1, $3);}
     | rval '+' rval   {$$ = ast.make_sum($1, $3);}
     | rval '-' rval   {$$ = ast.make_sub($1, $3);}
     | rval '*' rval   {$$ = ast.make_mul($1, $3);}

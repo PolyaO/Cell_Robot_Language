@@ -8,10 +8,6 @@ void AstMaker::set_successfully_parsed(bool success) {
 }
 bool AstMaker::get_successfully_parsed() { return successfully_parsed; }
 
-int AstMaker::new_body() {
-    std::cout << loc << " New body created" << std::endl;
-    return 0;
-}
 int AstMaker::new_arg_list(std::string_view arg) {
     std::cout << loc << " New arg list created with arg: " << arg << std::endl;
     return 0;
@@ -27,8 +23,8 @@ int AstMaker::new_dim_list(int dim) {
     return 0;
 }
 
-void AstMaker::add_to_body(int body, int expr) {
-    std::cout << loc << " Expr: " << expr << " added to body: " << body << std::endl;
+void AstMaker::add_to_scope(int scope, int expr) {
+    std::cout << loc << " Expr: " << expr << " added to scope: " << scope << std::endl;
 }
 void AstMaker::add_to_arg_list(int list, std::string_view arg) {
     std::cout << loc << " Arg: " << arg << " added to arg_list: " << list << std::endl;
@@ -109,7 +105,7 @@ int AstMaker::make_switch(int rval, bool condition, int exprs) {
               << exprs << std::endl;
     return 12;
 }
-// here will be one more make_switch with single expr
+
 int AstMaker::make_switch(int rval, bool condition1, int exprs1,
                           bool condition2, int exprs2) {
     std::cout << loc << "Make switch " << rval << "," << condition1 << ","
@@ -117,10 +113,21 @@ int AstMaker::make_switch(int rval, bool condition1, int exprs1,
     return 12;
 }
 
+int AstMaker::make_scope() {
+    std::cout << loc << " Make scope " << std::endl;
+    return 0;
+}
+
 int AstMaker::make_and(int rval1, int rval2) {
     std::cout << loc << rval1 << " and " << rval2 << std::endl;
     return 13;
 }
+
+int AstMaker::make_or(int rval1, int rval2) {
+    std::cout << loc << rval1 << " or " << rval2 << std::endl;
+    return 13;
+}
+
 int AstMaker::make_sum(int rval1, int rval2) {
     std::cout << loc << rval1 << " + " << rval2 << std::endl;
     return 14;

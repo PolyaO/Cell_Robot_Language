@@ -1,0 +1,28 @@
+#pragma once
+#include <stack>
+#include <string_view>
+
+#include "backend/rvals/var.hpp"
+#include "interpreter/ast.hpp"
+#include "interpreter/exec_ctx.hpp"
+
+namespace driver {
+class Driver {
+   private:
+    std::stack<ast::expr *> _exec_stack;
+    ast::ExecCtx _ctx;
+    std::string _pg;
+    ast::Ast &&parse(bool trace_parsing, bool trace_scanning);
+    void scan_begin(bool trace_scanning);
+    void scan_end();
+
+   public:
+    Driver() noexcept;
+    void initialize(std::string_view robot_filename,
+                    std::string_view program_filename,
+                    bool trace_parsing = false, bool trace_scanning = false);
+    std::optional<unsigned> exec_next();
+    std::optional<ast::Var> get_var(std::string_view var_name);
+    std::string_view get_curr_task_name();
+};
+}  // namespace driver

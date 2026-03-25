@@ -9,24 +9,26 @@
 %code requires {
     #include <string>
     #include <variant>
+    namespace ast {
     class AstMaker;
+    }
 }
 
 %locations
 %define parse.trace
 %define parse.error detailed
 %define parse.lac full
-%param { AstMaker& ast }
+%param { ast::AstMaker& ast }
 
 %code {
-    #include "ast_maker.hpp"
+    #include "interpreter/ast_maker.hpp"
 }
 %define api.token.prefix {TOK_}
 %left LOWEST
 %token <std::string> IDENTIFIER "identifier"
 %token <int> INTEGER "integer"
 %token <bool> BOOLEAN "boolean"
-%token TASK RESULT DO GET FOR BOUNDARY STEP SWITCH
+%token TASK FINDEXIT RESULT DO GET FOR BOUNDARY STEP SWITCH
 %token VAR SIZE LOGITIZE DIGITIZE REDUCE EXTEND
 %token MOVE ROTATE_LEFT ROTATE_RIGHT GET_ENVIRONMENT
 %token PLEASE THANKS
@@ -36,7 +38,9 @@
 %left '*' '/'
 %right NOT MXTRUE MXFALSE MXEQ MXLT MXGT MXLTE MXGTE ELEQ ELLT ELGT ELLTE ELGTE GET SIZE REDUCE EXTEND
 %nonassoc '=' '[' ']' '(' ')'
-%type <int> expr rval stmts stmt complex_expr_stmt dim_list arg_list unary primary task
+%type <unsigned> expr stmt complex_expr_stmt rval unary primary task any_task find_exit
+%type <std::vector<unsigned>> dim_list stmts
+%type <std::variant<unsigned, std::vector<unsigned>>> arg_list
 %nterm programm tasks newline_opt
 %left '\n'
 %precedence SWITCH_NO_TAIL
@@ -44,35 +48,42 @@
 
 %%
 programm
-    : %empty                        {ast.set_successfully_parsed(true);}
-    | tasks                         {ast.set_successfully_parsed(true);}
+    : %empty                        {}
+    | tasks                         {}
     ;
 tasks
     : task                             {}
     | tasks task                       {}
     ;
 task
-    : TASK IDENTIFIER arg_list '(' newline_opt stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, $6, $8);}
+    : any_task                         {$$ = $1;}
+    | find_exit                        {$$ = $1;}
+    ;
+any_task
+    : TASK IDENTIFIER arg_list '(' newline_opt stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, std::move($6), $8);}
+    ;
+find_exit
+    : TASK FINDEXIT '('newline_opt stmts')' newline_opt {$$ = ast.make_find_exit(std::move($5));}
     ;
 expr
-    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_int_var($2, $4);}
-    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_bool_var($2, $4);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_int_var($2, $4, $7);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_bool_var($2, $4, $7);}
+    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_var<int>($2, {}, $4);}
+    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var<bool>($2, {}, $4);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var<int>($2, $4, $7);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var<bool>($2, $4, $7);}
     | LOGITIZE IDENTIFIER   {$$ = ast.make_logitize($2);}
     | DIGITIZE IDENTIFIER   {$$ = ast.make_digitize($2);}
-    | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, $3);}
-    | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, $3, $6);}
-    | MOVE                  {$$ = ast.make_move();}
-    | ROTATE_LEFT           {$$ = ast.make_rotate_left();}
-    | ROTATE_RIGHT          {$$ = ast.make_rotate_right();}
-    | DO IDENTIFIER arg_list {$$ = ast.make_task_call($2, $3);}
+    | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3);}
+    | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, std::move($3), $6);}
+    | MOVE                  {$$ = ast.make_robot_expr<Move>();}
+    | ROTATE_LEFT           {$$ = ast.make_robot_expr<RotateL>();}
+    | ROTATE_RIGHT          {$$ = ast.make_robot_expr<RotateR>();}
+    | DO IDENTIFIER arg_list {$$ = ast.make_do($2, std::move($3));}
     ;
 complex_expr_stmt
     : FOR IDENTIFIER BOUNDARY IDENTIFIER STEP IDENTIFIER newline_opt stmt {$$ = ast.make_for($2, $4, $6, $8);}
-    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch($2, $4, $6);}
+    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch($2, $4, $6, false, 0);}
     | SWITCH rval newline_opt BOOLEAN newline_opt stmt BOOLEAN newline_opt stmt   %prec BOOLEAN        {$$ = ast.make_switch($2, $4, $6, $7, $9);}
-    | '(' newline_opt stmts ')'                               {$$ = $3;}
+    | '(' newline_opt stmts ')'                               {$$ = ast.make_scope(std::move($3));}
     ;
 stmt
     : PLEASE expr THANKS '\n' newline_opt    %prec LOWEST {ast.set_politely_asked($2); $$ = $2;}
@@ -80,20 +91,19 @@ stmt
     | complex_expr_stmt   newline_opt        %prec LOWEST {$$ = $1;}
     ;
 stmts
-    : stmt                 {$$ = ast.make_scope(); ast.add_to_scope($$, $1);}
-    | stmts stmt           {$$ = $1; ast.add_to_scope($$, $2);}
+    : stmt                 {$$ = ast.make_stmts(); ast.add_to_stmts($$, $1);}
+    | stmts stmt           {$$ = $1; ast.add_to_stmts($$, $2);}
     ;
 newline_opt
     : %empty
     | newline_opt '\n'
     ;
 dim_list
-    : INTEGER              {$$ = ast.new_dim_list($1);}
+    : INTEGER              {$$ = ast.make_dim_list(); ast.add_to_dim_list($$, $1);}
     | dim_list ',' INTEGER {$$ = $1; ast.add_to_dim_list($1, $3);}
     ;
 arg_list
-    : %empty              {$$ = ast.new_arg_list();}
-    | IDENTIFIER              {$$ = ast.new_arg_list($1);}
+    : IDENTIFIER              {$$ = ast.make_arg_list(); ast.add_to_arg_list($$, $1);}
     | arg_list ',' IDENTIFIER {$$ = $1; ast.add_to_arg_list($1, $3);}
     ;
 rval
@@ -103,7 +113,7 @@ rval
     | rval '-' rval   {$$ = ast.make_sub($1, $3);}
     | rval '*' rval   {$$ = ast.make_mul($1, $3);}
     | rval '/' rval   {$$ = ast.make_div($1, $3);}
-    | rval '[' dim_list ']'  {$$ = ast.make_idx($1, $3);}
+    | rval '[' dim_list ']'  {$$ = ast.make_idx($1, std::move($3));}
     | unary           {$$ = $1;}
     ;
 unary
@@ -126,8 +136,8 @@ unary
     | EXTEND unary '[' INTEGER ']' {$$ = ast.make_extend($2, $4);}
     ;
 primary
-    : IDENTIFIER                {$$ = ast.make_mx_rval($1);}
-    | GET IDENTIFIER            {$$ = ast.make_get_task_res($2);}
-    | GET_ENVIRONMENT           {$$ = ast.make_get_env();}
+    : IDENTIFIER                {$$ = ast.make_ref($1);}
+    | GET IDENTIFIER            {$$ = ast.make_res($2);}
+    | GET_ENVIRONMENT           {$$ = ast.make_env();}
     | '(' rval ')'              {$$ = $2;}
     ;

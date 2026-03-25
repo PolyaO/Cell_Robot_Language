@@ -52,12 +52,12 @@ int AstMaker::make_bool_var(std::string_view var_name, bool val) {
     return 3;
 }
 int AstMaker::make_int_var(std::string_view var_name, int dim_list, int val) {
-    std::cout << loc << " IntVar" << var_name << "=" << val << "; dimlist: " << dim_list
+    std::cout << loc << " IntVar" << var_name << "=" << val << "; dim_list: " << dim_list
               << std::endl;
     return 2;
 }
 int AstMaker::make_bool_var(std::string_view var_name, int dim_list, bool val) {
-    std::cout << loc << " BoolVar" << var_name << "=" << val << "; dimlist: " << dim_list
+    std::cout << loc << " BoolVar" << var_name << "=" << val << "; dim_list: " << dim_list
               << std::endl;
     return 3;
 }
@@ -74,6 +74,11 @@ int AstMaker::make_digitize(std::string_view var_name) {
 
 int AstMaker::make_assignement(std::string_view var_name, int rval) {
     std::cout << loc << " assignement " << var_name << "=" << rval << std::endl;
+    return 6;
+}
+
+int AstMaker::make_assignement(std::string_view var_name, int dim_list, int rval) {
+    std::cout << loc << " assignement " << var_name  << "[" << dim_list << "] =" << rval << std::endl;
     return 6;
 }
 int AstMaker::make_move() {

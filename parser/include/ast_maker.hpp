@@ -1,10 +1,17 @@
 #pragma once
 #include <string_view>
+#include <tuple>
+#include <vector>
+
+#include "ast_cxt.hpp"
+#include "rval.hpp"
 #include "parser.hpp"
 
 #define YY_DECL yy::parser::symbol_type yylex(AstMaker &ast)
 
 YY_DECL;
+
+namespace ast {
 
 class AstMaker {
    public:
@@ -33,6 +40,7 @@ class AstMaker {
     int make_digitize(std::string_view var_name);
 
     int make_assignement(std::string_view var_name, int rval);
+    int make_assignement(std::string_view var_name, int dim_list, int rval);
     int make_move();
     int make_rotate_left();
     int make_rotate_right();
@@ -76,4 +84,9 @@ class AstMaker {
 
    private:
     bool successfully_parsed = false;
+    AstCtx ast_cxt;
+
+    std::vector<std::tuple<unsigned, unsigned, std::string>> dictionary;
+    std::vector<rval> rvals;
 };
+}  // namespace ast

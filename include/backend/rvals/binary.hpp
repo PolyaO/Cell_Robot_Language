@@ -7,17 +7,19 @@
 namespace ast {
 class Binary {
    public:
-    using Op = std::function<Var(const Var &, const Var &)>;
+    using Op = std::function<var::var_type(const var::var_type &,
+                                           const var::var_type &)>;
 
     Binary(unsigned idx1, unsigned idx2, Op op)
-        : _idxs{idx1, idx2}, _op(std::move(op)) {}
+        : _idx1(idx1), _idx2(idx2), _op(std::move(op)) {}
 
-    Var execute(ExecCtx &ctx) const;
+    var::var_type execute(ExecCtx &ctx) const;
+    unsigned get_line();
 
    private:
-    unsigned _idxs[2];
+    unsigned _idx1;
+    unsigned _idx2;
+    unsigned _line;
     Op _op;
-
 };
-
 }  // namespace ast

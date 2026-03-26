@@ -5,6 +5,9 @@
 #include <variant>
 #include <vector>
 
+#include "backend/rvals/rval.hpp"
+#include "backend/rvals/var/bool.hpp"
+#include "backend/rvals/var/var.hpp"
 #include "interpreter/ast.hpp"
 #include "interpreter/defs.hpp"
 #include "parser.hpp"
@@ -23,7 +26,7 @@ class AstMaker {
                          std::string_view arg);
 
     std::vector<unsigned> make_dim_list();
-    void add_to_dim_list(std::vector<unsigned> &list, unsigned dim);
+    void add_to_dim_list(std::vector<unsigned> &list, int dim);
 
     std::vector<unsigned> make_stmts();
     void add_to_stmts(std::vector<unsigned> &stmts, unsigned expr_);
@@ -38,12 +41,12 @@ class AstMaker {
 
     template <class T>
         requires std::same_as<std::decay_t<T>, int> ||
-                 std::same_as<std::decay_t<T>, bool>
+                 std::same_as<std::decay_t<T>, bool_t>
     unsigned make_var(std::string_view var_name,
                       const std::vector<unsigned> &dim_list, T val) {
         check_for_varname_redeclaration(var_name);
-        unsigned idx1 = _ast.make_rval<Var>(val, dim_list);
-        unsigned idx2 = _ast.make_rval<Var>(val, dim_list);
+        unsigned idx1 = _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
+        unsigned idx2 = _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
         unsigned assign = _ast.make_expr<Assign>(idx1, idx2, loc.begin.line);
         _variables_avaliable.emplace_back(var_name, idx1, assign);
         return assign;
@@ -53,8 +56,8 @@ class AstMaker {
         requires std::same_as<std::decay_t<T>, Logitize> ||
                  std::same_as<std::decay_t<T>, Digitize>
     unsigned make_transform(std::string_view var_name) {
-        auto it = check_for_var_unknown(var_name);
-        return _ast.make_expr<T>(std::get<1>(*it));
+        auto var_meta = check_for_var_unknown(var_name);
+        return _ast.make_expr<T>(std::get<1>(*var_meta), loc.begin.line);
     }
 
     unsigned make_assignement(std::string_view var_name,
@@ -99,8 +102,8 @@ class AstMaker {
     unsigned make_elgte(unsigned rval_idx);
     unsigned make_size(unsigned rval_idx);
 
-    unsigned make_reduce(unsigned rval_idx, unsigned dim);
-    unsigned make_extend(unsigned rval_idx, unsigned dim);
+    unsigned make_reduce(unsigned rval_idx, int dim_idx, int change);
+    unsigned make_extend(unsigned rval_idx, int dim_idx, int change);
     unsigned make_ref(std::string_view var_name);
     unsigned make_res(std::string_view task_name);
     unsigned make_env();

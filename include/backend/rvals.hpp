@@ -7,6 +7,6 @@
 #include <backend/rvals/unary.hpp>
 #include <backend/rvals/reduce.hpp>
 #include <backend/rvals/extend.hpp>
-#include <backend/rvals/var.hpp>
-static_assert(sizeof(ast::rval) == 64);
+#include <backend/rvals/var/var.hpp>
+static_assert(sizeof(ast::rval) == 72);
 

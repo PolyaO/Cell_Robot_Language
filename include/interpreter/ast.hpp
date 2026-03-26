@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "backend/rvals/rval.hpp"
 #include "interpreter/defs.hpp"
 
 namespace ast {
@@ -27,8 +28,8 @@ class Ast {
 
     std::optional<unsigned> get_task_idx(std::string_view task_name);
     std::string_view get_task_name(unsigned task_idx);
-    std::optional<Var> get_variable(std::string_view var_name,
-                                    unsigned task_idx);
+    std::optional<var::var_type> get_variable(std::string_view var_name,
+                                              unsigned task_idx);
 
     template <ExprType T, class... Args>
         requires(std::constructible_from<T, Args...>)

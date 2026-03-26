@@ -8,6 +8,14 @@
 
 namespace ast {
 class Task {
+   public:
+    Task(std::vector<unsigned> &&exprs, unsigned res_idx, unsigned args_number,
+         unsigned line);
+    void set_args(ExecCtx &ctx, std::span<const unsigned> arg_list);
+    unsigned get_res_idx();
+    unsigned get_line() const noexcept;
+    expr *execute(ExecCtx &ctx);
+
    private:
     std::unique_ptr<unsigned[]> _exprs;
     unsigned _exprs_size;
@@ -15,12 +23,5 @@ class Task {
     unsigned _res_idx;
     unsigned _line;
     unsigned _args_number;
-
-   public:
-    Task(std::vector<unsigned> &&exprs, unsigned res_idx, unsigned args_number, unsigned line);
-    void set_args(ExecCtx &ctx, std::span<const unsigned> arg_list);
-    unsigned get_res_idx();
-    unsigned get_line() const noexcept;
-    expr *execute(ExecCtx &ctx);
 };
 }  // namespace ast

@@ -5,6 +5,7 @@
 #include <string_view>
 #include <variant>
 
+#include "backend/rvals/rval.hpp"
 #include "interpreter/defs.hpp"
 #include "interpreter/exceptions/build_exceptions.hpp"
 
@@ -32,7 +33,7 @@ void ast::AstMaker::check_for_varname_redeclaration(std::string_view var_name) {
     if (it != _variables_avaliable.end()) {
         auto &var = _ast.get_rval(std::get<1>(*it));
         unsigned redecl_line;
-        if (std::holds_alternative<Var>(var)) {
+        if (std::holds_alternative<var::var_type>(var)) {
             redecl_line =
                 std::get<Assign>(*_ast.get_expr(std::get<2>(*it))).get_line();
         } else {

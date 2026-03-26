@@ -4,6 +4,10 @@
 namespace ast {
 class Env {
    public:
-    Var execute(ExecCtx &ctx) const;
+    var::var_type execute(ExecCtx &ctx) const;
+    unsigned get_line();
+
+   private:
+    unsigned _line;
 };
 }  // namespace ast

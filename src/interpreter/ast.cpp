@@ -6,10 +6,12 @@
 #include <stdexcept>
 #include <string_view>
 
+#include "backend/rvals/rval.hpp"
+#include "backend/rvals/var/bool.hpp"
 #include "interpreter/exceptions/runtime_exceptions.hpp"
 
 ast::Ast::Ast() {
-    make_rval<Var>(false, std::vector<unsigned>());
+    make_rval<var::var_type>(var::Var<bool_t>(false, std::vector<unsigned>()));
 }
 ast::expr *ast::Ast::get_expr(unsigned expr_idx) {
     if (expr_idx >= _exprs.size())
@@ -59,16 +61,16 @@ std::string_view ast::Ast::get_task_name(unsigned task_idx) {
     return std::get<0>(*it);
 }
 
-std::optional<ast::Var> ast::Ast::get_variable(std::string_view var_name,
-                                               unsigned task_idx) {
+std::optional<var::var_type> ast::Ast::get_variable(std::string_view var_name,
+                                                    unsigned task_idx) {
     auto it = find_task_metainf_by_idx(task_idx);
     if (it == _tasks_metainf.end())
         throw std::runtime_error(std::format(
             "Cannot get variable. No task with idx {}\n", task_idx));
     auto metainf = std::get<2>(*it);
     std::string key(var_name);
-    if (!metainf.contains(key)) return std::optional<ast::Var>();
-    return std::get<Var>(_rvals[metainf[key]]);
+    if (!metainf.contains(key)) return std::optional<var::var_type>();
+    return std::get<var::var_type>(_rvals[metainf[key]]);
 }
 
 ast::Ast::metainf_vector_t::const_iterator ast::Ast::find_task_metainf_by_idx(

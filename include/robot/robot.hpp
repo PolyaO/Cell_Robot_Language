@@ -1,15 +1,19 @@
 #pragma once
-#include "backend/rvals/var.hpp"
+#include "backend/rvals/var/var.hpp"
+#include "robot/maze.hpp"
 #include <string_view>
 
 namespace robot {
+
 class Robot {
-    public:
-        Robot();
-        void initialize(std::string_view filename);
-        ast::Var get_env(bool is_politely_asked = false);
-        void move(bool is_politely_asked = false);
-        void rotate_r(bool is_politely_asked = false);
-        void rotate_l(bool is_politely_asked = false);
+  public:
+    virtual void initialize(std::string_view filename) = 0;
+    virtual var::var_type get_env(bool is_politely_asked = false) = 0;
+    virtual void move(bool is_politely_asked = false) = 0;
+    virtual void rotate_r(bool is_politely_asked = false) = 0;
+    virtual void rotate_l(bool is_politely_asked = false) = 0;
+  protected:
+    static var::var_type get_env(const Maze &maze, unsigned radius) noexcept;
 };
-}
+
+} // namespace robot

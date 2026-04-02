@@ -46,6 +46,9 @@ var_type reduce(const var_type &a, unsigned dim_idx = 1, unsigned change = 1);
 var_type extend(const var_type &a, unsigned dim_idx = 1, unsigned change = 1);
 var_type size(const var_type &a);
 
+extern const var_type FALSE;
+extern const var_type TRUE;
+
 void print(const var_type &a);
 
 }  // namespace var

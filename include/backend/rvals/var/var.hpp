@@ -30,11 +30,12 @@ namespace var {
 template <class T>
 class Var;
 using var_type = std::variant<Var<int>, Var<bool_t>>;
+using dim_t = std::vector<unsigned>;
 
 template <class T>
 class Var {
    public:
-    using dim_t = std::vector<unsigned>;
+    using dim_t = var::dim_t;
     using val_t = std::variant<std::span<T>, std::vector<T>>;
 
     Var(T def_val, const dim_t &dim);

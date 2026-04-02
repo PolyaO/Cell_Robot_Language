@@ -1,6 +1,12 @@
 #include "backend/rvals/var/var_ops.hpp"
+#include "backend/rvals/var/bool.hpp"
+#include "backend/rvals/var/var.hpp"
 #include <iostream>
 #include <variant>
+
+const var::var_type var::FALSE = var::Var<bool_t>(false, {1});
+const var::var_type var::TRUE = var::Var<bool_t>(true, {1});
+
 //var::var_type var::assign(var_type &&a, const var_type &b) {
 //    return RETDOUBLEVISIT(a, v1, b, v2,
 //                          { return v1.assign(v2); });

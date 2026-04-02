@@ -5,7 +5,7 @@
 namespace ast {
 class Res {
    public:
-    Res(unsigned task_idx);
+    Res(unsigned task_idx, unsigned line);
 
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();

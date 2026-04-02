@@ -4,6 +4,7 @@
 namespace ast {
 class Env {
    public:
+    Env(unsigned line);
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();
 

@@ -5,7 +5,7 @@
 namespace ast {
 class Reduce {
    public:
-    Reduce(unsigned rval_idx, unsigned dim, unsigned change);
+    Reduce(unsigned rval_idx, unsigned dim, unsigned change, unsigned line);
 
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();

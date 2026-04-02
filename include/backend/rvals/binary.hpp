@@ -10,8 +10,8 @@ class Binary {
     using Op = std::function<var::var_type(const var::var_type &,
                                            const var::var_type &)>;
 
-    Binary(unsigned idx1, unsigned idx2, Op op)
-        : _idx1(idx1), _idx2(idx2), _op(std::move(op)) {}
+    Binary(unsigned idx1, unsigned idx2, Op op, unsigned line)
+        : _idx1(idx1), _idx2(idx2), _line(line), _op(std::move(op)) {}
 
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();

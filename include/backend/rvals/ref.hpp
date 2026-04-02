@@ -4,7 +4,7 @@
 namespace ast {
 class Ref {
    public:
-    Ref(unsigned line, unsigned rval_idx = 0);
+    Ref(unsigned rval_idx, unsigned line);
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();
 

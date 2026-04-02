@@ -6,6 +6,10 @@
 #include <variant>
 
 #include "backend/rvals/rval.hpp"
+#include "backend/rvals/unary.hpp"
+#include "backend/rvals/var/binary_op.hpp"
+#include "backend/rvals/var/unary_op.hpp"
+#include "backend/rvals/var/var_ops.hpp"
 #include "interpreter/defs.hpp"
 #include "interpreter/exceptions/build_exceptions.hpp"
 
@@ -38,7 +42,7 @@ void ast::AstMaker::check_for_varname_redeclaration(std::string_view var_name) {
                 std::get<Assign>(*_ast.get_expr(std::get<2>(*it))).get_line();
         } else {
             redecl_line =
-                std::get<Ref>(_ast.get_rval(std::get<1>(*it))).get_decl_line();
+                std::get<Ref>(_ast.get_rval(std::get<1>(*it))).get_line();
         }
         throw VarRedeclare(var_name, loc.begin.line, redecl_line);
     }
@@ -93,7 +97,7 @@ void ast::AstMaker::add_to_arg_list(
     if (std::holds_alternative<unsigned>(list)) {
         if (it != _variables_avaliable.end())
             throw ArgNameRepeat(arg, loc.begin.line);
-        add_var(arg, _ast.make_rval<Ref>(loc.begin.line), -1);
+        add_var(arg, _ast.make_rval<Ref>(0, loc.begin.line), -1);
         std::get<0>(list)++;
     } else {
         if (it == _variables_avaliable.end())
@@ -106,7 +110,8 @@ std::vector<unsigned> ast::AstMaker::make_dim_list() {
     return std::vector<unsigned>{};
 }
 
-void ast::AstMaker::add_to_dim_list(std::vector<unsigned> &list, unsigned dim) {
+void ast::AstMaker::add_to_dim_list(std::vector<unsigned> &list, int dim) {
+    if (dim <= 0) throw WrongDim(dim, loc.begin.line);
     list.emplace_back(dim);
 }
 
@@ -158,7 +163,8 @@ unsigned ast::AstMaker::make_assignement(std::string_view var_name,
                                          unsigned rval_idx) {
     auto it = check_for_var_unknown(var_name);
     unsigned idx = std::get<1>(*it);
-    if (!dim_list.empty()) idx = _ast.make_rval<Idx>(idx, std::move(dim_list));
+    if (!dim_list.empty())
+        idx = _ast.make_rval<Idx>(idx, std::move(dim_list), loc.begin.line);
     return _ast.make_expr<Assign>(idx, rval_idx, loc.begin.line);
 }
 
@@ -177,8 +183,10 @@ unsigned ast::AstMaker::make_for(std::string_view counter,
     auto counter_idx = std::get<1>(*check_for_var_unknown(counter));
     auto boundary_idx = std::get<1>(*check_for_var_unknown(boundary));
     auto step_idx = std::get<1>(*check_for_var_unknown(step));
-    auto curr_counter_idx = _ast.make_rval<Var>(
-        0, std::get<Var>(_ast.get_rval(counter_idx)).get_dimensions());
+    const auto &counter_dim =
+        var::get_dim(std::get<var::var_type>(_ast.get_rval(counter_idx)));
+    auto curr_counter_idx =
+        _ast.make_rval<var::var_type>(var::Var<int>(0, counter_dim));
     return _ast.make_expr<For>(counter_idx, curr_counter_idx, boundary_idx,
                                step_idx, stmt, loc.begin.line);
 }
@@ -201,133 +209,123 @@ unsigned ast::AstMaker::make_scope(std::vector<unsigned> &&exprs) {
 
 unsigned ast::AstMaker::make_and(unsigned rval1_idx, unsigned rval2_idx) {
     return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1._and(v2); });
+        rval1_idx, rval2_idx, var::operation<var::LogicalAnd>, loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_or(unsigned rval1_idx, unsigned rval2_idx) {
     return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1._or(v2); });
+        rval1_idx, rval2_idx, var::operation<var::LogicalOr>, loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_sum(unsigned rval1_idx, unsigned rval2_idx) {
-    return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1 + v2; });
+    return _ast.make_rval<Binary>(rval1_idx, rval2_idx,
+                                  var::operation<var::IntegerSumOp>,
+                                  loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_sub(unsigned rval1_idx, unsigned rval2_idx) {
-    return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1 - v2; });
+    return _ast.make_rval<Binary>(rval1_idx, rval2_idx,
+                                  var::operation<var::IntegerSubOp>,
+                                  loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_div(unsigned rval1_idx, unsigned rval2_idx) {
-    return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1 / v2; });
+    return _ast.make_rval<Binary>(rval1_idx, rval2_idx,
+                                  var::operation<var::IntegerDivOp>,
+                                  loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mul(unsigned rval1_idx, unsigned rval2_idx) {
-    return _ast.make_rval<Binary>(
-        rval1_idx, rval2_idx,
-        [](const Var &v1, const Var &v2) -> Var { return v1 * v2; });
+    return _ast.make_rval<Binary>(rval1_idx, rval2_idx,
+                                  var::operation<var::IntegerMulOp>,
+                                  loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_not(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._not(); });
+    return _ast.make_rval<Unary>(rval_idx, var::not_op);
 }
 
 unsigned ast::AstMaker::make_mxtrue(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._mxtrue(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::LogicalTrue>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxfalse(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._mxfalse(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::LogicalFalse>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxeq(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._mxeq(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::IntegerEq>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxlt(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._mxlt(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::IntegerLt>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxgt(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._mxgt(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::IntegerGt>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxlte(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._mxlte(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::IntegerLte>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxgte(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._mxgte(); });
+    return _ast.make_rval<Unary>(rval_idx, var::mx_operation<var::IntegerGte>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_eleq(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._eleq(); });
+    return _ast.make_rval<Unary>(rval_idx, var::operation<var::IntegerEq>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_ellt(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._ellt(); });
+    return _ast.make_rval<Unary>(rval_idx, var::operation<var::IntegerLt>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_elgt(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._elgt(); });
+    return _ast.make_rval<Unary>(rval_idx, var::operation<var::IntegerGt>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_ellte(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._ellte(); });
+    return _ast.make_rval<Unary>(rval_idx, var::operation<var::IntegerLte>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_elgte(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(
-        rval_idx, [](const Var &v) -> Var { return v._elgte(); });
+    return _ast.make_rval<Unary>(rval_idx, var::operation<var::IntegerGte>,
+                                 loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_size(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx,
-                                 [](const Var &v) -> Var { return v._size(); });
-}
-
-unsigned ast::AstMaker::make_reduce(unsigned rval_idx, unsigned dim) {
-    return _ast.make_rval<Reduce>(rval_idx, dim);
-}
-
-unsigned ast::AstMaker::make_extend(unsigned rval_idx, unsigned dim) {
-    return _ast.make_rval<Extend>(rval_idx, dim);
+    return _ast.make_rval<Unary>(rval_idx, var::size, loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_ref(std::string_view var_name) {
     auto idx = std::get<1>(*check_for_var_unknown(var_name));
-    return _ast.make_rval<Ref>(loc.begin.line, idx);
+    return _ast.make_rval<Ref>(idx, loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_res(std::string_view task_name) {
     auto idx = _ast.get_task_idx(task_name);
     if (!idx) throw TaskUnknown(task_name, loc.begin.line);
-    return _ast.make_rval<Res>(idx.value());
+    return _ast.make_rval<Res>(idx.value(), loc.begin.line);
 }
 
-unsigned ast::AstMaker::make_env() { return _ast.make_rval<Env>(); }
+unsigned ast::AstMaker::make_env() {
+    return _ast.make_rval<Env>(loc.begin.line);
+}
 
 unsigned ast::AstMaker::make_idx(unsigned rval_idx,
                                  std::vector<unsigned> &&dim_list) {
-    return _ast.make_rval<Idx>(rval_idx, std::move(dim_list));
+    return _ast.make_rval<Idx>(rval_idx, std::move(dim_list), loc.begin.line);
 }
 

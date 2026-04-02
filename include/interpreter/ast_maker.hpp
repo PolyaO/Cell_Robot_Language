@@ -8,9 +8,10 @@
 #include "backend/rvals/rval.hpp"
 #include "backend/rvals/var/bool.hpp"
 #include "backend/rvals/var/var.hpp"
+#include "gen/parser.hpp"
 #include "interpreter/ast.hpp"
 #include "interpreter/defs.hpp"
-#include "parser.hpp"
+#include "interpreter/exceptions/build_exceptions.hpp"
 
 #define YY_DECL yy::parser::symbol_type yylex(ast::AstMaker &ast)
 
@@ -45,8 +46,10 @@ class AstMaker {
     unsigned make_var(std::string_view var_name,
                       const std::vector<unsigned> &dim_list, T val) {
         check_for_varname_redeclaration(var_name);
-        unsigned idx1 = _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
-        unsigned idx2 = _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
+        unsigned idx1 =
+            _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
+        unsigned idx2 =
+            _ast.make_rval<var::var_type>(var::Var<T>(val, dim_list));
         unsigned assign = _ast.make_expr<Assign>(idx1, idx2, loc.begin.line);
         _variables_avaliable.emplace_back(var_name, idx1, assign);
         return assign;
@@ -58,6 +61,15 @@ class AstMaker {
     unsigned make_transform(std::string_view var_name) {
         auto var_meta = check_for_var_unknown(var_name);
         return _ast.make_expr<T>(std::get<1>(*var_meta), loc.begin.line);
+    }
+
+    template <class T>
+        requires std::same_as<std::decay_t<T>, Reduce> ||
+                 std::same_as<std::decay_t<T>, Extend>
+    unsigned make_change(unsigned rval_idx, int dim, int change) {
+        if (dim <= 0) throw WrongDimIdx(dim, loc.begin.line);
+        if (change < 0) throw WrongChange(change, loc.begin.line);
+        return _ast.make_rval<T>(rval_idx, dim, change, loc.begin.line);
     }
 
     unsigned make_assignement(std::string_view var_name,
@@ -102,8 +114,6 @@ class AstMaker {
     unsigned make_elgte(unsigned rval_idx);
     unsigned make_size(unsigned rval_idx);
 
-    unsigned make_reduce(unsigned rval_idx, int dim_idx, int change);
-    unsigned make_extend(unsigned rval_idx, int dim_idx, int change);
     unsigned make_ref(std::string_view var_name);
     unsigned make_res(std::string_view task_name);
     unsigned make_env();

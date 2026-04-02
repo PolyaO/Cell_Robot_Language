@@ -35,41 +35,61 @@ class ResNameUnknown : public InterpreterBuildError {
 
 class VarRedeclare : public InterpreterBuildError {
    public:
-    VarRedeclare(std::string_view name,  unsigned decl_line, unsigned redecl_line)
+    VarRedeclare(std::string_view name, unsigned decl_line,
+                 unsigned redecl_line)
         : InterpreterBuildError(
-              std::format("[{}] Variable redeclare. Variable name: \"{}\". first declared on line {}",
+              std::format("[{}] Variable redeclare. Variable name: \"{}\". "
+                          "first declared on line {}",
                           decl_line, name, redecl_line)) {}
 };
 
 class TaskRedeclare : public InterpreterBuildError {
    public:
-    TaskRedeclare(std::string_view name,  unsigned decl_line, unsigned redecl_line)
-        : InterpreterBuildError(
-              std::format("[{}] Task redeclare. Task name: \"{}\". first declared on line {}",
-                          decl_line, name, redecl_line)) {}
+    TaskRedeclare(std::string_view name, unsigned decl_line,
+                  unsigned redecl_line)
+        : InterpreterBuildError(std::format("[{}] Task redeclare. Task name: "
+                                            "\"{}\". first declared on line {}",
+                                            decl_line, name, redecl_line)) {}
 };
 
 class VarUnknown : public InterpreterBuildError {
    public:
-    VarUnknown(std::string_view name,  unsigned line)
+    VarUnknown(std::string_view name, unsigned line)
         : InterpreterBuildError(
-              std::format("[{}] Unknown Variable: \"{}\" used.",
-                          line, name)) {}
+              std::format("[{}] Unknown Variable: \"{}\" used.", line, name)) {}
 };
 
 class TaskUnknown : public InterpreterBuildError {
    public:
-    TaskUnknown(std::string_view name,  unsigned line)
-        : InterpreterBuildError(
-              std::format("[{}] Unknown Task name: \"{}\" used.",
-                          line, name)) {}
+    TaskUnknown(std::string_view name, unsigned line)
+        : InterpreterBuildError(std::format(
+              "[{}] Unknown Task name: \"{}\" used.", line, name)) {}
 };
 
 class DoubleLogicLiteral : public InterpreterBuildError {
    public:
-    DoubleLogicLiteral(std::string_view boolean,  unsigned line)
-        : InterpreterBuildError(
-              std::format("[{}] In SWITCH declaration double {}.",
-                          line, boolean)) {}
+    DoubleLogicLiteral(std::string_view boolean, unsigned line)
+        : InterpreterBuildError(std::format(
+              "[{}] In SWITCH declaration double {}.", line, boolean)) {}
 };
 
+class WrongDim : public InterpreterBuildError {
+   public:
+    WrongDim(int dim, unsigned line)
+        : InterpreterBuildError(std::format(
+              "[{}] In dimension list wrong dimension: {} .", line, dim)) {}
+};
+
+class WrongDimIdx : public InterpreterBuildError {
+   public:
+    WrongDimIdx(int dim, unsigned line)
+        : InterpreterBuildError(std::format(
+              "[{}] Wrong dimension idx: {} .", line, dim)) {}
+};
+
+class WrongChange : public InterpreterBuildError {
+   public:
+    WrongChange(int c, unsigned line)
+        : InterpreterBuildError(std::format(
+              "[{}] Wrong change: {} . Change should be >= 0", line, c)) {}
+};

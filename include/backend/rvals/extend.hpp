@@ -3,7 +3,7 @@
 namespace ast {
 class Extend {
    public:
-    Extend(unsigned rval_idx, unsigned dim, unsigned change);
+    Extend(unsigned rval_idx, unsigned dim, unsigned change, unsigned line);
 
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();

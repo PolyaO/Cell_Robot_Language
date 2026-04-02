@@ -6,7 +6,7 @@
 namespace ast {
 class Idx {
    public:
-    Idx(unsigned rval_idx, std::vector<unsigned> &&dim_list);
+    Idx(unsigned rval_idx, std::vector<unsigned> &&dim_list, unsigned line);
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();
 

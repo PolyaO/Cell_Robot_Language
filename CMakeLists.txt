@@ -25,13 +25,12 @@ FLEX_TARGET(Lexer src/interpreter/lexer.l
     DEFINES_FILE include/gen/lexer.hpp)
 
 add_flex_bison_dependency(Lexer Parser)
-#add_library(parser_lib SHARED
-#    ${BISON_Parser_OUTPUTS}
-#    ${FLEX_Lexer_OUTPUTS}
-#    src/interpreter/driver.cpp
-#    src/interpreter/ast_maker.cpp
-#)
-#
+add_library(parser_lib SHARED
+    ${BISON_Parser_OUTPUTS}
+    ${FLEX_Lexer_OUTPUTS}
+    src/interpreter/driver.cpp
+    src/interpreter/ast_maker.cpp
+)
 #
 #add_executable(tst_variables tst_var.cpp src/backend/rvals/var_ops.cpp)
 include_directories(include)

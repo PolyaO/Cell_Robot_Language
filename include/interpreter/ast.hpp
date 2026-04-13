@@ -45,14 +45,14 @@ class Ast {
         return _rvals.size() - 1;
     }
 
-   private:
-    std::vector<expr> _exprs;
-    std::vector<rval> _rvals;
-    metainf_vector_t _tasks_metainf;
-
     metainf_vector_t::const_iterator find_task_metainf_by_idx(
         unsigned task_idx) noexcept;
     metainf_vector_t::const_iterator find_task_metainf_by_name(
         std::string_view task_name) noexcept;
+
+   private:
+    std::vector<expr> _exprs;
+    std::vector<rval> _rvals;
+    metainf_vector_t _tasks_metainf;
 };
 }  // namespace ast

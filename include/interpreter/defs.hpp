@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <tuple>
+#include <vector>
 namespace ast {
-    using variables_t = std::unordered_map<std::string, unsigned>;
+using variables_t = std::vector<std::tuple<std::string, unsigned>>;
 }

@@ -21,5 +21,7 @@ class Do {
     unsigned _task_idx;
     unsigned _line;
     bool _is_politely_asked = false;
+    void set_args(ExecCtx &ctx) const;
+    void check_for_correct_args_num(ExecCtx &ctx) const;
 };
 }  // namespace ast

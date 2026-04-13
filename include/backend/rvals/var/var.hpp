@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <cstddef>
 #include <format>
 #include <numeric>
 #include <ranges>
@@ -35,6 +36,8 @@ using dim_t = std::vector<unsigned>;
 template <class T>
 class Var {
    public:
+    using iterator = T *;
+    using const_iterator = const T *;
     using dim_t = var::dim_t;
     using val_t = std::variant<std::span<T>, std::vector<T>>;
 
@@ -44,6 +47,11 @@ class Var {
 
     Var<T> &operator=(const Var<T> &other) = delete;
     Var<T> &operator=(Var<T> &&other) = default;
+
+    iterator begin();
+    iterator end();
+    const_iterator begin() const;
+    const_iterator end() const;
 
     template <class U>
     var_type assign(const Var<U> &other);
@@ -72,9 +80,14 @@ class Var {
     var_type _extend(unsigned dim_idx = 1, unsigned change = 1) const;
     var_type _size() const;
     var_type idx(unsigned idx);
+    var_type _logitize() const;
+    var_type _digitize() const;
 
     const dim_t &get_dim() const;
     const val_t &get_val() const;
+
+    template <class U>
+    bool operator==(const Var<U> &other) const;
 
    private:
     template <class U>
@@ -165,8 +178,7 @@ Var<T>::Var(T def_val, const dim_t &dim) {
 }
 
 template <class T>
-Var<T>::Var(dim_t &&dim, val_t &&val)
-    : _dim(std::move(dim)) {
+Var<T>::Var(dim_t &&dim, val_t &&val) : _dim(std::move(dim)) {
     _val = std::move(val);
     check_dims_zeroes(dim, "var declaration");
     delete_extra_ones(_dim);
@@ -186,6 +198,26 @@ var_type Var<T>::assign(const Var<U> &other) {
         _dim = other._dim;
         return (*this).execute();
     }
+}
+
+template <class T>
+Var<T>::iterator Var<T>::begin() {
+    return std::visit([](auto &v) { return v.data(); }, _val);
+}
+
+template <class T>
+Var<T>::iterator Var<T>::end() {
+    return std::visit([](auto &v) { return v.data() + v.size(); }, _val);
+}
+
+template <class T>
+Var<T>::const_iterator Var<T>::begin() const {
+    return std::visit([](auto &v) { return v.data(); }, _val);
+}
+
+template <class T>
+Var<T>::const_iterator Var<T>::end() const {
+    return std::visit([](auto &v) { return v.data() + v.size(); }, _val);
 }
 
 template <class T>
@@ -308,8 +340,7 @@ var_type Var<T>::execute() {
     dim_t dim = _dim;
     return std::visit(
         [&](auto &v) {
-            return Var<T>(std::move(dim),
-                          std::span<T>(v.begin(), v.end()));
+            return Var<T>(std::move(dim), std::span<T>(v.begin(), v.end()));
         },
         _val);
 }
@@ -413,6 +444,31 @@ var_type Var<T>::_size() const {
 }
 
 template <class T>
+var_type Var<T>::_logitize() const {
+    if constexpr (std::is_same_v<T, bool_t>)
+        return *this;
+    else {
+        return (*this).template operation<IntegerNeq>();
+    }
+}
+
+template <class T>
+var_type Var<T>::_digitize() const {
+    if constexpr (std::is_same_v<T, int>)
+        return *this;
+    else {
+        std::vector<int> res(_val_size(), 0);
+        std::visit(
+            [&res](auto &v) {
+                for (auto &&[e, r] : std::ranges::zip_view(v, res)) {
+                    r = e;
+                }
+            },
+            _val);
+        return Var<int>(dim_t(_dim), std::move(res));
+    }
+}
+template <class T>
 const Var<T>::val_t &Var<T>::get_val() const {
     return _val;
 }
@@ -420,5 +476,16 @@ const Var<T>::val_t &Var<T>::get_val() const {
 template <class T>
 const Var<T>::dim_t &Var<T>::get_dim() const {
     return _dim;
+}
+
+template <class T>
+template <class U>
+bool Var<T>::operator==(const Var<U> &other) const {
+    if constexpr (!std::is_same_v<T, U>)
+        return false;
+    else {
+        return RETDOUBLEVISIT(_val, v1, other._val, v2,
+                              { return std::ranges::equal(v1, v2); });
+    }
 }
 }  // namespace var

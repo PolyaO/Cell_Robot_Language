@@ -132,8 +132,8 @@ unary
     | ELLTE unary     {$$ = ast.make_ellte($2);}
     | ELGTE unary     {$$ = ast.make_elgte($2);}
     | SIZE unary      {$$ = ast.make_size($2);}
-    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_reduce($2, $4, $6);}
-    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_extend($2, $4, $6);}
+    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<Reduce>($2, $4, $6);}
+    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<Extend>($2, $4, $6);}
     ;
 primary
     : IDENTIFIER                {$$ = ast.make_ref($1);}

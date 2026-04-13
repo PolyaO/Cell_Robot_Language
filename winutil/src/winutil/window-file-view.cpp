@@ -117,7 +117,8 @@ void WindowFileView::set_highlighter(
 }
 
 void WindowFileView::move(engine::DrawArea &&new_area) {
-    static_cast<BasicWindow *>(this)->move(std::move(new_area));
+   // static_cast<BasicWindow *>(this)->move(std::move(new_area));
+    BasicWindow::move(std::move(new_area));
     write_content();
 }
 

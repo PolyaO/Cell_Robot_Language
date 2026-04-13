@@ -1,39 +1,50 @@
 
 #include "winutil/engine/syntax-highlighter.hpp"
-#include "winutil/engine/color-string.hpp"
+
 #include <regex>
 #include <vector>
+
+#include "winutil/engine/color-string.hpp"
 
 namespace Winutil::engine {
 
 color_string SyntaxHighlighter::highlight_line(const std::wstring &line) const {
     color_string res = color_string(line.begin(), line.end());
-    size_t cur_pos = 0;
 
     if (res.empty()) return res;
 
-    std::wsregex_iterator begin(line.begin(), line.end(), _regex);
+    std::wsregex_iterator it(line.begin(), line.end(), _regex);
     std::wsregex_iterator end;
 
-    for (auto it = begin; it != end; ++it) {
-        std::wsmatch match = *it;
-        res[cur_pos].set_color(_default_color);
+    if (it == end) {
+        for (auto &c : res) c.set_color(_default_color);
+        return res;
+    }
 
-        cur_pos = match.position();
-        for (int group_no = 1; group_no < match.size(); ++group_no) {
+    std::wsmatch match = *it;
+
+    for (size_t cur_pos = 0; cur_pos < line.size(); ++cur_pos) {
+        if (it == end || cur_pos < match.position()) {
+            res[cur_pos].set_color(_default_color);
+            continue;
+        }
+
+        int group_no = 1;
+        for (; group_no < match.size(); ++group_no) {
             if (match[group_no].matched && (group_no - 1) < _colors.size()) {
-                std::wstring_view color = _colors[group_no - 1];
-                for (int i = 0; i < match.length(); ++i)
-                    res[cur_pos + i].set_color(color);
                 break;
             }
         }
 
-        cur_pos += match.length();
+        std::wstring_view color = _colors[group_no - 1];
+        for (int i = 0; i < match.length(); ++i)
+            res[cur_pos + i].set_color(color);
+        cur_pos += match.length() - 1;
+        ++it;
+        if (it != end) match = *it;
     }
-    if (cur_pos >= res.size()) cur_pos = res.size() - 1;
-    res[cur_pos].set_color(_default_color);
+
     return res;
 }
 
-}; // namespace Winutil::engine
+};  // namespace Winutil::engine

@@ -78,7 +78,7 @@ ast::variables_t ast::AstMaker::make_task_variables(
     ast::AstMaker::var_dict_t &&dict) {
     ast::variables_t res;
     for (auto &tup : dict) {
-        res.emplace(std::move(std::get<0>(tup)), std::get<1>(tup));
+        res.emplace_back(std::move(std::get<0>(tup)), std::get<1>(tup));
     }
     dict.clear();
     return res;
@@ -242,7 +242,7 @@ unsigned ast::AstMaker::make_mul(unsigned rval1_idx, unsigned rval2_idx) {
 }
 
 unsigned ast::AstMaker::make_not(unsigned rval_idx) {
-    return _ast.make_rval<Unary>(rval_idx, var::not_op);
+    return _ast.make_rval<Unary>(rval_idx, var::not_op, loc.begin.line);
 }
 
 unsigned ast::AstMaker::make_mxtrue(unsigned rval_idx) {

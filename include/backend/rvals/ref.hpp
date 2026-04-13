@@ -4,12 +4,14 @@
 namespace ast {
 class Ref {
    public:
-    Ref(unsigned rval_idx, unsigned line);
+    Ref(unsigned idx, unsigned line);
     var::var_type execute(ExecCtx &ctx) const;
-    unsigned get_line();
+    var::var_type &get(ExecCtx &ctx) const;
+    unsigned get_line() const noexcept;
+    void set_idx(unsigned idx) noexcept;
 
    private:
-    unsigned _rval_idx;
+    unsigned _idx;
     unsigned _line;
 };
 }  // namespace ast

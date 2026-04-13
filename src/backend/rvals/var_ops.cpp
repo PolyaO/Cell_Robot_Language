@@ -1,16 +1,17 @@
 #include "backend/rvals/var/var_ops.hpp"
-#include "backend/rvals/var/bool.hpp"
-#include "backend/rvals/var/var.hpp"
+
 #include <iostream>
 #include <variant>
+
+#include "backend/rvals/var/bool.hpp"
+#include "backend/rvals/var/var.hpp"
 
 const var::var_type var::FALSE = var::Var<bool_t>(false, {1});
 const var::var_type var::TRUE = var::Var<bool_t>(true, {1});
 
-//var::var_type var::assign(var_type &&a, const var_type &b) {
-//    return RETDOUBLEVISIT(a, v1, b, v2,
-//                          { return v1.assign(v2); });
-//}
+var::var_type var::assign(var_type &&a, const var_type &b) {
+    return RETDOUBLEVISIT(a, v1, b, v2, { return v1.assign(v2); });
+}
 var::var_type var::assign(var_type &a, const var_type &b) {
     return RETDOUBLEVISIT(a, v1, b, v2, { return v1.assign(v2); });
 }
@@ -23,9 +24,9 @@ var::var_type var::not_op(const var_type &a) {
 var::var_type var::idx(var_type &a, const std::vector<unsigned> &idx) {
     return std::visit([&](auto &v) { return v._idx(idx); }, a);
 }
-// var::var_type var::idx(var_type &&a, const std::vector<unsigned> &idx) {
-//     return std::visit([&](auto &v) { return v._idx(idx); }, a);
-// }
+var::var_type var::idx(var_type &&a, const std::vector<unsigned> &idx) {
+    return std::visit([&](auto &v) { return v._idx(idx); }, a);
+}
 var::var_type var::reduce(const var_type &a, unsigned dim_idx,
                           unsigned change) {
     return std::visit([&](auto &v) { return v._reduce(dim_idx, change); }, a);
@@ -61,3 +62,14 @@ void var::print(const var::var_type &a) {
         a);
 }
 
+void var::logitize(var_type &a) {
+    std::visit([](auto &v) { return v._logitize(); }, a);
+}
+
+void var::digitize(var_type &a) {
+    std::visit([](auto &v) { return v._digitize(); }, a);
+}
+
+bool equal(const var::var_type &a, const var::var_type &b) {
+    return RETDOUBLEVISIT(a, v1, b, v2, { return v1 == v2; });
+}

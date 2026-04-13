@@ -1043,13 +1043,13 @@ namespace yy {
 
   case 60: // unary: REDUCE unary '[' "integer" ',' "integer" ']'
 #line 135 "src/interpreter/parse.yy"
-                                               {yylhs.value.as < unsigned > () = ast.make_reduce(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > ());}
+                                               {yylhs.value.as < unsigned > () = ast.make_change<Reduce>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > ());}
 #line 1048 "include/gen/parser.cpp"
     break;
 
   case 61: // unary: EXTEND unary '[' "integer" ',' "integer" ']'
 #line 136 "src/interpreter/parse.yy"
-                                               {yylhs.value.as < unsigned > () = ast.make_extend(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > ());}
+                                               {yylhs.value.as < unsigned > () = ast.make_change<Extend>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > ());}
 #line 1054 "include/gen/parser.cpp"
     break;
 

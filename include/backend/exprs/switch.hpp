@@ -12,8 +12,8 @@ class Switch {
     expr *execute(ExecCtx &ctx);
 
    private:
-    unsigned _if_true;
-    unsigned _if_false;
+    unsigned _expr_true;
+    unsigned _expr_false;
     unsigned _condition_idx;
     unsigned _line;
 };

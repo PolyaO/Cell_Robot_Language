@@ -23,7 +23,7 @@ ast::expr *ast::Ast::get_expr(unsigned expr_idx) {
 ast::expr *ast::Ast::get_find_exit() {
     auto it = find_task_metainf_by_name("FINDEXIT");
     if (it == _tasks_metainf.end())
-        throw InterpreterExecError("No task named FIND_EXIT found\n");
+        throw InterpreterRuntimeError("No task named FIND_EXIT found\n");
     return get_expr(std::get<1>(*it));
 }
 
@@ -67,10 +67,13 @@ std::optional<var::var_type> ast::Ast::get_variable(std::string_view var_name,
     if (it == _tasks_metainf.end())
         throw std::runtime_error(std::format(
             "Cannot get variable. No task with idx {}\n", task_idx));
-    auto metainf = std::get<2>(*it);
+    auto variables = std::get<2>(*it);
     std::string key(var_name);
-    if (!metainf.contains(key)) return std::optional<var::var_type>();
-    return std::get<var::var_type>(_rvals[metainf[key]]);
+    auto var_it =
+        std::find_if(variables.begin(), variables.end(),
+                     [&key](auto &el) { return std::get<0>(el) == key; });
+    if (var_it == variables.end()) return std::optional<var::var_type>();
+    return std::get<var::var_type>(_rvals[std::get<1>(*var_it)]);
 }
 
 ast::Ast::metainf_vector_t::const_iterator ast::Ast::find_task_metainf_by_idx(

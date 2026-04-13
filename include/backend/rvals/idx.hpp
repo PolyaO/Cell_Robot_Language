@@ -6,13 +6,13 @@
 namespace ast {
 class Idx {
    public:
-    Idx(unsigned rval_idx, std::vector<unsigned> &&dim_list, unsigned line);
+    Idx(unsigned idx, std::vector<unsigned> &&dim, unsigned line);
     var::var_type execute(ExecCtx &ctx) const;
     unsigned get_line();
 
    private:
-    std::vector<unsigned> _dim_list;
-    unsigned _rval_idx;
+    std::vector<unsigned> _dim;
+    unsigned _idx;
     unsigned _line;
 };
 }  // namespace ast

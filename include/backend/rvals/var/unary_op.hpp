@@ -6,6 +6,10 @@ struct IntegerEq {
     constexpr static std::string op_name = "eq";
     constexpr static int fn(int a) { return a == 0; };
 };
+struct IntegerNeq {
+    constexpr static std::string op_name = "eq";
+    constexpr static int fn(int a) { return a != 0; };
+};
 struct IntegerLt {
     constexpr static std::string op_name = "lt";
     constexpr static int fn(int a) { return a < 0; };
@@ -46,6 +50,5 @@ concept LogicalUnaryOp = requires {
 };
 static_assert(LogicalUnaryOp<LogicalFalse>);
 static_assert(!IntegerUnaryOp<LogicalFalse>);
-
 
 }  // namespace var

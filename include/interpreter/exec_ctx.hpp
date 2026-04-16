@@ -7,7 +7,7 @@ namespace ast {
 struct ExecCtx {
     Ast ast;
     unsigned curr_task_idx;
-    //std::unique_ptr<robot::Robot> robot;
+    // std::unique_ptr<robot::Robot> robot;
 };
 
 }  // namespace ast

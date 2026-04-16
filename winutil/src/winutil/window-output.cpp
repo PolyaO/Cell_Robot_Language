@@ -1,4 +1,5 @@
 #include "winutil/window-output.hpp"
+#include "winutil/basic-window.hpp"
 #include "winutil/engine/draw-area.hpp"
 #include <ranges>
 #include <stdexcept>
@@ -18,6 +19,11 @@ void WindowOutput::update_line(std::wstring_view str) {
         line_chr.set_char(chr);
     }
     _cursor.col += to_write.size();
+}
+
+void WindowOutput::clear() {
+    BasicWindow::clear();
+    _cursor = {};
 }
 
 void WindowOutput::insert_color(std::wstring_view color) {

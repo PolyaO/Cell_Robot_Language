@@ -24,6 +24,9 @@ var::var_type var::not_op(const var_type &a) {
 var::var_type var::idx(var_type &a, const std::vector<unsigned> &idx) {
     return std::visit([&](auto &v) { return v._idx(idx); }, a);
 }
+const var::var_type var::idx(const var_type &a, const std::vector<unsigned> &idx) {
+    return std::visit([&](const auto &v) { return v._idx(idx); }, a);
+}
 var::var_type var::idx(var_type &&a, const std::vector<unsigned> &idx) {
     return std::visit([&](auto &v) { return v._idx(idx); }, a);
 }

@@ -17,6 +17,8 @@ class WindowOutput : public BasicWindow {
     /// @brief set cursor and put string at position set
     void write(engine::WindowPos pos, std::wstring_view);
 
+    void clear() override;
+
    private:
     void update_line(std::wstring_view);
     void insert_color(std::wstring_view);

@@ -29,6 +29,7 @@ class Maze {
 
         direction get_clockwize() const noexcept;
         direction get_couner_clockwize() const noexcept;
+        direction get_opposite() const noexcept;
 
         int get_x() const noexcept;
         int get_y() const noexcept;

@@ -583,8 +583,8 @@ char *yytext;
 #include <string>
 #include <cerrno>
 #include <cstring>
-#include "ast_maker.hpp"
-#include "parser.hpp"
+#include "interpreter/ast_maker.hpp"
+#include "gen/parser.hpp"
 
 #define YY_USER_ACTION  loc.columns(yyleng);
 

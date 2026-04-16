@@ -25,6 +25,8 @@ void WindowsColumn::move(engine::DrawArea &&new_area) {
     engine::WindowDesc old_desc = area.get_info();
     engine::WindowDesc new_desc = new_area.get_info();
 
+    clear_rulers();
+
     area = std::move(new_area);
 
     std::vector<unsigned> sizes(_rows.size());

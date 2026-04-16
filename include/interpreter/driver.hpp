@@ -9,11 +9,11 @@
 namespace driver {
 class Driver {
    public:
-    Driver() noexcept;
-    void initialize(std::string_view robot_filename,
+    Driver() = default;
+    unsigned initialize(std::string_view robot_filename,
                     std::string_view program_filename,
                     bool trace_parsing = false, bool trace_scanning = false);
-    std::optional<unsigned> exec_next();
+    unsigned exec_next();
     std::optional<var::var_type> get_var(std::string_view var_name);
     std::string_view get_curr_task_name();
 
@@ -21,8 +21,10 @@ class Driver {
     std::stack<ast::expr *> _exec_stack;
     ast::ExecCtx _ctx;
     std::string _pg;
-    ast::Ast &&parse(bool trace_parsing, bool trace_scanning);
+    ast::Ast parse(bool trace_parsing, bool trace_scanning);
     void scan_begin(bool trace_scanning);
     void scan_end();
+    ast::expr *stack_top_exe();
+    unsigned stack_top_line();
 };
 }  // namespace driver

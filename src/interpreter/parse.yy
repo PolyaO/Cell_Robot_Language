@@ -22,6 +22,7 @@
 
 %code {
     #include "interpreter/ast_maker.hpp"
+    #include "backend/rvals/var/bool.hpp"
 }
 %define api.token.prefix {TOK_}
 %left LOWEST
@@ -60,30 +61,30 @@ task
     | find_exit                        {$$ = $1;}
     ;
 any_task
-    : TASK IDENTIFIER arg_list '(' newline_opt stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, std::move($6), $8);}
+    : TASK IDENTIFIER arg_list '(' newline_opt stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, std::move($6), $8, @1.begin.line);}
     ;
 find_exit
-    : TASK FINDEXIT '('newline_opt stmts')' newline_opt {$$ = ast.make_find_exit(std::move($5));}
+    : TASK FINDEXIT '('newline_opt stmts')' newline_opt {$$ = ast.make_findexit(std::move($5), @1.begin.line);}
     ;
 expr
-    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_var<int>($2, {}, $4);}
-    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var<bool>($2, {}, $4);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var<int>($2, $4, $7);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var<bool>($2, $4, $7);}
-    | LOGITIZE IDENTIFIER   {$$ = ast.make_logitize($2);}
-    | DIGITIZE IDENTIFIER   {$$ = ast.make_digitize($2);}
-    | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3);}
-    | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, std::move($3), $6);}
-    | MOVE                  {$$ = ast.make_robot_expr<Move>();}
-    | ROTATE_LEFT           {$$ = ast.make_robot_expr<RotateL>();}
-    | ROTATE_RIGHT          {$$ = ast.make_robot_expr<RotateR>();}
-    | DO IDENTIFIER arg_list {$$ = ast.make_do($2, std::move($3));}
+    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_var<int>($2, {}, $4, @1.begin.line);}
+    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var<bool_t>($2, {}, $4, @1.begin.line);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var<int>($2, $4, $7, @1.begin.line);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var<bool_t>($2, $4, $7, @1.begin.line);}
+    | LOGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Logitize>($2, @1.begin.line);}
+    | DIGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Digitize>($2, @1.begin.line);}
+    | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3, @1.begin.line);}
+    | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, std::move($3), $6, @1.begin.line);}
+    | MOVE                  {$$ = ast.make_robot_expr<ast::Move>( @1.begin.line);}
+    | ROTATE_LEFT           {$$ = ast.make_robot_expr<ast::RotateL>( @1.begin.line);}
+    | ROTATE_RIGHT          {$$ = ast.make_robot_expr<ast::RotateR>( @1.begin.line);}
+    | DO IDENTIFIER arg_list {$$ = ast.make_do($2, std::move($3), @1.begin.line);}
     ;
 complex_expr_stmt
-    : FOR IDENTIFIER BOUNDARY IDENTIFIER STEP IDENTIFIER newline_opt stmt {$$ = ast.make_for($2, $4, $6, $8);}
-    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch($2, $4, $6, false, 0);}
-    | SWITCH rval newline_opt BOOLEAN newline_opt stmt BOOLEAN newline_opt stmt   %prec BOOLEAN        {$$ = ast.make_switch($2, $4, $6, $7, $9);}
-    | '(' newline_opt stmts ')'                               {$$ = ast.make_scope(std::move($3));}
+    : FOR IDENTIFIER BOUNDARY IDENTIFIER STEP IDENTIFIER newline_opt stmt {$$ = ast.make_for($2, $4, $6, $8, @1.begin.line);}
+    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch($2, $4, $6, false, 0, @1.begin.line);}
+    | SWITCH rval newline_opt BOOLEAN newline_opt stmt BOOLEAN newline_opt stmt   %prec BOOLEAN        {$$ = ast.make_switch($2, $4, $6, $7, $9, @1.begin.line);}
+    | '(' newline_opt stmts ')'                               {$$ = ast.make_scope(std::move($3), @1.begin.line);}
     ;
 stmt
     : PLEASE expr THANKS '\n' newline_opt    %prec LOWEST {ast.set_politely_asked($2); $$ = $2;}
@@ -99,45 +100,45 @@ newline_opt
     | newline_opt '\n'
     ;
 dim_list
-    : INTEGER              {$$ = ast.make_dim_list(); ast.add_to_dim_list($$, $1);}
-    | dim_list ',' INTEGER {$$ = $1; ast.add_to_dim_list($1, $3);}
+    : INTEGER              {$$ = ast.make_dim_list(); ast.add_to_dim_list($$, $1, @1.begin.line);}
+    | dim_list ',' INTEGER {$$ = $1; ast.add_to_dim_list($$, $3, @1.begin.line);}
     ;
 arg_list
-    : IDENTIFIER              {$$ = ast.make_arg_list(); ast.add_to_arg_list($$, $1);}
-    | arg_list ',' IDENTIFIER {$$ = $1; ast.add_to_arg_list($1, $3);}
+    : IDENTIFIER              {$$ = ast.make_arg_list(); ast.add_to_arg_list($$, $1, @1.begin.line);}
+    | arg_list ',' IDENTIFIER {$$ = $1; ast.add_to_arg_list($$, $3, @1.begin.line);}
     ;
 rval
-    : rval AND rval   {$$ = ast.make_and($1, $3);}
-    | rval OR  rval   {$$ = ast.make_or($1, $3);}
-    | rval '+' rval   {$$ = ast.make_sum($1, $3);}
-    | rval '-' rval   {$$ = ast.make_sub($1, $3);}
-    | rval '*' rval   {$$ = ast.make_mul($1, $3);}
-    | rval '/' rval   {$$ = ast.make_div($1, $3);}
-    | rval '[' dim_list ']'  {$$ = ast.make_idx($1, std::move($3));}
+    : rval AND rval   {$$ = ast.make_and($1, $3, @1.begin.line);}
+    | rval OR  rval   {$$ = ast.make_or($1, $3, @1.begin.line);}
+    | rval '+' rval   {$$ = ast.make_sum($1, $3, @1.begin.line);}
+    | rval '-' rval   {$$ = ast.make_sub($1, $3, @1.begin.line);}
+    | rval '*' rval   {$$ = ast.make_mul($1, $3, @1.begin.line);}
+    | rval '/' rval   {$$ = ast.make_div($1, $3, @1.begin.line);}
+    | rval '[' dim_list ']'  {$$ = ast.make_idx($1, std::move($3), @1.begin.line);}
     | unary           {$$ = $1;}
     ;
 unary
     : primary         {$$ = $1;}
-    | NOT unary       {$$ = ast.make_not($2);}
-    | MXTRUE unary    {$$ = ast.make_mxtrue($2);}
-    | MXFALSE unary   {$$ = ast.make_mxfalse($2);}
-    | MXEQ unary      {$$ = ast.make_mxeq($2);}
-    | MXLT unary      {$$ = ast.make_mxlt($2);}
-    | MXGT unary      {$$ = ast.make_mxgt($2);}
-    | MXLTE unary     {$$ = ast.make_mxlte($2);}
-    | MXGTE unary     {$$ = ast.make_mxgte($2);}
-    | ELEQ unary      {$$ = ast.make_eleq($2);}
-    | ELLT unary      {$$ = ast.make_ellt($2);}
-    | ELGT unary      {$$ = ast.make_elgt($2);}
-    | ELLTE unary     {$$ = ast.make_ellte($2);}
-    | ELGTE unary     {$$ = ast.make_elgte($2);}
-    | SIZE unary      {$$ = ast.make_size($2);}
-    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<Reduce>($2, $4, $6);}
-    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<Extend>($2, $4, $6);}
+    | NOT unary       {$$ = ast.make_not($2, @1.begin.line);}
+    | MXTRUE unary    {$$ = ast.make_mxtrue($2, @1.begin.line);}
+    | MXFALSE unary   {$$ = ast.make_mxfalse($2, @1.begin.line);}
+    | MXEQ unary      {$$ = ast.make_mxeq($2, @1.begin.line);}
+    | MXLT unary      {$$ = ast.make_mxlt($2, @1.begin.line);}
+    | MXGT unary      {$$ = ast.make_mxgt($2, @1.begin.line);}
+    | MXLTE unary     {$$ = ast.make_mxlte($2, @1.begin.line);}
+    | MXGTE unary     {$$ = ast.make_mxgte($2, @1.begin.line);}
+    | ELEQ unary      {$$ = ast.make_eleq($2, @1.begin.line);}
+    | ELLT unary      {$$ = ast.make_ellt($2, @1.begin.line);}
+    | ELGT unary      {$$ = ast.make_elgt($2, @1.begin.line);}
+    | ELLTE unary     {$$ = ast.make_ellte($2, @1.begin.line);}
+    | ELGTE unary     {$$ = ast.make_elgte($2, @1.begin.line);}
+    | SIZE unary      {$$ = ast.make_size($2, @1.begin.line);}
+    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::Reduce>($2, $4, $6, @1.begin.line);}
+    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::Extend>($2, $4, $6, @1.begin.line);}
     ;
 primary
-    : IDENTIFIER                {$$ = ast.make_ref($1);}
-    | GET IDENTIFIER            {$$ = ast.make_res($2);}
-    | GET_ENVIRONMENT           {$$ = ast.make_env();}
+    : IDENTIFIER                {$$ = ast.make_ref($1, @1.begin.line);}
+    | GET IDENTIFIER            {$$ = ast.make_res($2, @1.begin.line);}
+    | GET_ENVIRONMENT           {$$ = ast.make_env(@1.begin.line);}
     | '(' rval ')'              {$$ = $2;}
     ;

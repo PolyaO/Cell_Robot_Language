@@ -1,0 +1,13 @@
+TASK asd one (
+    VAR qwe = FALSE
+    FOR A BOUNDARY B STEP C FOR A BOUNDARY B STEP C
+    qwe = a OR b [1, 2]
+    one = qwe + B
+    (
+        VAR asd1 = FALSE
+        VAR asd2 = TRUE
+        VAR asd3 = TRUE
+    )
+    VAR asd = FALSE
+    RESULT one
+)

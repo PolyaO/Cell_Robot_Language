@@ -1,13 +1,13 @@
 #pragma once
-#include "winutil/basic-window.hpp"
 #include <winutil/window.hpp>
+
+#include "winutil/basic-window.hpp"
 
 namespace Winutil {
 
 /// @brief window wich implements basic serial output protocol.
 class WindowOutput : public BasicWindow {
-  public:
-
+   public:
     WindowOutput(Winutil::engine::DrawArea &&area)
         : BasicWindow(std::move(area)) {}
 
@@ -17,12 +17,12 @@ class WindowOutput : public BasicWindow {
     /// @brief set cursor and put string at position set
     void write(engine::WindowPos pos, std::wstring_view);
 
-  private:
+   private:
     void update_line(std::wstring_view);
     void insert_color(std::wstring_view);
     void newline();
 
-    engine::WindowPos _cursor;
+    engine::WindowPos _cursor = {};
 };
 
-}
+}  // namespace Winutil

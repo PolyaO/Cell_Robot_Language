@@ -18,8 +18,10 @@ ast::Do::Do(unsigned task_idx, std::vector<unsigned> &&arg_list, unsigned line)
 bool ast::Do::is_politely_asked() const noexcept { return _is_politely_asked; }
 void ast::Do::set_politely_asked() noexcept { _is_politely_asked = true; }
 ast::expr *ast::Do::execute(ExecCtx &ctx) {
+    if (_is_executed) return nullptr;
     expr *task_ptr = ctx.ast.get_expr(_task_idx);
     set_args(ctx);
+    _is_executed = true;
     return task_ptr;
 }
 unsigned ast::Do::get_line() const noexcept { return _line; }

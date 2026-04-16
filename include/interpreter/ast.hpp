@@ -17,7 +17,6 @@ class Ast {
         std::vector<std::tuple<std::string, unsigned, variables_t>>;
 
     Ast();
-    Ast &operator=(Ast &&other) noexcept = default;
 
     expr *get_expr(unsigned expr_idx);
     expr *get_find_exit();

@@ -70,6 +70,6 @@ void var::digitize(var_type &a) {
     std::visit([](auto &v) { return v._digitize(); }, a);
 }
 
-bool equal(const var::var_type &a, const var::var_type &b) {
+bool var::equal(const var::var_type &a, const var::var_type &b) {
     return RETDOUBLEVISIT(a, v1, b, v2, { return v1 == v2; });
 }

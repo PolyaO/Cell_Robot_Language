@@ -32,7 +32,7 @@
 
 
 /**
- ** \file include/gen/parser.hpp
+ ** \file /home/paleman/polka/repos/TA/lab3/include/gen/parser.hpp
  ** Define the yy::parser class.
  */
 
@@ -42,10 +42,10 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_INCLUDE_GEN_PARSER_HPP_INCLUDED
-# define YY_YY_INCLUDE_GEN_PARSER_HPP_INCLUDED
+#ifndef YY_YY_HOME_PALEMAN_POLKA_REPOS_TA_LAB3_INCLUDE_GEN_PARSER_HPP_INCLUDED
+# define YY_YY_HOME_PALEMAN_POLKA_REPOS_TA_LAB3_INCLUDE_GEN_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 9 "src/interpreter/parse.yy"
+#line 9 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
 
     #include <string>
     #include <variant>
@@ -53,7 +53,7 @@
     class AstMaker;
     }
 
-#line 57 "include/gen/parser.hpp"
+#line 57 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.hpp"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -193,7 +193,7 @@
 #endif
 
 namespace yy {
-#line 197 "include/gen/parser.hpp"
+#line 197 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.hpp"
 
 
 
@@ -2290,9 +2290,9 @@ switch (yykind)
 
 
 } // yy
-#line 2294 "include/gen/parser.hpp"
+#line 2294 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.hpp"
 
 
 
 
-#endif // !YY_YY_INCLUDE_GEN_PARSER_HPP_INCLUDED
+#endif // !YY_YY_HOME_PALEMAN_POLKA_REPOS_TA_LAB3_INCLUDE_GEN_PARSER_HPP_INCLUDED

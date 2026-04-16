@@ -50,6 +50,8 @@ file(GLOB_RECURSE VAR_SOURCES "${PROJECT_SOURCE_DIR}/src/backend/rvals/var_ops.c
 
 add_executable(tst_no_robot tst_no_robot.cpp ${EXP_SOURCES} ${RVAL_SOURCES} ${ROBOT_SOURCES} ${INTERPR_SOURCES})
 add_executable(tst_maze winutil_test.cpp ${ROBOT_SOURCES} ${VAR_SOURCES})
+add_executable(tst_file_view tst_file_view.cpp)
 target_link_libraries(tst_no_robot PRIVATE winutil)
 target_link_libraries(tst_no_robot PRIVATE parser_lib)
 target_link_libraries(tst_maze PRIVATE winutil)
+target_link_libraries(tst_file_view PRIVATE winutil)

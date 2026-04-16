@@ -1,14 +1,17 @@
 #include "winutil/engine/common.hpp"
-#include "winutil/engine/color-string.hpp"
 #include "winutil/engine/colors.hpp"
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <cuchar>
 #include <cwchar>
+#include <iostream>
 #include <numeric>
 #include <ranges>
-#include <sstream>
+#include <string>
 #include <string_view>
+#include <vector>
+#include <sstream>
 
 namespace Winutil::engine {
 
@@ -60,6 +63,38 @@ std::wstring from_utf8(std::string str) {
     return res;
 }
 
+bool parse_color(std::wstring_view color, std::vector<int> &attrs) {
+    if (color.size() < 3 || color[0] != '\033' || color[1] != '['
+        || color.back() != 'm') {
+        return false;
+    }
+    attrs.clear();
+    // clang-format off
+    attrs.append_range(
+        color.substr(2, color.size() - 3)
+        | std::views::transform([](auto c) { return (char)c; })
+        | std::views::split(';')
+        | std::views::transform([](auto &&rng) {
+              return std::stoi(std::string(rng.begin(), rng.end()));
+          })
+    );
+    // clang-format on
+    return true;
+}
+
+std::wstring build_color(const std::vector<int> &attrs) {
+    std::wstringstream ss;
+    ss << L"\033[";
+
+    for (int attr : attrs | std::views::take(attrs.size()-1)) {
+        ss << std::to_wstring(attr) << ';';
+    }
+
+    ss << attrs.back() << L'm';
+
+    return std::move(ss.str());
+}
+
 ColoredChar
 invert_color(ColoredChar c, std::wstring_view ncl_inverse, bool force) {
     std::wstring_view color = c.get_color();
@@ -76,69 +111,15 @@ invert_color(ColoredChar c, std::wstring_view ncl_inverse, bool force) {
         return res;
     }
 
-    if (color.size() < 3 || color[0] != '\033' || color[1] != '['
-        || color.back() != 'm') {
-        return res;
-    }
+    std::vector<int> attrs;
+    if (!parse_color(color, attrs)) return res;
 
-    std::wstring str = std::wstring(color.substr(2, color.size() - 3));
-    std::wstringstream ss;
-    ss << L"\033[";
+    if (attrs.back() != 7) attrs.push_back(7);
+    else attrs.pop_back();
 
-    int skip_params = 0;
-    while (!str.empty()) {
-        switch (str[0]) {
-        case '2':
-            // rgb colorscheme of the already reversed color
-            ss << str[0];
-            skip_params = 3;
-            break;
-        case '5':
-            // 256-color scheme of the already reversed color
-            ss << str[0];
-            skip_params = 1;
-            break;
-        case '3':
-            // default text fg color - change to bg color
-            ss << L'4' << str[1];
-            skip_params = 0;
-            break;
-        case '4':
-            // default text bg color - change to fg color
-            ss << L'3' << str[1];
-            skip_params = 0;
-            break;
-        case '9':
-            // light text fg color - change to light bg color
-            ss << L'1' << L'0' << str[1];
-            skip_params = 0;
-            break;
-        case '1':
-            // light text bg color - change to light fg color
-            ss << L'9' << str[2];
-            skip_params = 0;
-            break;
-        }
+    auto asd = build_color(attrs);
 
-        auto semicol_pos = str.find(CTRL_DELIM);
-        if (semicol_pos != std::wstring_view::npos) {
-            str = str.substr(semicol_pos + 1);
-            ss << CTRL_DELIM;
-        } else break;
-        while (skip_params--) {
-            semicol_pos = str.find(CTRL_DELIM);
-            if (semicol_pos != std::wstring_view::npos) {
-                ss << str.substr(0, semicol_pos + 1);
-                str = str.substr(semicol_pos + 1);
-            } else {
-                ss << str;
-                str = L"";
-            }
-        }
-    }
-
-    ss << L'm';
-    res.set_color(ss.str());
+    res.set_color(asd);
 
     return res;
 }

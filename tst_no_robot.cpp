@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     std::wcin.imbue(std::locale());
 
     Winutil::MainWindow main_w(std::wcout, Winutil::MainWindow::max_width(),
-                               Winutil::MainWindow::max_height() - 10);
+                               Winutil::MainWindow::max_height() - 2);
 
     auto &main_row_w = main_w.make_window<Winutil::WindowsRow>();
     auto &debug_w = main_row_w.make_window<Winutil::WindowOutput>();

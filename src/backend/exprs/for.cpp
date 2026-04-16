@@ -41,23 +41,34 @@ ast::expr *ast::For::execute(ExecCtx &ctx) {
         _is_first_step = false;
         return ctx.ast.get_expr(_stmt);
     }
-    
+    int size = counter.end() - counter.begin();
+    while (_step_number != size) {
+        int &cnt = counter[_step_number];
+        int &stp = step[_step_number];
+        int &bnd = boundary[_step_number];
+        cnt += stp;
+        if (stp > 0 && cnt < bnd) return ctx.ast.get_expr(_stmt);
+        if (stp < 0 && cnt > bnd) return ctx.ast.get_expr(_stmt);
+        _step_number++;
+        return ctx.ast.get_expr(_stmt);
+    }
 
-   // for (auto &&[cnt, stp, bnd] : std::views::zip(counter, step, boundary)) {
-   //     cnt += stp;
-   //     if (stp < 0) {
-   //         if (cnt > bnd) {
-   //             return ctx.ast.get_expr(_stmt);
-   //         }
-   //     } else {
-   //         if (cnt < bnd) {
-   //             return ctx.ast.get_expr(_stmt);
-   //         }
-   //     }
-   // }
+    // for (auto &&[cnt, stp, bnd] : std::views::zip(counter, step, boundary)) {
+    //     cnt += stp;
+    //     if (stp < 0) {
+    //         if (cnt > bnd) {
+    //             return ctx.ast.get_expr(_stmt);
+    //         }
+    //     } else {
+    //         if (cnt < bnd) {
+    //             return ctx.ast.get_expr(_stmt);
+    //         }
+    //     }
+    // }
     _is_first_step = true;
+    _step_number = 0;
     return nullptr;
-}     
+}
 
 unsigned ast::For::get_line() const noexcept { return _line; }
 void ast::For::check_for_same_dims(var::Var<int> &a, var::Var<int> &b,

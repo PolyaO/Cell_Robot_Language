@@ -19,6 +19,7 @@ TASK ASD RES (
 TASK REFFOR RES, C, B, S (
     VAR ASD = 1
     FOR C BOUNDARY B STEP S RES = RES + ASD
+    ASD = ASD
     RESULT RES
 )
 
@@ -40,9 +41,6 @@ TASK FINDEXIT (
     C [2, 2] = C5
     C [2, 3] = C6
     VAR B [2,3] = 0
-    B [1, 1] = ACCUM
-    B [1, 2] = ACCUM
-    B [1, 3] = ACCUM
     B [2, 1] = B10
     B [2, 2] = B10
     B [2, 3] = B10

@@ -16,5 +16,6 @@ class Switch {
     unsigned _expr_false;
     unsigned _condition_idx;
     unsigned _line;
+    bool _is_executed = false;
 };
 }  // namespace ast

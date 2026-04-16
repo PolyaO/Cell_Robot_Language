@@ -31,6 +31,7 @@ const engine::DrawArea &MainWindow::get_area() const noexcept {
 void MainWindow::clear() { _main->clear(); }
 
 void MainWindow::update() {
+    _main->update();
     std::wstring_view color = COLOR_NONE;
     out << L"\ec" << COLOR_NONE;
     for (auto i : std::views::iota(0u, _main->get_area().get_info().height)) {

@@ -68,9 +68,7 @@ void WindowFileView::apply_row_selection(
         to = tmp;
     } else if (from == to) return;
 
-    engine::invert_color(
-        get_area().get_line(row).substr(from, to - from + 1)
-    );
+    engine::invert_color(get_area().get_line(row).substr(from, to - from + 1));
 }
 
 void WindowFileView::apply_selection() noexcept {
@@ -117,7 +115,7 @@ void WindowFileView::set_highlighter(
 }
 
 void WindowFileView::move(engine::DrawArea &&new_area) {
-   // static_cast<BasicWindow *>(this)->move(std::move(new_area));
+    // static_cast<BasicWindow *>(this)->move(std::move(new_area));
     BasicWindow::move(std::move(new_area));
     write_content();
 }

@@ -20,8 +20,9 @@ bool Maze::maze_t::is_empty(position pos) const {
 }
 
 bool Maze::maze_t::is_exit(position pos) const {
-    return is_empty(pos) && pos.x == 0 || pos.y == 0 || pos.x == width - 1
-        || pos.y == height - 1;
+    return is_empty(pos)
+        && (pos.x == 0 || pos.y == 0 || pos.x == width - 1
+            || pos.y == height - 1);
 }
 
 bool Maze::maze_t::is_valid(position pos) const noexcept {
@@ -29,15 +30,15 @@ bool Maze::maze_t::is_valid(position pos) const noexcept {
 }
 
 Maze::direction Maze::direction::random() noexcept {
-    return {.dir = rand() % 4};
+    return direction(rand() % 4);
 }
 
 Maze::direction Maze::direction::get_clockwize() const noexcept {
-    return {.dir = (dir + 1) % 4};
+    return direction((dir + 1) % 4);
 }
 
 Maze::direction Maze::direction::get_couner_clockwize() const noexcept {
-    return {.dir = dir == 0 ? 3 : dir - 1};
+    return direction(dir == 0 ? 3 : dir - 1);
 }
 
 int Maze::direction::get_x() const noexcept {
@@ -92,10 +93,20 @@ void Maze::read_file(std::string_view filename) {
     in.open(filename.data());
 
     std::string line;
+    int x = 0, y = 0;
     while (std::getline(in, line)) {
-        maze.add_line(std::ranges::transform_view(line, [](char c) {
-            return c == WALL_CHAR;
-        }));
+        maze.add_line(
+            std::ranges::transform_view(line, [this, &x, y](char c) {
+                if (c == ROBOT_CHAR) {
+                    this->robot_pos = {x, y};
+                    this->robot_dir = direction::random();
+                }
+                x += 1;
+                return c == WALL_CHAR;
+            })
+        );
+        x = 0;
+        y += 1;
     }
 
     in.close();
@@ -103,7 +114,7 @@ void Maze::read_file(std::string_view filename) {
     if (maze.height < MINIMAL_MAZE_HEIGHT)
         throw MazeLoadInvalidHeightError(maze.height, MINIMAL_MAZE_HEIGHT);
 
-    place_robot();
+    if (robot_pos == (position){}) place_robot();
 }
 
 void Maze::place_robot() {
@@ -126,7 +137,7 @@ void Maze::place_robot() {
 
 bool Maze::move_robot() noexcept {
     position new_pos = robot_pos.relative(robot_dir);
-    if (maze.is_valid(new_pos)) {
+    if (maze.is_valid(new_pos) && !maze.is_wall(new_pos)) {
         robot_pos = new_pos;
         return true;
     }
@@ -148,9 +159,8 @@ Maze::cell_state Maze::get_position_state(position pos) const noexcept {
     return EMPTY;
 }
 
+unsigned Maze::get_width() const noexcept { return maze.width; }
 
-unsigned Maze::get_width() const noexcept { return maze.width;}
-
-unsigned Maze::get_height() const noexcept { return maze.height;}
+unsigned Maze::get_height() const noexcept { return maze.height; }
 
 } // namespace robot

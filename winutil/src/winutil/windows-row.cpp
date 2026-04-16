@@ -12,6 +12,10 @@ void WindowsRow::clear() {
     for (auto &col : _cols) col->clear();
 }
 
+void WindowsRow::update() {
+    for (auto &win : _cols) win->update();
+}
+
 WindowInterface &WindowsRow::get_child(unsigned idx) {
     if (idx >= _cols.size())
         throw std::runtime_error("Invalid window id passed!");

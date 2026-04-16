@@ -12,7 +12,7 @@ class WindowsColumn : public WindowInterface {
 
     void clear() override;
     void move(engine::DrawArea &&new_area) override;
-    void update() override {}
+    void update() override;
 
     const engine::DrawArea &get_area() const noexcept override;
     WindowInterface &get_child(unsigned) override;

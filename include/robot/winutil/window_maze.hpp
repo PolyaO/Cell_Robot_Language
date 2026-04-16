@@ -3,6 +3,7 @@
 
 #include "robot/maze.hpp"
 #include "winutil/basic-window.hpp"
+#include "winutil/engine/common.hpp"
 
 namespace robot {
 
@@ -23,14 +24,18 @@ class WindowMaze : public Winutil::BasicWindow {
     unsigned get_optimal_height() const noexcept;
 
    private:
-    const static char WALL_CHAR = Maze::WALL_CHAR;
-    const static char EMPTY_CHAR = Maze::EMPTY_CHAR;
-    const static char EXIT_CHAR = ' ';
-    const static char ROBOT_CHAR = '*';
+    const static wchar_t WALL_CHAR = L'█';
+    const static wchar_t EMPTY_CHAR = L' ';
+    const static wchar_t EXIT_CHAR = L'𜺱';
+    const static wchar_t ROBOT_CHAR = L'𜷰';
 
     void draw_robot();
+    void set_wall(Maze::position pos);
+    void set_exit(Maze::position pos);
+    void set_empty(Maze::position pos);
 
     Maze maze;
+    Maze::position robot_pos;
 };
 
 };  // namespace robot

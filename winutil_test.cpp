@@ -1,12 +1,22 @@
 #include <clocale>
+#include <cstdio>
 #include <initializer_list>
 #include <iostream>
+
+#include <fcntl.h>
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+
+#undef COLOR
+#undef CTRL
 
 #include "robot/winutil/window_maze.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
 #include "winutil/main-window.hpp"
 #include "winutil/window-file-view.hpp"
 #include "winutil/windows-row.hpp"
+
 
 #define COLOR_KEYWORDS COLOR_RGB(160, 149, 16)
 // #define ASD COLOR_RGB(100, 100, 100)
@@ -24,11 +34,36 @@
 #define LEMONADE COLOR_RGB(242, 214, 161)
 #define LIMONCH COLOR_RGB(241, 168, 5)
 
+int kbhit(void) {
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if (ch != EOF) {
+        ungetc(ch, stdin);
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     std::setlocale(LC_ALL, "en_US.utf8");
 
     Winutil::MainWindow main_w(std::wcout, Winutil::MainWindow::max_width(),
-                               Winutil::MainWindow::max_height());
+                               Winutil::MainWindow::max_height()-30);
 
     auto &main_row_w = main_w.make_window<Winutil::WindowsRow>();
     auto &w1 = main_row_w.make_window<Winutil::WindowFileView>();
@@ -65,9 +100,35 @@ int main(void) {
     // w3.open("../include/winutil/engine/color-string.hpp");
     // w3.open("../src/winutil/window-file-view.cpp");
 
+    auto &maze = maze_w.get_maze();
+
     w1.select({14, 6}, {18, 47});
 
     maze_w.draw_maze();
-
     main_w.update();
+
+    while (kbhit()) {
+        switch (getchar()) {
+            case 'h':
+                maze.set_robot_direction(robot::Maze::direction::LEFT);
+                maze.move_robot();
+                main_w.update();
+                break;
+            case 'j':
+                maze.set_robot_direction(robot::Maze::direction::DOWN);
+                maze.move_robot();
+                main_w.update();
+                break;
+            case 'k':
+                maze.set_robot_direction(robot::Maze::direction::UP);
+                maze.move_robot();
+                main_w.update();
+                break;
+            case 'l':
+                maze.set_robot_direction(robot::Maze::direction::RIGHT);
+                maze.move_robot();
+                main_w.update();
+                break;
+        }
+    }
 }

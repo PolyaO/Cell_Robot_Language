@@ -11,6 +11,10 @@ const engine::DrawArea &WindowsColumn::get_area() const noexcept {
     return area;
 }
 
+void WindowsColumn::update() {
+    for (auto &win : _rows) win->update();
+}
+
 void WindowsColumn::clear() {
     for (auto &row : _rows) row->clear();
 }

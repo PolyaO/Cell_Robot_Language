@@ -8,6 +8,7 @@ namespace robot {
 
 class Maze {
   public:
+    const static char ROBOT_CHAR = 'R';
     const static char WALL_CHAR = '#';
     const static char EMPTY_CHAR = ' ';
     const static unsigned MINIMAL_MAZE_WIDTH = 5;
@@ -17,8 +18,12 @@ class Maze {
     using position = vector2;
 
     struct direction {
-        enum { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 };
+        enum dir_e { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 };
         int dir = UP;
+
+        direction() : dir() {}
+        direction(dir_e d) : dir(d) {}
+        direction(int d) : dir(d) {}
 
         static direction random() noexcept;
 
@@ -28,12 +33,18 @@ class Maze {
         int get_x() const noexcept;
         int get_y() const noexcept;
 
+        operator dir_e() const { return (dir_e)dir; }
+
         vector2 get_vector() const noexcept;
     };
 
     struct vector2 {
         int x;
         int y;
+
+        bool operator==(const vector2 other) const {
+            return this->x == other.x && this->y == other.y;
+        }
 
         position relative(direction) const noexcept;
         position add(vector2) const noexcept;
@@ -53,6 +64,9 @@ class Maze {
 
     cell_state get_position_state(position) const noexcept;
 
+    bool is_wall(position pos) { return get_position_state(pos) == WALL; }
+    bool is_exit(position pos) { return get_position_state(pos) == EXIT; }
+
     unsigned get_width() const noexcept;
     unsigned get_height() const noexcept;
 
@@ -61,6 +75,8 @@ class Maze {
     void rotate_robot_right() noexcept;
 
     void read_file(std::string_view filename);
+
+    void set_robot_direction(direction dir) noexcept { robot_dir = dir; }
 
   private:
     struct maze_t {

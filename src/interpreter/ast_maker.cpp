@@ -183,11 +183,7 @@ unsigned ast::AstMaker::make_for(std::string_view counter,
     auto counter_idx = std::get<1>(*check_for_var_unknown(counter, line));
     auto boundary_idx = std::get<1>(*check_for_var_unknown(boundary, line));
     auto step_idx = std::get<1>(*check_for_var_unknown(step, line));
-    const auto &counter_dim =
-        var::get_dim(std::get<var::var_type>(_ast.get_rval(counter_idx)));
-    auto curr_counter_idx =
-        _ast.make_rval<var::var_type>(var::Var<int>(0, counter_dim));
-    return _ast.make_expr<For>(counter_idx, curr_counter_idx, boundary_idx,
+    return _ast.make_expr<For>(counter_idx, boundary_idx,
                                step_idx, stmt, line);
 }
 

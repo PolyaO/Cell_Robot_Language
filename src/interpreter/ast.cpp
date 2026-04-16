@@ -5,7 +5,9 @@
 #include <optional>
 #include <stdexcept>
 #include <string_view>
+#include <variant>
 
+#include "backend/rvals/idx.hpp"
 #include "backend/rvals/rval.hpp"
 #include "backend/rvals/var/bool.hpp"
 #include "interpreter/exceptions/runtime_exceptions.hpp"
@@ -73,7 +75,11 @@ std::optional<var::var_type> ast::Ast::get_variable(std::string_view var_name,
         std::find_if(variables.begin(), variables.end(),
                      [&key](auto &el) { return std::get<0>(el) == key; });
     if (var_it == variables.end()) return std::optional<var::var_type>();
-    return std::get<var::var_type>(_rvals[std::get<1>(*var_it)]);
+    auto some_v = _rvals[std::get<1>(*var_it)];
+    if (std::holds_alternative<var::var_type>(some_v))
+        return std::get<var::var_type>(some_v);
+    else
+        return std::get<var::var_type>(_rvals[std::get<Ref>(some_v).get_idx()]);
 }
 
 ast::Ast::metainf_vector_t::const_iterator ast::Ast::find_task_metainf_by_idx(

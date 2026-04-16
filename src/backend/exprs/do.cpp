@@ -19,6 +19,7 @@ bool ast::Do::is_politely_asked() const noexcept { return _is_politely_asked; }
 void ast::Do::set_politely_asked() noexcept { _is_politely_asked = true; }
 ast::expr *ast::Do::execute(ExecCtx &ctx) {
     if (_is_executed) return nullptr;
+    ctx.curr_task_idx = _task_idx;
     expr *task_ptr = ctx.ast.get_expr(_task_idx);
     set_args(ctx);
     _is_executed = true;

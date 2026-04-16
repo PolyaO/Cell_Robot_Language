@@ -104,12 +104,11 @@ int main(int argc, char *argv[]) {
 
     debug_w.write(L"DEBUG WINDOW HERE!\n");
     robot_w.write(L"ROBOT HERE!\n");
-    file_w.select({lineno, 0}, {lineno, Winutil::MainWindow::max_width() / 2});
+    file_w.select({lineno - 1, 0}, {lineno - 1, Winutil::MainWindow::max_width() / 2});
     main_w.update();
+    file_w.select({lineno - 1, 0}, {lineno - 1, Winutil::MainWindow::max_width() / 2});
 
     while (true) {
-        file_w.select({lineno, 0},
-                      {lineno, Winutil::MainWindow::max_width() / 2});
         std::wstring prompt = L"> ";
         std::wstring line;
         std::wcout << prompt;
@@ -137,6 +136,10 @@ int main(int argc, char *argv[]) {
                 print_variable(var.value(), line, debug_w);
             }
         }
+        file_w.select({lineno - 1, 0},
+                      {lineno - 1, Winutil::MainWindow::max_width() / 2});
         main_w.update();
+        file_w.select({lineno - 1, 0},
+                      {lineno - 1, Winutil::MainWindow::max_width() / 2});
     }
 }

@@ -27,6 +27,7 @@ var::var_type &ast::Ref::get(ExecCtx &ctx) const {
 }
 
 unsigned ast::Ref::get_line() const noexcept { return _line; }
+unsigned ast::Ref::get_idx() const noexcept { return _idx; }
 
 void ast::Ref::set_idx(unsigned idx) noexcept { _idx = idx; }
 

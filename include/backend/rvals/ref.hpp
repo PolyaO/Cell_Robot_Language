@@ -8,6 +8,7 @@ class Ref {
     var::var_type execute(ExecCtx &ctx) const;
     var::var_type &get(ExecCtx &ctx) const;
     unsigned get_line() const noexcept;
+    unsigned get_idx() const noexcept;
     void set_idx(unsigned idx) noexcept;
 
    private:

@@ -18,7 +18,10 @@ unsigned driver::Driver::initialize(std::string_view robot_filename,
     _ctx.ast = parse(trace_parsing, trace_scanning);
     _exec_stack.push(_ctx.ast.get_find_exit());
     _ctx.curr_task_idx = _ctx.ast.get_expr_idx(_exec_stack.top());
-    return std::visit([](auto &e) { return e.get_line(); }, *_exec_stack.top());
+    auto next = stack_top_exe();
+    if (!next) return 0;
+    _exec_stack.push(next);
+    return stack_top_line();
 }
 
 ast::Ast driver::Driver::parse(bool trace_parsing, bool trace_scanning) {

@@ -73,10 +73,8 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
         for (unsigned j = 0; j < dim[1]; ++j) {
             auto val =
                 std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
-            if (i == dim[0] / 2 && j == dim[1] / 2)
-                w.write(L"()");
-            else
-                w.write(val[0] ? L"##" : L"  ");
+            if (i == dim[0] / 2 && j == dim[1] / 2) w.write(L"()");
+            else w.write(val[0] ? L"##" : L"  ");
         }
         w.write(L" ]\n");
     }
@@ -86,10 +84,8 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
         for (unsigned j = 0; j < dim[1]; ++j) {
             auto val =
                 std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
-            if (i == dim[0] / 2 && j == dim[1] / 2)
-                w.write(L"()");
-            else
-                w.write(val[1] ? L"##" : L"  ");
+            if (i == dim[0] / 2 && j == dim[1] / 2) w.write(L"()");
+            else w.write(val[1] ? L"##" : L"  ");
         }
         w.write(L" ]\n");
     }
@@ -113,7 +109,7 @@ int main(void) {
     using direction = Maze::direction;
     using position = Maze::position;
 
-    maze_w.open("../asd.maze");
+    maze_w.open("asd.maze");
 
     auto &maze = maze_w.get_maze();
     IdealRobot rb(maze);
@@ -123,25 +119,38 @@ int main(void) {
 
     main_w.update();
 
-    bool move = false;
+#define MV  move = true;
+#define UPD update = true;
+
     direction dir;
     while (kbhit()) {
+        bool move = false;
+        bool update = false;
+
         // clang-format off
         switch (getchar()) {
-        case 'h': dir = direction::LEFT;  move = true; break;
-        case 'j': dir = direction::DOWN;  move = true; break;
-        case 'k': dir = direction::UP;    move = true; break;
-        case 'l': dir = direction::RIGHT; move = true; break;
+        case 'h': dir = direction::LEFT;     MV  break;
+        case 'j': dir = direction::DOWN;     MV  break;
+        case 'k': dir = direction::UP;       MV  break;
+        case 'l': dir = direction::RIGHT;    MV  break;
+
+        case 'w': maze.move_robot();         UPD break;
+        case 'a': maze.rotate_robot_left();  UPD break;
+        case 'd': maze.rotate_robot_right(); UPD break;
+        case EOF: goto end;
         }
         // clang-format on
 
         if (move) {
+            update = true;
             maze.set_robot_direction(dir);
             maze.move_robot();
+        }
+        if (update) {
             debug_w.clear();
             print_env(debug_w, rb.get_env());
             main_w.update();
         }
-        move = false;
     }
+end:
 }

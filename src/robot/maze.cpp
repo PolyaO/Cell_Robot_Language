@@ -37,6 +37,10 @@ Maze::direction Maze::direction::get_clockwize() const noexcept {
     return direction((dir + 1) % 4);
 }
 
+Maze::direction Maze::direction::get_opposite() const noexcept {
+    return direction((dir + 2) % 4);
+}
+
 Maze::direction Maze::direction::get_couner_clockwize() const noexcept {
     return direction(dir == 0 ? 3 : dir - 1);
 }

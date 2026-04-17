@@ -26,12 +26,12 @@ FLEX_TARGET(Lexer src/interpreter/lexer.l
     DEFINES_FILE ${PROJECT_SOURCE_DIR}/include/gen/lexer.hpp)
 
 add_flex_bison_dependency(Lexer Parser)
- add_library(parser_lib SHARED
-     ${BISON_Parser_OUTPUTS}
-     ${FLEX_Lexer_OUTPUTS}
-     src/interpreter/driver.cpp
-     src/interpreter/ast_maker.cpp
- )
+add_library(parser_lib SHARED
+ ${BISON_Parser_OUTPUTS}
+ ${FLEX_Lexer_OUTPUTS}
+ src/interpreter/driver.cpp
+ src/interpreter/ast_maker.cpp
+)
 
 #add_executable(tst_variables tst_var.cpp src/interpreter/rvals/var_ops.cpp)
 include_directories(include)
@@ -47,10 +47,10 @@ file(GLOB_RECURSE ROBOT_SOURCES "${PROJECT_SOURCE_DIR}/src/robot/*.cpp")
 file(GLOB_RECURSE INTERPR_SOURCES "${PROJECT_SOURCE_DIR}/src/interpreter/*.cpp")
 
 
-
 add_executable(tst_no_robot tst_no_robot.cpp ${ROBOT_SOURCES} ${INTERPR_SOURCES})
 add_executable(tst_maze winutil_test.cpp ${ROBOT_SOURCES} )
 add_executable(tst_file_view tst_file_view.cpp)
+add_executable(mazegen mazegen.cpp src/robot/maze.cpp)
 target_link_libraries(tst_no_robot PRIVATE winutil parser_lib var)
 target_link_libraries(tst_maze PRIVATE winutil var)
 target_link_libraries(tst_file_view PRIVATE winutil var)

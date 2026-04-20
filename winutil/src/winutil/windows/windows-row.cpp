@@ -1,12 +1,8 @@
-#include "winutil/windows-row.hpp"
+#include "winutil/windows/windows-row.hpp"
 #include <ranges>
 #include <vector>
 
 namespace Winutil {
-
-WindowsRow::WindowsRow(engine::DrawArea &&area) : area(std::move(area)) {}
-
-const engine::DrawArea &WindowsRow::get_area() const noexcept { return area; }
 
 void WindowsRow::clear() {
     for (auto &col : _cols) col->clear();
@@ -16,7 +12,7 @@ void WindowsRow::update() {
     for (auto &win : _cols) win->update();
 }
 
-WindowInterface &WindowsRow::get_child(unsigned idx) {
+BaseWindow &WindowsRow::get_child(unsigned idx) {
     if (idx >= _cols.size())
         throw std::runtime_error("Invalid window id passed!");
     return *_cols[idx];
@@ -40,10 +36,6 @@ void WindowsRow::move(engine::DrawArea &&new_area) {
     }
 
     place_windows(sizes);
-}
-
-void WindowsRow::resize_windows(std::initializer_list<unsigned> sizes) {
-    resize_windows(sizes.begin(), sizes.end());
 }
 
 void WindowsRow::clear_rulers() {

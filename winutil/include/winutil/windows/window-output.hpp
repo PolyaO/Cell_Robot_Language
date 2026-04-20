@@ -1,15 +1,12 @@
 #pragma once
-#include <winutil/window.hpp>
-
-#include "winutil/basic-window.hpp"
+#include "winutil/windows/base-window.hpp"
 
 namespace Winutil {
 
-/// @brief window wich implements basic serial output protocol.
-class WindowOutput : public BasicWindow {
+/// @brief Window wich implements base serial output protocol.
+class WindowOutput : public BaseWindow {
    public:
-    WindowOutput(Winutil::engine::DrawArea &&area)
-        : BasicWindow(std::move(area)) {}
+    WINDOW_CONSTRUCTOR(WindowOutput)
 
     /// @brief put string at the write position
     void write(std::wstring_view);

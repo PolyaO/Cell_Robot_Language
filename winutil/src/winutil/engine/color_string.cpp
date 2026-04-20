@@ -4,18 +4,6 @@
 
 std::vector<std::wstring> ColoredChar::colors(1, L"");
 
-std::wostream &operator<<(std::wostream &out, const ColoredChar c) {
-    if (c.color != 0) out << c.get_color();
-    out << c.ch;
-    return out;
-}
-
-std::wostream &
-operator<<(std::wostream &out, const Winutil::engine::color_string_view &str) {
-    for (auto &c : str) out << c;
-    return out;
-}
-
 ColoredChar::ColoredChar(wchar_t c, std::wstring_view color_str) : ch(c) {
     set_color(color_str);
 }
@@ -54,10 +42,10 @@ void ColoredChar::set(const ColoredChar c) const noexcept {
 }
 
 bool ColoredChar::operator==(const ColoredChar &other) const {
-    return ch == other.ch;
+    return ch == other.ch && color == other.color;
 }
 bool ColoredChar::operator<(const ColoredChar &other) const {
-    return ch < other.ch;
+    return ch < other.ch && color < other.color;
 }
 
 namespace std {

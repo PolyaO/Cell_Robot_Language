@@ -30,7 +30,7 @@ struct WindowDesc {
 };
 
 #define WINDOW_MIN_SIZE 3u
-#define WINDOW_MAX_SIZE (-1)
+#define WINDOW_MAX_SIZE ((unsigned)-1)
 
 void normalize_window_size_sequence(
     std::vector<unsigned> &sizes, unsigned max_size

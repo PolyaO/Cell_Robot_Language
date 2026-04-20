@@ -9,7 +9,7 @@ Maze &WindowMaze::get_maze() noexcept { return maze; }
 const Maze &WindowMaze::get_maze() const noexcept { return maze; }
 
 void WindowMaze::update() {
-    BasicWindow::update();
+    BaseWindow::update();
     draw_robot();
 }
 

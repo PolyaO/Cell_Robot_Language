@@ -3,7 +3,6 @@
 #include "winutil/engine/colors.hpp"
 #include <cstdint>
 #include <cstring>
-#include <ostream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -74,8 +73,3 @@ using color_string_view = std::basic_string_view<ColoredChar>;
 color_string to_color_string(std::string_view);
 
 }; // namespace Winutil::engine
-
-std::wostream &operator<<(std::wostream &out, const ColoredChar c);
-
-std::wostream &
-operator<<(std::wostream &out, const Winutil::engine::color_string_view &str);

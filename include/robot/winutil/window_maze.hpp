@@ -2,15 +2,13 @@
 #include <string_view>
 
 #include "robot/maze.hpp"
-#include "winutil/basic-window.hpp"
-#include "winutil/engine/common.hpp"
+#include "winutil/windows/base-window.hpp"
 
 namespace robot {
 
-class WindowMaze : public Winutil::BasicWindow {
+class WindowMaze : public Winutil::BaseWindow {
    public:
-    WindowMaze(Winutil::engine::DrawArea &&area)
-        : BasicWindow(std::move(area)) {}
+    WINDOW_CONSTRUCTOR(WindowMaze)
 
     void update() override;
     void open(std::string_view filename);

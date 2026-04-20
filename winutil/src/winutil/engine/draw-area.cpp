@@ -1,6 +1,7 @@
 #include "winutil/engine/draw-area.hpp"
 #include "winutil/engine/color-string.hpp"
 #include "winutil/engine/common.hpp"
+#include <algorithm>
 #include <format>
 #include <ranges>
 #include <stdexcept>
@@ -28,6 +29,14 @@ DrawArea DrawArea::subarea(WindowPos at, unsigned width, unsigned height) {
         area_vect[i] = _lines[i + at.row].substr(at.col, width);
     }
     return DrawArea(std::move(area_vect));
+}
+
+void DrawArea::clear() noexcept {
+    for (auto &line : _lines) {
+        for (auto &c: line) {
+            c.set(WINUTIL_EMPTY_CHAR);
+        }
+    }
 }
 
 DrawArea DrawArea::copy() {
@@ -78,6 +87,14 @@ void MainDrawArea::resize(unsigned width, unsigned height) {
     for (auto &line : _lines) line.assign(width, ColoredChar(WINUTIL_EMPTY_CHAR));
     _desc.height = _lines.size();
     _desc.width = _lines[0].size();
+}
+
+MainDrawArea MainDrawArea::copy() {
+    MainDrawArea res(_desc.width, _desc.height);
+    for (auto &&[line, res_line] : std::views::zip(*this, res)) {
+        std::copy(line.begin(), line.end(), res_line.begin());
+    }
+    return std::move(res);
 }
 
 color_string_view MainDrawArea::get_line(unsigned line_no) {

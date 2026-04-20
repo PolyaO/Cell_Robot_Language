@@ -8,10 +8,10 @@
 #include <iostream>
 #include <numeric>
 #include <ranges>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <sstream>
 
 namespace Winutil::engine {
 
@@ -26,7 +26,7 @@ void normalize_window_size_sequence(
     unsigned expected_size =
         std::accumulate(sizes.begin(), sizes.end(), sizes.size() - 1);
 
-    // if expected size if less than required, just enlarging last window
+    // if expected size is less than required, just enlarging last window
     if (expected_size < max_size) sizes.back() += max_size - expected_size;
 
     // in case the size is more than required, recalculation is needed
@@ -86,7 +86,7 @@ std::wstring build_color(const std::vector<int> &attrs) {
     std::wstringstream ss;
     ss << L"\033[";
 
-    for (int attr : attrs | std::views::take(attrs.size()-1)) {
+    for (int attr : attrs | std::views::take(attrs.size() - 1)) {
         ss << std::to_wstring(attr) << ';';
     }
 
@@ -114,12 +114,25 @@ invert_color(ColoredChar c, std::wstring_view ncl_inverse, bool force) {
     std::vector<int> attrs;
     if (!parse_color(color, attrs)) return res;
 
-    if (attrs.back() != 7) attrs.push_back(7);
-    else attrs.pop_back();
+    for (int i = 0; i < attrs.size(); ++i) {
+        if (30 <= attrs[i] && attrs[i] < 38) attrs[i] += 10;
+        else if (90 <= attrs[i] && attrs[i] < 98) attrs[i] += 10;
+        else if (40 <= attrs[i] && attrs[i] < 48) attrs[i] -= 10;
+        else if (100 <= attrs[i] && attrs[i] < 108) attrs[i] -= 10;
+        else if (attrs[i] == 38) {
+            attrs[i] += 10;
+            if (i == attrs.size() - 1) continue;
+            if (attrs[i + 1] == 5) i += 2;
+            else if (attrs[i + 1] == 2) i += 4;
+        } else if (attrs[i] == 48) {
+            attrs[i] -= 10;
+            if (i == attrs.size() - 1) continue;
+            if (attrs[i + 1] == 5) i += 2;
+            else if (attrs[i + 1] == 2) i += 4;
+        }
+    }
 
-    auto asd = build_color(attrs);
-
-    res.set_color(asd);
+    res.set_color(build_color(attrs));
 
     return res;
 }

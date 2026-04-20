@@ -1,6 +1,6 @@
 #include <clocale>
+#include <csignal>
 #include <cstdio>
-#include <iostream>
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -18,10 +18,13 @@
 #include "var/bool.hpp"
 #include "var/var_ops.hpp"
 
+#include "robot/winutil/window_maze.hpp"
+#include "robot/ideal_robot.hpp"
+
 #include "winutil/engine/colors.hpp"
-#include "winutil/main-window.hpp"
-#include "winutil/window-output.hpp"
-#include "winutil/windows-row.hpp"
+#include "winutil/screen.hpp"
+#include "winutil/windows/window-output.hpp"
+#include "winutil/windows/windows-row.hpp"
 // clang-format on
 
 #define COLOR_KEYWORDS COLOR_RGB(160, 149, 16)
@@ -94,13 +97,14 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
 int main(void) {
     std::setlocale(LC_ALL, "en_US.utf8");
 
-    Winutil::MainWindow main_w(
-        std::wcout,
-        Winutil::MainWindow::max_width(),
-        Winutil::MainWindow::max_height() - 30
+    Winutil::Screen screen(
+        Winutil::Screen::max_width(),
+        Winutil::Screen::max_height() - 30
     );
 
-    auto &main_row_w = main_w.make_window<Winutil::WindowsRow>();
+    std::signal(SIGINT, Winutil::Screen::destroy_handler);
+
+    auto &main_row_w = screen.make_window<Winutil::WindowsRow>();
     auto &maze_w = main_row_w.make_window<robot::WindowMaze>();
     auto &debug_w = main_row_w.make_window<Winutil::WindowOutput>();
 
@@ -117,7 +121,7 @@ int main(void) {
     maze_w.draw_maze();
     print_env(debug_w, rb.get_env());
 
-    main_w.update();
+    screen.update();
 
 #define MV  move = true;
 #define UPD update = true;
@@ -149,7 +153,7 @@ int main(void) {
         if (update) {
             debug_w.clear();
             print_env(debug_w, rb.get_env());
-            main_w.update();
+            screen.update();
         }
     }
 end:

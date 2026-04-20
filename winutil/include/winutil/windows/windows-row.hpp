@@ -1,23 +1,21 @@
 #pragma once
 #include <memory>
-#include <winutil/window.hpp>
+#include <ranges>
+#include <winutil/windows/base-window.hpp>
 
 namespace Winutil {
 
-class WindowsRow : public WindowInterface {
+class WindowsRow : public BaseWindow {
   public:
-    WindowsRow(engine::DrawArea &&area);
-    WindowsRow(const WindowsRow &) = delete;
-    WindowsRow(WindowsRow &&) = default;
+    WINDOW_CONSTRUCTOR(WindowsRow)
 
     void clear() override;
     void move(engine::DrawArea &&new_area) override;
     void update() override;
 
-    const engine::DrawArea &get_area() const noexcept override;
-    WindowInterface &get_child(unsigned) override;
+    BaseWindow &get_child(unsigned);
 
-    void resize_windows(std::initializer_list<unsigned> sizes);
+    void resize_windows(std::ranges::input_range auto &&sizes);
 
     template <class Iter>
         requires std::input_iterator<Iter>
@@ -25,7 +23,7 @@ class WindowsRow : public WindowInterface {
 
     /// @brief create child window of type _Win
     template <typename _Win>
-        requires(std::derived_from<_Win, WindowInterface>)
+        requires(std::derived_from<_Win, BaseWindow>)
     _Win &make_window();
 
   private:
@@ -34,9 +32,12 @@ class WindowsRow : public WindowInterface {
     unsigned place_windows(const std::vector<unsigned> &sizes);
     unsigned place_window(unsigned win_id, unsigned pos, unsigned size);
 
-    engine::DrawArea area;
-    std::vector<std::unique_ptr<WindowInterface>> _cols;
+    std::vector<std::unique_ptr<BaseWindow>> _cols;
 };
+
+void WindowsRow::resize_windows(std::ranges::input_range auto &&sizes) {
+    resize_windows(sizes.begin(), sizes.end());
+}
 
 template <class Iter>
     requires std::input_iterator<Iter>
@@ -49,7 +50,7 @@ void WindowsRow::resize_windows(Iter begin, Iter end) {
         int start_idx = sizes.size(), end_idx = _cols.size();
         sizes.resize(_cols.size());
         for (int i = start_idx; i < end_idx; ++i) {
-            sizes[i] = _cols[i]->get_area().get_info().width;
+            sizes[i] = _cols[i]->get_size().width;
         }
     }
 
@@ -59,7 +60,7 @@ void WindowsRow::resize_windows(Iter begin, Iter end) {
 }
 
 template <typename _Win>
-    requires(std::derived_from<_Win, WindowInterface>)
+    requires(std::derived_from<_Win, BaseWindow>)
 _Win &WindowsRow::make_window() {
     std::unique_ptr<_Win> res_ptr;
     if (_cols.size() == 0) {
@@ -71,9 +72,9 @@ _Win &WindowsRow::make_window() {
         if (win_width < WINDOW_MIN_SIZE)
             throw std::runtime_error("Space for windows ran out!");
         unsigned pos = place_windows(win_width - 1);
-        res_ptr = std::make_unique<_Win>(
-            std::move(area.subarea({0, pos}, full_width - pos, full_height))
-        );
+        auto win_area = area.subarea({0, pos}, full_width - pos, full_height);
+        win_area.clear();
+        res_ptr = std::make_unique<_Win>(std::move(win_area));
     }
     auto &res = *res_ptr;
     _cols.push_back(std::move(res_ptr));

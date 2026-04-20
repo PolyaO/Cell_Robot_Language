@@ -1,10 +1,11 @@
-#include "winutil/window-file-view.hpp"
-#include "winutil/basic-window.hpp"
+#include "winutil/windows/window-file-view.hpp"
 #include "winutil/engine/color-string.hpp"
 #include "winutil/engine/common.hpp"
 #include "winutil/engine/draw-area.hpp"
+#include <algorithm>
 #include <fstream>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -13,6 +14,11 @@ namespace Winutil {
 void WindowFileView::open(const std::string &filename) {
     std::ifstream fin(filename, std::ios::binary);
     std::string raw_line_buf;
+
+    if (!fin.is_open() || fin.fail())
+        throw std::runtime_error(
+            std::format("No such file or directory: {}", filename)
+        );
 
     while (std::getline(fin, raw_line_buf)) {
         std::wstring line_buf = engine::from_utf8(raw_line_buf);
@@ -60,6 +66,9 @@ void WindowFileView::scroll_horizontal(signed ncols) noexcept {
 
 void WindowFileView::write_content() noexcept {
     auto desc = get_area().get_info();
+
+    if (_first_screen_col > desc.width) return;
+
     for (int line_no = 0; line_no < desc.height; ++line_no) {
         auto screen_line = get_area().get_line(line_no);
         if (line_no + _first_line >= _lines.size()) {
@@ -79,7 +88,7 @@ void WindowFileView::write_content() noexcept {
 
         if (_config.line_numbers) {
             std::string line_num = std::to_string(line_no + _first_line + 1);
-            for (auto &c : screen_line.substr(0, _first_screen_col - 1)) {
+            for (auto &c : screen_line.substr(0, _first_screen_col)) {
                 c.set_char(WINUTIL_EMPTY_CHAR);
             }
             for (auto &&[num_c, c] : std::views::zip(
@@ -94,26 +103,26 @@ void WindowFileView::write_content() noexcept {
     apply_selection();
 }
 
-void WindowFileView::apply_row_selection(
-    unsigned row, unsigned from, unsigned to
-) noexcept {
-    if (from > to) {
-        unsigned tmp = from;
-        from = to;
-        to = tmp;
-    } else if (from == to) return;
-
-    auto line = get_area().get_line(row);
-    if (line.substr(_first_screen_col).find_first_not_of(' ')
-        == engine::color_string_view::npos)
-        return;
-    engine::invert_color(line.substr(_first_screen_col + from, to - from + 1));
-}
-
 void WindowFileView::apply_selection() noexcept {
     auto desc = get_area().get_info();
     auto select_from = linepos2winpos(_select_from);
     auto select_to = linepos2winpos(_select_to);
+
+    if (_first_screen_col > desc.width) return;
+
+    auto apply_row_selection =
+        [this](unsigned row, unsigned from, unsigned to) noexcept {
+            if (from > to) {
+                unsigned tmp = from;
+                from = to;
+                to = tmp;
+            } else if (from == to) return;
+
+            auto line = get_area().get_line(row);
+            engine::invert_color(
+                line.substr(_first_screen_col + from, to - from + 1)
+            );
+        };
 
     unsigned first_row = select_from.row;
     unsigned last_row = select_to.row;
@@ -137,13 +146,22 @@ void WindowFileView::apply_selection() noexcept {
 }
 
 engine::WindowPos WindowFileView::linepos2winpos(LinePos pos) noexcept {
+    if (pos.line_no > last_line_no()) pos.line_no = last_line_no();
+    if (pos.line_no != 0) pos.line_no -= 1;
+
     signed screen_line = pos.line_no - _first_line;
     auto desc = get_area().get_info();
     if (screen_line < 0) return {0, 0};
     if (screen_line >= desc.height)
         return {.row = desc.height - 1, .col = desc.width - 1};
 
-    signed screen_col = pos.char_no - _first_col;
+    signed screen_col;
+    if (pos.char_no == -1) {
+        if (_lines[pos.line_no].size() != 0)
+            screen_col = _lines[pos.line_no].size() - _first_col - 1;
+        else screen_col = 1;
+    } else screen_col = pos.char_no - _first_col - 1;
+
     if (screen_col < 0) return {.row = (unsigned)screen_line, .col = 0};
     if (screen_col >= desc.width)
         return {.row = (unsigned)screen_line, .col = desc.width - 1};
@@ -151,10 +169,14 @@ engine::WindowPos WindowFileView::linepos2winpos(LinePos pos) noexcept {
 }
 
 void WindowFileView::select(LinePos from, LinePos to) noexcept {
+    apply_selection();
     _select_from = from;
     _select_to = to;
-    _select_from.line_no -= 1;
-    _select_to.line_no -= 1;
+    apply_selection();
+}
+
+void WindowFileView::clear_selection() noexcept {
+    _select_from = _select_to = {0, 0};
     apply_selection();
 }
 
@@ -166,7 +188,7 @@ void WindowFileView::set_highlighter(
 }
 
 void WindowFileView::move(engine::DrawArea &&new_area) {
-    BasicWindow::move(std::move(new_area));
+    BaseWindow::move(std::move(new_area));
     write_content();
 }
 

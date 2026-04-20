@@ -1,5 +1,4 @@
-#include "winutil/window-output.hpp"
-#include "winutil/basic-window.hpp"
+#include "winutil/windows/window-output.hpp"
 #include "winutil/engine/draw-area.hpp"
 #include <ranges>
 #include <stdexcept>
@@ -22,7 +21,7 @@ void WindowOutput::update_line(std::wstring_view str) {
 }
 
 void WindowOutput::clear() {
-    BasicWindow::clear();
+    BaseWindow::clear();
     _cursor = {};
 }
 

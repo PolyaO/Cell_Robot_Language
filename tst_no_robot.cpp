@@ -1,19 +1,19 @@
 #include <clocale>
 #include <codecvt>
+#include <csignal>
 #include <iostream>
 #include <string>
 #include <string_view>
 #include <variant>
 
-#include "interpreter/rvals/rval.hpp"
 #include "var/var.hpp"
 #include "interpreter/exec/driver.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
-#include "winutil/main-window.hpp"
-#include "winutil/window-file-view.hpp"
-#include "winutil/window-output.hpp"
-#include "winutil/windows-column.hpp"
-#include "winutil/windows-row.hpp"
+#include "winutil/screen.hpp"
+#include "winutil/windows/window-file-view.hpp"
+#include "winutil/windows/window-output.hpp"
+#include "winutil/windows/windows-column.hpp"
+#include "winutil/windows/windows-row.hpp"
 
 // GIRLIE PALLETTE
 #define LIGHT_BLUE COLOR_RGB(179, 222, 226)
@@ -73,10 +73,12 @@ int main(int argc, char *argv[]) {
     std::wcout.imbue(std::locale());  // для вывода wstring
     std::wcin.imbue(std::locale());
 
-    Winutil::MainWindow main_w(std::wcout, Winutil::MainWindow::max_width(),
-                               Winutil::MainWindow::max_height() - 2);
+    Winutil::Screen screen(Winutil::Screen::max_width(),
+                               Winutil::Screen::max_height() - 2);
 
-    auto &main_row_w = main_w.make_window<Winutil::WindowsRow>();
+    std::signal(SIGINT, Winutil::Screen::destroy_handler);
+
+    auto &main_row_w = screen.make_window<Winutil::WindowsRow>();
     auto &debug_w = main_row_w.make_window<Winutil::WindowOutput>();
     auto &right_side_w = main_row_w.make_window<Winutil::WindowsColumn>();
     auto &robot_w = right_side_w.make_window<Winutil::WindowOutput>();
@@ -104,13 +106,13 @@ int main(int argc, char *argv[]) {
 
     debug_w.write(L"DEBUG WINDOW HERE!\n");
     robot_w.write(L"ROBOT HERE!\n");
-    //file_w.select({lineno, 0}, {lineno, Winutil::MainWindow::max_width() / 2});
-    main_w.update();
+    //file_w.select({lineno, 0}, {lineno, Winutil::Screen::max_width() / 2});
+    screen.update();
     //  file_w.select({lineno - 1, 0}, {lineno - 1,
-    //  Winutil::MainWindow::max_width() / 2});
+    //  Winutil::Screen::max_width() / 2});
 
     while (true) {
-        std::wstring prompt = L"> ";
+        std::wstring prompt = L"\r\e[2K> ";
         std::wstring line;
         std::wcout << prompt;
         std::getline(std::wcin, line);
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]) {
             auto next_l = drv.exec_next();
             debug_w.write(std::to_wstring(lineno));
             debug_w.write(L", ");
-            main_w.update();
+            screen.update();
             if (!next_l)
                 return 0;
             else {
@@ -138,9 +140,9 @@ int main(int argc, char *argv[]) {
             }
         }
         //file_w.select({lineno, 0},
-        //              {lineno, Winutil::MainWindow::max_width() / 2});
-        main_w.update();
+        //              {lineno, Winutil::Screen::max_width() / 2});
+        screen.update();
         //  file_w.select({lineno - 1, 0},
-        //               {lineno - 1, Winutil::MainWindow::max_width() / 2});
+        //               {lineno - 1, Winutil::Screen::max_width() / 2});
     }
 }

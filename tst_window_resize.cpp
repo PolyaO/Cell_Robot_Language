@@ -1,8 +1,8 @@
 #include <algorithm>
+#include <array>
 #include <clocale>
 #include <csignal>
 #include <cstdio>
-#include <iostream>
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -13,7 +13,6 @@
 #undef CTRL
 
 // clang-format off
-
 #include "winutil/windows/window-file-view.hpp"
 #include "winutil/windows/windows-row.hpp"
 #include "winutil/engine/colors.hpp"
@@ -61,18 +60,19 @@ int kbhit(void) {
     return 0;
 }
 
+#define HORIZONTAL_NUM 3
+
 int main(void) {
     std::setlocale(LC_ALL, "en_US.utf8");
 
     Winutil::Screen screen(
         Winutil::Screen::max_width(),
-        Winutil::Screen::max_height()
+        Winutil::Screen::max_height() - 30
     );
 
     std::signal(SIGINT, Winutil::Screen::destroy_handler);
 
     auto &main_row_w = screen.make_window<Winutil::WindowsRow>();
-    auto &file_w = main_row_w.make_window<Winutil::WindowFileView>();
 
     using namespace Winutil::engine;
     using namespace Winutil;
@@ -95,29 +95,80 @@ int main(void) {
         COLOR(LIGHT_BLUE, BLACK)
     );
 
-    file_w.set_highlighter(standard_highlight);
-    file_w.open("../winutil/src/winutil/windows/window-file-view.cpp");
-    // file_w.open("asd.txt");
+    std::array<Winutil::WindowFileView *, HORIZONTAL_NUM> file_w;
+    std::array<unsigned, HORIZONTAL_NUM> horiz_sizes;
 
+    for (int i = 0; i < HORIZONTAL_NUM; ++i) {
+        auto &w = main_row_w.make_window<WindowFileView>();
+        w.set_highlighter(standard_highlight);
+        w.open("../winutil/src/winutil/windows/window-file-view.cpp");
+        file_w[i] = &w;
+    }
+
+    for (int i = 0; i < HORIZONTAL_NUM; ++i) {
+        horiz_sizes[i] = file_w[i]->get_size().width;
+    }
+
+    unsigned horiz_no = 0;
     unsigned line = 5;
 
-    // file_w.select({(unsigned)line, 0}, {(unsigned)line, 2});
-    file_w.select({line, 1}, {line, (unsigned)-1});
+    file_w[horiz_no]->select({line, 1}, {line, (unsigned)-1});
+
     screen.update();
 
+#define RES resize = true;
+#define SEL select = true;
     while (kbhit()) {
+        bool resize = false;
+        bool select = false;
+
         // clang-format off
         switch (getchar()) {
-        case 'k': line = std::max(1u, line - 1); break;
-        case 'j': line = std::min((unsigned)file_w.last_line_no(), line+1); break;
-        case 'q': goto end;
+        case 'H':
+            horiz_no = std::max(0, (int)horiz_no-1);
+                                                      ;     ; SEL ;
+            break;
+        case 'L':
+            horiz_no = std::min((unsigned)horiz_sizes.size()-1, horiz_no+1);
+                                                      ;     ; SEL ;
+            break;
+
+        case 'h':
+            horiz_sizes[horiz_no] = std::max(3u, horiz_sizes[horiz_no]-1);
+                                                      ; RES ;     ;
+            break;
+        case 'j':
+            line = std::min((unsigned)file_w[horiz_no]->last_line_no(), line+1);
+                                                      ;     ; SEL ;
+            break;
+        case 'k':
+            line = std::max(1u, line - 1);
+                                                      ;     ; SEL ;
+            break;
+        case 'l':
+            horiz_sizes[horiz_no] += 1;
+                                                      ; RES ;     ;
+            break;
+        case 't':
+            horiz_sizes[horiz_no] = 3;
+                                                      ; RES ;     ;
+            break;
+        case 'q':
+            goto end;
         }
         // clang-format on
 
-        file_w.select({line, 1}, {line, (unsigned)-1});
-        file_w.scroll_to(line, true);
+        if (resize) { main_row_w.resize_windows(horiz_sizes); }
+
+        if (select) {
+            file_w[horiz_no]->select({line, 1}, {line, (unsigned)-1});
+            file_w[horiz_no]->scroll_to(line, true);
+        }
 
         screen.update();
+
+        if (select) { file_w[horiz_no]->clear_selection(); }
     }
 end:
 }
+

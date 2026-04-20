@@ -1,5 +1,5 @@
 #pragma once
-#include "winutil/basic-window.hpp"
+#include "winutil/windows/base-window.hpp"
 #include "winutil/engine/common.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
 #include <functional>
@@ -8,7 +8,7 @@
 
 namespace Winutil {
 
-class WindowFileView : public BasicWindow {
+class WindowFileView : public BaseWindow {
   public:
     struct config {
         bool line_numbers = true;
@@ -20,8 +20,9 @@ class WindowFileView : public BasicWindow {
         unsigned char_no;
     };
 
-    WindowFileView(Winutil::engine::DrawArea &&area) :
-        BasicWindow(std::move(area)) {}
+    WINDOW_CONSTRUCTOR(WindowFileView)
+
+    size_t last_line_no() const noexcept { return _lines.size(); }
 
     void move(engine::DrawArea &&new_area) override;
 
@@ -34,11 +35,11 @@ class WindowFileView : public BasicWindow {
     void set_highlighter(const engine::SyntaxHighlighter &) noexcept;
 
     void select(LinePos from, LinePos to) noexcept;
+    void clear_selection() noexcept;
 
   private:
     void write_content() noexcept;
     void apply_selection() noexcept;
-    void apply_row_selection(unsigned row, unsigned from, unsigned to) noexcept;
 
     engine::WindowPos linepos2winpos(LinePos pos) noexcept;
 

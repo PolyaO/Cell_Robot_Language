@@ -75,6 +75,10 @@ expr
     | DIGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Digitize>($2, @1.begin.line);}
     | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3, @1.begin.line);}
     | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, std::move($3), $6, @1.begin.line);}
+    | IDENTIFIER '=' INTEGER   {$$ = ast.make_val_assignement<int>($1, {}, $3, @1.begin.line);}
+    | IDENTIFIER '[' dim_list ']' '=' INTEGER   {$$ = ast.make_val_assignement<int>($1, std::move($3), $6, @1.begin.line);}
+    | IDENTIFIER '=' BOOLEAN   {$$ = ast.make_val_assignement<bool_t>($1, {}, $3, @1.begin.line);}
+    | IDENTIFIER '[' dim_list ']' '=' BOOLEAN   {$$ = ast.make_val_assignement<bool_t>($1, std::move($3), $6, @1.begin.line);}
     | MOVE                  {$$ = ast.make_robot_expr<ast::Move>( @1.begin.line);}
     | ROTATE_LEFT           {$$ = ast.make_robot_expr<ast::RotateL>( @1.begin.line);}
     | ROTATE_RIGHT          {$$ = ast.make_robot_expr<ast::RotateR>( @1.begin.line);}

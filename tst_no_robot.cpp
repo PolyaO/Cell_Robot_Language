@@ -104,9 +104,10 @@ int main(int argc, char *argv[]) {
 
     debug_w.write(L"DEBUG WINDOW HERE!\n");
     robot_w.write(L"ROBOT HERE!\n");
-    file_w.select({lineno - 1, 0}, {lineno - 1, Winutil::MainWindow::max_width() / 2});
+    file_w.select({lineno, 0}, {lineno, Winutil::MainWindow::max_width() / 2});
     main_w.update();
-    file_w.select({lineno - 1, 0}, {lineno - 1, Winutil::MainWindow::max_width() / 2});
+    //  file_w.select({lineno - 1, 0}, {lineno - 1,
+    //  Winutil::MainWindow::max_width() / 2});
 
     while (true) {
         std::wstring prompt = L"> ";
@@ -115,12 +116,11 @@ int main(int argc, char *argv[]) {
         std::getline(std::wcin, line);
         if (line == L"n") {
             auto next_l = drv.exec_next();
+            debug_w.write(std::to_wstring(lineno));
+            debug_w.write(L" successfully executed\n");
             if (!next_l)
                 return 0;
             else {
-                debug_w.write(std::to_wstring(lineno));
-                debug_w.write(L" successfully executed\n");
-
                 lineno = next_l;
             }
 
@@ -136,10 +136,10 @@ int main(int argc, char *argv[]) {
                 print_variable(var.value(), line, debug_w);
             }
         }
-        file_w.select({lineno - 1, 0},
-                      {lineno - 1, Winutil::MainWindow::max_width() / 2});
+        file_w.select({lineno, 0},
+                      {lineno, Winutil::MainWindow::max_width() / 2});
         main_w.update();
-        file_w.select({lineno - 1, 0},
-                      {lineno - 1, Winutil::MainWindow::max_width() / 2});
+        //  file_w.select({lineno - 1, 0},
+        //               {lineno - 1, Winutil::MainWindow::max_width() / 2});
     }
 }

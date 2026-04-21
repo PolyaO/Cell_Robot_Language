@@ -5,6 +5,7 @@
 #include <string_view>
 #include <variant>
 
+#include "backend/exprs/task.hpp"
 #include "backend/rvals/rval.hpp"
 #include "backend/rvals/unary.hpp"
 #include "backend/rvals/var/binary_op.hpp"
@@ -145,6 +146,7 @@ unsigned ast::AstMaker::make_task(
                                          std::get<unsigned>(arg_list), line);
     _ast.add_task_metainf(task_name, task_idx,
                           make_task_variables(std::move(_variables_avaliable)));
+    std::get<Task>(*_ast.get_expr(task_idx)).set_task_id(task_idx);
     return task_idx;
 }
 
@@ -154,6 +156,7 @@ unsigned ast::AstMaker::make_findexit(std::vector<unsigned> &&exprs,
     auto task_idx = _ast.make_expr<Task>(std::move(exprs), 0, 0, line);
     _ast.add_task_metainf("FINDEXIT", task_idx,
                           make_task_variables(std::move(_variables_avaliable)));
+    std::get<Task>(*_ast.get_expr(task_idx)).set_task_id(task_idx);
     return task_idx;
 }
 

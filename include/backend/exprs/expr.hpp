@@ -6,6 +6,7 @@
 namespace ast {
     struct ExecCtx;
     class Assign;
+    class AssignVal;
     class Logitize;
     class Digitize;
     class Move;
@@ -18,6 +19,7 @@ namespace ast {
     class Task;
     using expr = std::variant<
         Assign,
+        AssignVal,
         Logitize,
         Digitize,
         Move,

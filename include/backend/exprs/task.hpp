@@ -14,6 +14,7 @@ class Task {
     unsigned get_args_number() const noexcept;
     unsigned get_line() const noexcept;
     expr *execute(ExecCtx &ctx);
+    void set_task_id(unsigned) noexcept;
 
    private:
     std::unique_ptr<unsigned[]> _exprs;
@@ -22,6 +23,7 @@ class Task {
     unsigned _res_idx;
     unsigned _line;
     unsigned _args_num;
+    unsigned _task_id = 0;
 
 };
 }  // namespace ast

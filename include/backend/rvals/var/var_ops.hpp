@@ -35,6 +35,14 @@ template <IntegerUnaryOp Op>
 var_type mx_operation(const var_type &a) {
     return std::visit([](auto &v) { return v.template mx_operation<Op>(); }, a);
 }
+template <class T>
+var_type assign_val(var_type &a, T b) {
+    return std::visit([b](auto &v) { return v.template assign_v<T>(b); }, a);
+}
+template <class T>
+var_type assign_val(var_type &&a, T b) {
+    return std::visit([b](auto &v) { return v.template assign_v<T>(b); }, a);
+}
 
 var_type assign(var_type &a, const var_type &b);
 var_type assign(var_type &&a, const var_type &b);

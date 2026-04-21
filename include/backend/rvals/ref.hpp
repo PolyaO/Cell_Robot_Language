@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "backend/rvals/rval.hpp"
 namespace ast {
 class Ref {

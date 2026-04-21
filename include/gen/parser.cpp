@@ -802,284 +802,308 @@ namespace yy {
 #line 803 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 18: // expr: MOVE
+  case 18: // expr: "identifier" '=' "integer"
 #line 78 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::Move>( yystack_[0].location.begin.line);}
+                               {yylhs.value.as < unsigned > () = ast.make_val_assignement<int>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < int > (), yystack_[2].location.begin.line);}
 #line 809 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 19: // expr: ROTATE_LEFT
+  case 19: // expr: "identifier" '[' dim_list ']' '=' "integer"
 #line 79 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::RotateL>( yystack_[0].location.begin.line);}
+                                                {yylhs.value.as < unsigned > () = ast.make_val_assignement<int>(yystack_[5].value.as < std::string > (), std::move(yystack_[3].value.as < std::vector<unsigned> > ()), yystack_[0].value.as < int > (), yystack_[5].location.begin.line);}
 #line 815 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 20: // expr: ROTATE_RIGHT
+  case 20: // expr: "identifier" '=' "boolean"
 #line 80 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::RotateR>( yystack_[0].location.begin.line);}
+                               {yylhs.value.as < unsigned > () = ast.make_val_assignement<bool_t>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < bool > (), yystack_[2].location.begin.line);}
 #line 821 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 21: // expr: DO "identifier" arg_list
+  case 21: // expr: "identifier" '[' dim_list ']' '=' "boolean"
 #line 81 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                             {yylhs.value.as < unsigned > () = ast.make_do(yystack_[1].value.as < std::string > (), std::move(yystack_[0].value.as < std::variant<unsigned, std::vector<unsigned>> > ()), yystack_[2].location.begin.line);}
+                                                {yylhs.value.as < unsigned > () = ast.make_val_assignement<bool_t>(yystack_[5].value.as < std::string > (), std::move(yystack_[3].value.as < std::vector<unsigned> > ()), yystack_[0].value.as < bool > (), yystack_[5].location.begin.line);}
 #line 827 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 22: // complex_expr_stmt: FOR "identifier" BOUNDARY "identifier" STEP "identifier" newline_opt stmt
-#line 84 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                                          {yylhs.value.as < unsigned > () = ast.make_for(yystack_[6].value.as < std::string > (), yystack_[4].value.as < std::string > (), yystack_[2].value.as < std::string > (), yystack_[0].value.as < unsigned > (), yystack_[7].location.begin.line);}
+  case 22: // expr: MOVE
+#line 82 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::Move>( yystack_[0].location.begin.line);}
 #line 833 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 23: // complex_expr_stmt: SWITCH rval newline_opt "boolean" newline_opt stmt
-#line 85 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                                                                       {yylhs.value.as < unsigned > () = ast.make_switch(yystack_[4].value.as < unsigned > (), yystack_[2].value.as < bool > (), yystack_[0].value.as < unsigned > (), false, 0, yystack_[5].location.begin.line);}
+  case 23: // expr: ROTATE_LEFT
+#line 83 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::RotateL>( yystack_[0].location.begin.line);}
 #line 839 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 24: // complex_expr_stmt: SWITCH rval newline_opt "boolean" newline_opt stmt "boolean" newline_opt stmt
-#line 86 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                                                                       {yylhs.value.as < unsigned > () = ast.make_switch(yystack_[7].value.as < unsigned > (), yystack_[5].value.as < bool > (), yystack_[3].value.as < unsigned > (), yystack_[2].value.as < bool > (), yystack_[0].value.as < unsigned > (), yystack_[8].location.begin.line);}
+  case 24: // expr: ROTATE_RIGHT
+#line 84 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                            {yylhs.value.as < unsigned > () = ast.make_robot_expr<ast::RotateR>( yystack_[0].location.begin.line);}
 #line 845 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 25: // complex_expr_stmt: '(' newline_opt stmts ')'
-#line 87 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                              {yylhs.value.as < unsigned > () = ast.make_scope(std::move(yystack_[1].value.as < std::vector<unsigned> > ()), yystack_[3].location.begin.line);}
+  case 25: // expr: DO "identifier" arg_list
+#line 85 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                             {yylhs.value.as < unsigned > () = ast.make_do(yystack_[1].value.as < std::string > (), std::move(yystack_[0].value.as < std::variant<unsigned, std::vector<unsigned>> > ()), yystack_[2].location.begin.line);}
 #line 851 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 26: // stmt: PLEASE expr THANKS '\n' newline_opt
-#line 90 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                          {ast.set_politely_asked(yystack_[3].value.as < unsigned > ()); yylhs.value.as < unsigned > () = yystack_[3].value.as < unsigned > ();}
+  case 26: // complex_expr_stmt: FOR "identifier" BOUNDARY "identifier" STEP "identifier" newline_opt stmt
+#line 88 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                                          {yylhs.value.as < unsigned > () = ast.make_for(yystack_[6].value.as < std::string > (), yystack_[4].value.as < std::string > (), yystack_[2].value.as < std::string > (), yystack_[0].value.as < unsigned > (), yystack_[7].location.begin.line);}
 #line 857 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 27: // stmt: expr '\n' newline_opt
-#line 91 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                          {yylhs.value.as < unsigned > () = yystack_[2].value.as < unsigned > ();}
+  case 27: // complex_expr_stmt: SWITCH rval newline_opt "boolean" newline_opt stmt
+#line 89 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                                                                       {yylhs.value.as < unsigned > () = ast.make_switch(yystack_[4].value.as < unsigned > (), yystack_[2].value.as < bool > (), yystack_[0].value.as < unsigned > (), false, 0, yystack_[5].location.begin.line);}
 #line 863 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 28: // stmt: complex_expr_stmt newline_opt
-#line 92 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                          {yylhs.value.as < unsigned > () = yystack_[1].value.as < unsigned > ();}
+  case 28: // complex_expr_stmt: SWITCH rval newline_opt "boolean" newline_opt stmt "boolean" newline_opt stmt
+#line 90 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                                                                       {yylhs.value.as < unsigned > () = ast.make_switch(yystack_[7].value.as < unsigned > (), yystack_[5].value.as < bool > (), yystack_[3].value.as < unsigned > (), yystack_[2].value.as < bool > (), yystack_[0].value.as < unsigned > (), yystack_[8].location.begin.line);}
 #line 869 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 29: // stmts: stmt
-#line 95 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                           {yylhs.value.as < std::vector<unsigned> > () = ast.make_stmts(); ast.add_to_stmts(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < unsigned > ());}
+  case 29: // complex_expr_stmt: '(' newline_opt stmts ')'
+#line 91 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                              {yylhs.value.as < unsigned > () = ast.make_scope(std::move(yystack_[1].value.as < std::vector<unsigned> > ()), yystack_[3].location.begin.line);}
 #line 875 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 30: // stmts: stmts stmt
-#line 96 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                           {yylhs.value.as < std::vector<unsigned> > () = yystack_[1].value.as < std::vector<unsigned> > (); ast.add_to_stmts(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < unsigned > ());}
+  case 30: // stmt: PLEASE expr THANKS '\n' newline_opt
+#line 94 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                          {ast.set_politely_asked(yystack_[3].value.as < unsigned > ()); yylhs.value.as < unsigned > () = yystack_[3].value.as < unsigned > ();}
 #line 881 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 33: // dim_list: "integer"
-#line 103 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                           {yylhs.value.as < std::vector<unsigned> > () = ast.make_dim_list(); ast.add_to_dim_list(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[0].location.begin.line);}
+  case 31: // stmt: expr '\n' newline_opt
+#line 95 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                          {yylhs.value.as < unsigned > () = yystack_[2].value.as < unsigned > ();}
 #line 887 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 34: // dim_list: dim_list ',' "integer"
-#line 104 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                           {yylhs.value.as < std::vector<unsigned> > () = yystack_[2].value.as < std::vector<unsigned> > (); ast.add_to_dim_list(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[2].location.begin.line);}
+  case 32: // stmt: complex_expr_stmt newline_opt
+#line 96 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                                          {yylhs.value.as < unsigned > () = yystack_[1].value.as < unsigned > ();}
 #line 893 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 35: // arg_list: "identifier"
-#line 107 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                              {yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > () = ast.make_arg_list(); ast.add_to_arg_list(yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > (), yystack_[0].value.as < std::string > (), yystack_[0].location.begin.line);}
+  case 33: // stmts: stmt
+#line 99 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                           {yylhs.value.as < std::vector<unsigned> > () = ast.make_stmts(); ast.add_to_stmts(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < unsigned > ());}
 #line 899 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 36: // arg_list: arg_list ',' "identifier"
-#line 108 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                              {yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > () = yystack_[2].value.as < std::variant<unsigned, std::vector<unsigned>> > (); ast.add_to_arg_list(yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > (), yystack_[0].value.as < std::string > (), yystack_[2].location.begin.line);}
+  case 34: // stmts: stmts stmt
+#line 100 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                           {yylhs.value.as < std::vector<unsigned> > () = yystack_[1].value.as < std::vector<unsigned> > (); ast.add_to_stmts(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < unsigned > ());}
 #line 905 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 37: // rval: rval AND rval
-#line 111 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_and(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+  case 37: // dim_list: "integer"
+#line 107 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                           {yylhs.value.as < std::vector<unsigned> > () = ast.make_dim_list(); ast.add_to_dim_list(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[0].location.begin.line);}
 #line 911 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 38: // rval: rval OR rval
-#line 112 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_or(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+  case 38: // dim_list: dim_list ',' "integer"
+#line 108 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                           {yylhs.value.as < std::vector<unsigned> > () = yystack_[2].value.as < std::vector<unsigned> > (); ast.add_to_dim_list(yylhs.value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[2].location.begin.line);}
 #line 917 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 39: // rval: rval '+' rval
-#line 113 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_sum(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+  case 39: // arg_list: "identifier"
+#line 111 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                              {yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > () = ast.make_arg_list(); ast.add_to_arg_list(yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > (), yystack_[0].value.as < std::string > (), yystack_[0].location.begin.line);}
 #line 923 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 40: // rval: rval '-' rval
-#line 114 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_sub(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+  case 40: // arg_list: arg_list ',' "identifier"
+#line 112 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                              {yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > () = yystack_[2].value.as < std::variant<unsigned, std::vector<unsigned>> > (); ast.add_to_arg_list(yylhs.value.as < std::variant<unsigned, std::vector<unsigned>> > (), yystack_[0].value.as < std::string > (), yystack_[2].location.begin.line);}
 #line 929 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 41: // rval: rval '*' rval
+  case 41: // rval: rval AND rval
 #line 115 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mul(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_and(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 935 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 42: // rval: rval '/' rval
+  case 42: // rval: rval OR rval
 #line 116 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_div(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_or(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 941 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 43: // rval: rval '[' dim_list ']'
+  case 43: // rval: rval '+' rval
 #line 117 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                             {yylhs.value.as < unsigned > () = ast.make_idx(yystack_[3].value.as < unsigned > (), std::move(yystack_[1].value.as < std::vector<unsigned> > ()), yystack_[3].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_sum(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 947 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 44: // rval: unary
+  case 44: // rval: rval '-' rval
 #line 118 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = yystack_[0].value.as < unsigned > ();}
+                      {yylhs.value.as < unsigned > () = ast.make_sub(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 953 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 45: // unary: primary
-#line 121 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = yystack_[0].value.as < unsigned > ();}
+  case 45: // rval: rval '*' rval
+#line 119 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                      {yylhs.value.as < unsigned > () = ast.make_mul(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 959 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 46: // unary: NOT unary
-#line 122 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_not(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+  case 46: // rval: rval '/' rval
+#line 120 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                      {yylhs.value.as < unsigned > () = ast.make_div(yystack_[2].value.as < unsigned > (), yystack_[0].value.as < unsigned > (), yystack_[2].location.begin.line);}
 #line 965 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 47: // unary: MXTRUE unary
-#line 123 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxtrue(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+  case 47: // rval: rval '[' dim_list ']'
+#line 121 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                             {yylhs.value.as < unsigned > () = ast.make_idx(yystack_[3].value.as < unsigned > (), std::move(yystack_[1].value.as < std::vector<unsigned> > ()), yystack_[3].location.begin.line);}
 #line 971 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 48: // unary: MXFALSE unary
-#line 124 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxfalse(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+  case 48: // rval: unary
+#line 122 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                      {yylhs.value.as < unsigned > () = yystack_[0].value.as < unsigned > ();}
 #line 977 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 49: // unary: MXEQ unary
+  case 49: // unary: primary
 #line 125 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxeq(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = yystack_[0].value.as < unsigned > ();}
 #line 983 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 50: // unary: MXLT unary
+  case 50: // unary: NOT unary
 #line 126 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxlt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_not(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 989 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 51: // unary: MXGT unary
+  case 51: // unary: MXTRUE unary
 #line 127 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxgt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxtrue(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 995 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 52: // unary: MXLTE unary
+  case 52: // unary: MXFALSE unary
 #line 128 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxlte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxfalse(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1001 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 53: // unary: MXGTE unary
+  case 53: // unary: MXEQ unary
 #line 129 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_mxgte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxeq(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1007 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 54: // unary: ELEQ unary
+  case 54: // unary: MXLT unary
 #line 130 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_eleq(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxlt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1013 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 55: // unary: ELLT unary
+  case 55: // unary: MXGT unary
 #line 131 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_ellt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxgt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1019 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 56: // unary: ELGT unary
+  case 56: // unary: MXLTE unary
 #line 132 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_elgt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxlte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1025 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 57: // unary: ELLTE unary
+  case 57: // unary: MXGTE unary
 #line 133 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_ellte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_mxgte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1031 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 58: // unary: ELGTE unary
+  case 58: // unary: ELEQ unary
 #line 134 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_elgte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_eleq(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1037 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 59: // unary: SIZE unary
+  case 59: // unary: ELLT unary
 #line 135 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                      {yylhs.value.as < unsigned > () = ast.make_size(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_ellt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1043 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 60: // unary: REDUCE unary '[' "integer" ',' "integer" ']'
+  case 60: // unary: ELGT unary
 #line 136 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                               {yylhs.value.as < unsigned > () = ast.make_change<ast::Reduce>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > (), yystack_[6].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_elgt(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1049 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 61: // unary: EXTEND unary '[' "integer" ',' "integer" ']'
+  case 61: // unary: ELLTE unary
 #line 137 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                               {yylhs.value.as < unsigned > () = ast.make_change<ast::Extend>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > (), yystack_[6].location.begin.line);}
+                      {yylhs.value.as < unsigned > () = ast.make_ellte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1055 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 62: // primary: "identifier"
-#line 140 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                {yylhs.value.as < unsigned > () = ast.make_ref(yystack_[0].value.as < std::string > (), yystack_[0].location.begin.line);}
+  case 62: // unary: ELGTE unary
+#line 138 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                      {yylhs.value.as < unsigned > () = ast.make_elgte(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1061 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 63: // primary: GET "identifier"
-#line 141 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                {yylhs.value.as < unsigned > () = ast.make_res(yystack_[0].value.as < std::string > (), yystack_[1].location.begin.line);}
+  case 63: // unary: SIZE unary
+#line 139 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                      {yylhs.value.as < unsigned > () = ast.make_size(yystack_[0].value.as < unsigned > (), yystack_[1].location.begin.line);}
 #line 1067 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 64: // primary: GET_ENVIRONMENT
-#line 142 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                {yylhs.value.as < unsigned > () = ast.make_env(yystack_[0].location.begin.line);}
+  case 64: // unary: REDUCE unary '[' "integer" ',' "integer" ']'
+#line 140 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                               {yylhs.value.as < unsigned > () = ast.make_change<ast::Reduce>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > (), yystack_[6].location.begin.line);}
 #line 1073 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
-  case 65: // primary: '(' rval ')'
-#line 143 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                {yylhs.value.as < unsigned > () = yystack_[1].value.as < unsigned > ();}
+  case 65: // unary: EXTEND unary '[' "integer" ',' "integer" ']'
+#line 141 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                               {yylhs.value.as < unsigned > () = ast.make_change<ast::Extend>(yystack_[5].value.as < unsigned > (), yystack_[3].value.as < int > (), yystack_[1].value.as < int > (), yystack_[6].location.begin.line);}
 #line 1079 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
+  case 66: // primary: "identifier"
+#line 144 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                {yylhs.value.as < unsigned > () = ast.make_ref(yystack_[0].value.as < std::string > (), yystack_[0].location.begin.line);}
+#line 1085 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+    break;
 
-#line 1083 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+  case 67: // primary: GET "identifier"
+#line 145 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                {yylhs.value.as < unsigned > () = ast.make_res(yystack_[0].value.as < std::string > (), yystack_[1].location.begin.line);}
+#line 1091 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+    break;
+
+  case 68: // primary: GET_ENVIRONMENT
+#line 146 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                {yylhs.value.as < unsigned > () = ast.make_env(yystack_[0].location.begin.line);}
+#line 1097 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+    break;
+
+  case 69: // primary: '(' rval ')'
+#line 147 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
+                                {yylhs.value.as < unsigned > () = yystack_[1].value.as < unsigned > ();}
+#line 1103 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+    break;
+
+
+#line 1107 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
 
             default:
               break;
@@ -1542,124 +1566,136 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -90;
+  const signed char parser::yypact_ninf_ = -99;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const short
   parser::yypact_[] =
   {
-      19,    30,    37,    19,   -90,   -90,   -90,    54,     9,   -90,
-     -90,   -90,    -8,   -90,   -90,    56,    17,    17,   -90,    -3,
-      64,    66,   139,    68,    69,    70,   -90,   -90,   -90,    84,
-     -90,   -90,    24,   -90,   -90,    67,   182,   139,    73,    54,
-      71,   -90,    76,   139,   139,   139,   -90,   139,   139,   139,
-     139,   139,   139,   139,   139,   139,   139,   139,   139,   139,
-     139,   181,   -90,   -90,     1,   -90,   -90,    60,    17,   -90,
-      29,   -90,   -90,    88,   181,   -90,   -34,    41,    93,   -90,
-     -90,    50,    51,   -90,   -90,   -90,   -90,   -90,   -90,   -90,
-     -90,   -90,   -90,   -90,   -90,   -90,   -20,   139,   139,   139,
-     139,   139,   139,    73,    -2,    46,    73,    49,   118,    29,
-      29,    52,    62,   105,    98,   108,   109,   -90,   122,   115,
-     -26,   -26,    72,    72,   -31,   -90,   -90,   -90,   -24,   -90,
-     -90,    75,   139,   -90,   117,    65,    77,   -90,    17,    85,
-      29,   -90,   181,   -90,   119,   130,   133,    48,    29,    17,
-      74,   100,   -90,   -90,   -90,   -90,   -90,   -90,    17,   -90
+       1,    35,    20,     1,   -99,   -99,   -99,    29,    -8,   -99,
+     -99,   -99,    25,   -99,   -99,    46,    -1,    -1,   -99,     6,
+      73,    83,   205,    91,    98,    99,   -99,   -99,   -99,   127,
+     -99,   -99,    52,   -99,   -99,    22,   248,   119,   100,    29,
+     101,   -99,   112,   205,   205,   205,   -99,   205,   205,   205,
+     205,   205,   205,   205,   205,   205,   205,   205,   205,   205,
+     205,    79,   -99,   -99,    17,   -99,   -99,    95,    -1,   -99,
+      66,   -99,   -99,   122,   -99,   -99,    79,   -99,   -25,    80,
+     128,   -99,   -99,    87,    90,   -99,   -99,   -99,   -99,   -99,
+     -99,   -99,   -99,   -99,   -99,   -99,   -99,   -99,    30,   205,
+     205,   205,   205,   205,   205,   100,     0,    78,   100,    89,
+      70,    66,    66,    96,   105,   142,   156,   166,   167,   -99,
+     145,    67,   -20,   -20,   132,   132,   -19,   -99,   -99,   -99,
+     -18,   -99,   -99,   130,   162,   -99,   180,   131,   134,   -99,
+      -1,   139,    66,   -99,   -99,   -99,    79,   -99,   184,   185,
+     186,    85,    66,    -1,   146,   161,   -99,   -99,   -99,   -99,
+     -99,   -99,    -1,   -99
   };
 
   const signed char
   parser::yydefact_[] =
   {
        2,     0,     0,     3,     4,     6,     7,     0,     0,     1,
-       5,    35,     0,    31,    31,     0,     0,     0,    36,     0,
-       0,     0,     0,     0,     0,     0,    18,    19,    20,     0,
-      31,    32,     0,    31,    29,     0,     0,     0,     0,     0,
-       0,    62,     0,     0,     0,     0,    64,     0,     0,     0,
+       5,    39,     0,    35,    35,     0,     0,     0,    40,     0,
+       0,     0,     0,     0,     0,     0,    22,    23,    24,     0,
+      35,    36,     0,    35,    33,     0,     0,     0,     0,     0,
+       0,    66,     0,     0,     0,     0,    68,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    31,    44,    45,     0,    14,    15,     0,     0,    31,
-      28,    31,    30,     0,    16,    33,     0,    21,     0,    63,
-      59,     0,     0,    46,    47,    48,    49,    50,    51,    52,
-      53,    54,    55,    56,    57,    58,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    27,
-       9,     0,     0,     0,     0,     0,     0,    65,    38,    37,
-      39,    40,    41,    42,     0,    31,    10,    11,     0,    31,
-      25,     0,     0,    34,     0,     0,     0,    43,     0,     0,
-      26,    31,    17,    31,     0,     0,    23,     0,     8,     0,
-       0,     0,    31,    12,    13,    22,    60,    61,     0,    24
+       0,    35,    48,    49,     0,    14,    15,     0,     0,    35,
+      32,    35,    34,     0,    18,    20,    16,    37,     0,    25,
+       0,    67,    63,     0,     0,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61,    62,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,    31,     9,     0,     0,     0,     0,     0,     0,    69,
+      42,    41,    43,    44,    45,    46,     0,    35,    10,    11,
+       0,    35,    29,     0,     0,    38,     0,     0,     0,    47,
+       0,     0,    30,    35,    19,    21,    17,    35,     0,     0,
+      27,     0,     8,     0,     0,     0,    35,    12,    13,    26,
+      64,    65,     0,    28
   };
 
   const short
   parser::yypgoto_[] =
   {
-     -90,   -90,   -90,   154,   -90,   -90,   129,   -90,   -33,   -12,
-     -14,   -89,   123,   -36,   190,   -90
+     -99,   -99,   -99,   188,   -99,   -99,   165,   -99,   -34,   -12,
+     -14,   -98,   172,   -33,   232,   -99
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
        0,     2,     3,     4,     5,     6,    32,    33,    34,    35,
-      16,    76,    12,    61,    62,    63
+      16,    78,    12,    61,    62,    63
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-      17,    74,    72,    72,   125,    36,   101,   102,    97,    98,
-      99,   100,   101,   102,   124,   112,    68,   128,   137,    70,
-     113,    19,   103,   113,    96,   139,     1,    20,   103,    21,
-     113,   117,    22,    23,     7,    24,    25,     9,     8,    26,
-      27,    28,    14,    29,    37,    38,    15,   104,   105,   106,
-      31,   126,   127,   153,   154,   109,   108,   110,    11,    13,
-      18,   118,   119,   120,   121,   122,   123,    30,    39,    31,
-      40,    19,    64,    65,    66,    72,    69,    20,    75,    21,
-      79,    31,    22,    23,    78,    24,    25,   107,    19,    26,
-      27,    28,   111,    29,    20,    15,   142,   114,   115,   116,
-      23,   129,    24,    25,   131,   146,    26,    27,    28,   132,
-     133,   138,   134,   135,   136,   140,   155,    30,    71,   144,
-     103,   143,    19,   156,   150,   159,   141,   148,    20,   149,
-      21,   145,   147,    22,    23,   151,    24,    25,   158,   152,
-      26,    27,    28,    41,    29,    99,   100,   101,   102,   157,
-      42,    98,    99,   100,   101,   102,    43,    10,    67,    44,
-      45,     0,    77,   103,    46,     0,     0,     0,    30,   130,
-     103,     0,     0,    47,    48,    49,    50,    51,    52,    53,
-      54,    55,    56,    57,    58,    59,    19,     0,     0,    60,
-       0,    73,    20,     0,    21,     0,     0,    22,    23,     0,
-      24,    25,     0,     0,    26,    27,    28,     0,    29,    97,
-      98,    99,   100,   101,   102,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,   103,
-       0,     0,    30,    80,    81,    82,     0,    83,    84,    85,
-      86,    87,    88,    89,    90,    91,    92,    93,    94,    95
+      17,    72,    72,    19,    76,    36,   127,   126,     1,    20,
+     130,    21,   103,   104,    22,    23,    68,    24,    25,    70,
+       9,    26,    27,    28,   114,    29,    19,    98,   105,   115,
+     139,   141,    20,    11,    21,   115,   115,    22,    23,     7,
+      24,    25,    13,     8,    26,    27,    28,   106,    29,    30,
+      18,    31,    31,    37,    38,   111,   110,   112,    99,   100,
+     101,   102,   103,   104,   107,   108,   120,   121,   122,   123,
+     124,   125,    30,    71,    19,    14,    72,    39,   105,    15,
+      20,   119,    21,   128,   129,    22,    23,    40,    24,    25,
+     157,   158,    26,    27,    28,    64,    29,   101,   102,   103,
+     104,   146,    65,    66,    69,    77,   150,    99,   100,   101,
+     102,   103,   104,   140,    80,   105,    81,   142,    31,   159,
+      30,   132,   109,    41,    74,    75,   113,   105,   163,   152,
+      42,    19,   116,   153,    15,   117,    43,    20,   118,    44,
+      45,   131,   162,    23,    46,    24,    25,   135,   133,    26,
+      27,    28,   134,    47,    48,    49,    50,    51,    52,    53,
+      54,    55,    56,    57,    58,    59,    41,   144,   145,    60,
+     136,   137,   138,    42,   100,   101,   102,   103,   104,    43,
+     105,   143,    44,    45,   147,   148,   151,    46,   149,   154,
+     155,    10,   156,   105,    67,   160,    47,    48,    49,    50,
+      51,    52,    53,    54,    55,    56,    57,    58,    59,    41,
+     161,    79,    60,     0,     0,     0,    42,     0,     0,     0,
+       0,     0,    43,     0,     0,    44,    45,     0,     0,     0,
+      46,     0,     0,     0,     0,     0,     0,     0,     0,    47,
+      48,    49,    50,    51,    52,    53,    54,    55,    56,    57,
+      58,    59,    19,     0,     0,    60,     0,    73,    20,     0,
+      21,     0,     0,    22,    23,     0,    24,    25,     0,     0,
+      26,    27,    28,     0,    29,    82,    83,    84,     0,    85,
+      86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
+      96,    97,     0,     0,     0,     0,     0,     0,    30
   };
 
   const short
   parser::yycheck_[] =
   {
-      14,    37,    35,    36,     6,    17,    32,    33,    28,    29,
-      30,    31,    32,    33,   103,    49,    30,   106,    49,    33,
-      54,     4,    48,    54,    60,    49,     7,    10,    48,    12,
-      54,    51,    15,    16,     4,    18,    19,     0,     8,    22,
-      23,    24,    50,    26,    47,    48,    54,    61,    47,    48,
-      52,     5,     6,     5,     6,    69,    68,    71,     4,    50,
-       4,    97,    98,    99,   100,   101,   102,    50,     4,    52,
-       4,     4,     4,     4,     4,   108,    52,    10,     5,    12,
-       4,    52,    15,    16,    13,    18,    19,    27,     4,    22,
-      23,    24,     4,    26,    10,    54,   132,     4,    48,    48,
-      16,    52,    18,    19,    52,   138,    22,    23,    24,    47,
-       5,   125,    14,     5,     5,   129,   149,    50,    51,    54,
-      48,     4,     4,    49,     5,   158,    51,   141,    10,   143,
-      12,    54,    47,    15,    16,     5,    18,    19,   152,     6,
-      22,    23,    24,     4,    26,    30,    31,    32,    33,    49,
-      11,    29,    30,    31,    32,    33,    17,     3,    29,    20,
-      21,    -1,    39,    48,    25,    -1,    -1,    -1,    50,    51,
-      48,    -1,    -1,    34,    35,    36,    37,    38,    39,    40,
-      41,    42,    43,    44,    45,    46,     4,    -1,    -1,    50,
-      -1,     9,    10,    -1,    12,    -1,    -1,    15,    16,    -1,
-      18,    19,    -1,    -1,    22,    23,    24,    -1,    26,    28,
-      29,    30,    31,    32,    33,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    48,
-      -1,    -1,    50,    43,    44,    45,    -1,    47,    48,    49,
-      50,    51,    52,    53,    54,    55,    56,    57,    58,    59
+      14,    35,    36,     4,    37,    17,     6,   105,     7,    10,
+     108,    12,    32,    33,    15,    16,    30,    18,    19,    33,
+       0,    22,    23,    24,    49,    26,     4,    60,    48,    54,
+      49,    49,    10,     4,    12,    54,    54,    15,    16,     4,
+      18,    19,    50,     8,    22,    23,    24,    61,    26,    50,
+       4,    52,    52,    47,    48,    69,    68,    71,    28,    29,
+      30,    31,    32,    33,    47,    48,    99,   100,   101,   102,
+     103,   104,    50,    51,     4,    50,   110,     4,    48,    54,
+      10,    51,    12,     5,     6,    15,    16,     4,    18,    19,
+       5,     6,    22,    23,    24,     4,    26,    30,    31,    32,
+      33,   134,     4,     4,    52,     5,   140,    28,    29,    30,
+      31,    32,    33,   127,    13,    48,     4,   131,    52,   153,
+      50,    51,    27,     4,     5,     6,     4,    48,   162,   143,
+      11,     4,     4,   147,    54,    48,    17,    10,    48,    20,
+      21,    52,   156,    16,    25,    18,    19,     5,    52,    22,
+      23,    24,    47,    34,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    44,    45,    46,     4,     5,     6,    50,
+      14,     5,     5,    11,    29,    30,    31,    32,    33,    17,
+      48,    51,    20,    21,     4,    54,    47,    25,    54,     5,
+       5,     3,     6,    48,    29,    49,    34,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    44,    45,    46,     4,
+      49,    39,    50,    -1,    -1,    -1,    11,    -1,    -1,    -1,
+      -1,    -1,    17,    -1,    -1,    20,    21,    -1,    -1,    -1,
+      25,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,     4,    -1,    -1,    50,    -1,     9,    10,    -1,
+      12,    -1,    -1,    15,    16,    -1,    18,    19,    -1,    -1,
+      22,    23,    24,    -1,    26,    43,    44,    45,    -1,    47,
+      48,    49,    50,    51,    52,    53,    54,    55,    56,    57,
+      58,    59,    -1,    -1,    -1,    -1,    -1,    -1,    50
   };
 
   const signed char
@@ -1672,15 +1708,16 @@ namespace yy {
        4,     4,    11,    17,    20,    21,    25,    34,    35,    36,
       37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
       50,    68,    69,    70,     4,     4,     4,    61,    65,    52,
-      65,    51,    63,     9,    68,     5,    66,    67,    13,     4,
-      69,    69,    69,    69,    69,    69,    69,    69,    69,    69,
-      69,    69,    69,    69,    69,    69,    68,    28,    29,    30,
-      31,    32,    33,    48,    65,    47,    48,    27,    64,    65,
-      65,     4,    49,    54,     4,    48,    48,    51,    68,    68,
-      68,    68,    68,    68,    66,     6,     5,     6,    66,    52,
-      51,    52,    47,     5,    14,     5,     5,    49,    65,    49,
-      65,    51,    68,     4,    54,    54,    63,    47,    65,    65,
-       5,     5,     6,     5,     6,    63,    49,    49,    65,    63
+      65,    51,    63,     9,     5,     6,    68,     5,    66,    67,
+      13,     4,    69,    69,    69,    69,    69,    69,    69,    69,
+      69,    69,    69,    69,    69,    69,    69,    69,    68,    28,
+      29,    30,    31,    32,    33,    48,    65,    47,    48,    27,
+      64,    65,    65,     4,    49,    54,     4,    48,    48,    51,
+      68,    68,    68,    68,    68,    68,    66,     6,     5,     6,
+      66,    52,    51,    52,    47,     5,    14,     5,     5,    49,
+      65,    49,    65,    51,     5,     6,    68,     4,    54,    54,
+      63,    47,    65,    65,     5,     5,     6,     5,     6,    63,
+      49,    49,    65,    63
   };
 
   const signed char
@@ -1688,23 +1725,23 @@ namespace yy {
   {
        0,    55,    56,    56,    57,    57,    58,    58,    59,    60,
       61,    61,    61,    61,    61,    61,    61,    61,    61,    61,
-      61,    61,    62,    62,    62,    62,    63,    63,    63,    64,
-      64,    65,    65,    66,    66,    67,    67,    68,    68,    68,
-      68,    68,    68,    68,    68,    69,    69,    69,    69,    69,
+      61,    61,    61,    61,    61,    61,    62,    62,    62,    62,
+      63,    63,    63,    64,    64,    65,    65,    66,    66,    67,
+      67,    68,    68,    68,    68,    68,    68,    68,    68,    69,
       69,    69,    69,    69,    69,    69,    69,    69,    69,    69,
-      69,    69,    70,    70,    70,    70
+      69,    69,    69,    69,    69,    69,    70,    70,    70,    70
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     0,     1,     1,     2,     1,     1,    11,     7,
-       4,     4,     7,     7,     2,     2,     3,     6,     1,     1,
-       1,     3,     8,     6,     9,     4,     5,     3,     2,     1,
-       2,     0,     2,     1,     3,     1,     3,     3,     3,     3,
-       3,     3,     3,     4,     1,     1,     2,     2,     2,     2,
+       4,     4,     7,     7,     2,     2,     3,     6,     3,     6,
+       3,     6,     1,     1,     1,     3,     8,     6,     9,     4,
+       5,     3,     2,     1,     2,     0,     2,     1,     3,     1,
+       3,     3,     3,     3,     3,     3,     3,     4,     1,     1,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       7,     7,     1,     2,     1,     3
+       2,     2,     2,     2,     7,     7,     1,     2,     1,     3
   };
 
 
@@ -1716,11 +1753,11 @@ namespace yy {
   {
        0,    52,    52,    53,    56,    57,    60,    61,    64,    67,
       70,    71,    72,    73,    74,    75,    76,    77,    78,    79,
-      80,    81,    84,    85,    86,    87,    90,    91,    92,    95,
-      96,    99,   100,   103,   104,   107,   108,   111,   112,   113,
-     114,   115,   116,   117,   118,   121,   122,   123,   124,   125,
+      80,    81,    82,    83,    84,    85,    88,    89,    90,    91,
+      94,    95,    96,    99,   100,   103,   104,   107,   108,   111,
+     112,   115,   116,   117,   118,   119,   120,   121,   122,   125,
      126,   127,   128,   129,   130,   131,   132,   133,   134,   135,
-     136,   137,   140,   141,   142,   143
+     136,   137,   138,   139,   140,   141,   144,   145,   146,   147
   };
 
   void
@@ -1752,5 +1789,5 @@ namespace yy {
 
 
 } // yy
-#line 1756 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
+#line 1793 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
 

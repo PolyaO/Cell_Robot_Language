@@ -1,5 +1,6 @@
 #pragma once
 #include <backend/exprs.hpp>
+#include <iostream>
 #include <string_view>
 #include <tuple>
 #include <variant>
@@ -12,7 +13,6 @@
 #include "interpreter/ast.hpp"
 #include "interpreter/defs.hpp"
 #include "interpreter/exceptions/build_exceptions.hpp"
-#include <iostream>
 
 #define YY_DECL yy::parser::symbol_type yylex(ast::AstMaker &ast)
 
@@ -78,6 +78,19 @@ class AstMaker {
     unsigned make_assignement(std::string_view var_name,
                               std::vector<unsigned> &&dim_list,
                               unsigned rval_idx, unsigned line);
+    template <class T>
+        requires std::same_as<std::decay_t<T>, int> ||
+                 std::same_as<std::decay_t<T>, bool_t>
+    unsigned make_val_assignement(std::string_view var_name,
+                                  std::vector<unsigned> &&dim_list, T val,
+                                  unsigned line) {
+        auto it = check_for_var_unknown(var_name, line);
+        unsigned idx = std::get<1>(*it);
+        if (!dim_list.empty())
+            idx = _ast.make_rval<Idx>(idx, std::move(dim_list), line);
+
+        return _ast.make_expr<AssignVal>(idx, val, line);
+    }
     template <class T>
         requires std::same_as<std::decay_t<T>, Move> ||
                  std::same_as<std::decay_t<T>, RotateL> ||

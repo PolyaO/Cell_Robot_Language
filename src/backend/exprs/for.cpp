@@ -1,13 +1,12 @@
-#include "backend/exprs/for.hpp"
-
-#include <ranges>
-
 #include "backend/rvals.hpp"
 #include "backend/rvals/rval.hpp"
 #include "backend/rvals/var/var.hpp"
 #include "backend/rvals/var/var_ops.hpp"
 #include "interpreter/exceptions/runtime_exceptions.hpp"
 #include "interpreter/exec_ctx.hpp"
+
+#include <ranges>
+
 
 ast::For::For(unsigned counter, unsigned boundary, unsigned step, unsigned stmt,
               unsigned line)
@@ -53,18 +52,6 @@ ast::expr *ast::For::execute(ExecCtx &ctx) {
         return ctx.ast.get_expr(_stmt);
     }
 
-    // for (auto &&[cnt, stp, bnd] : std::views::zip(counter, step, boundary)) {
-    //     cnt += stp;
-    //     if (stp < 0) {
-    //         if (cnt > bnd) {
-    //             return ctx.ast.get_expr(_stmt);
-    //         }
-    //     } else {
-    //         if (cnt < bnd) {
-    //             return ctx.ast.get_expr(_stmt);
-    //         }
-    //     }
-    // }
     _is_first_step = true;
     _step_number = 0;
     return nullptr;

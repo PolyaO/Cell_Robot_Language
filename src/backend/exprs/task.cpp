@@ -17,12 +17,14 @@ ast::Task::Task(std::vector<unsigned> &&exprs, unsigned res_idx,
 unsigned ast::Task::get_res_idx() const noexcept { return _res_idx; }
 unsigned ast::Task::get_args_number() const noexcept { return _args_num; }
 unsigned ast::Task::get_line() const noexcept { return _line; }
+void ast::Task::set_task_id(unsigned id) noexcept {_task_id = id;}
 
 ast::expr* ast::Task::execute(ExecCtx &ctx) {
     if (_next_expr_idx == _exprs_size) {
         _next_expr_idx = 0;
         return nullptr;
     }
+    ctx.curr_task_idx = _task_id;
     return ctx.ast.get_expr(_exprs[_next_expr_idx++]);
 }
 

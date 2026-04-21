@@ -16,4 +16,5 @@ var::var_type ast::Idx::execute(ExecCtx &ctx) const {
         throw InterpreterRuntimeError(std::format("{} {}", _line, e.what()));
     }
 }
-unsigned ast::Idx::get_line() { return _line; }
+unsigned ast::Idx::get_line() const noexcept { return _line; }
+const std::vector<unsigned> &ast::Idx::get_dim() const noexcept { return _dim; }

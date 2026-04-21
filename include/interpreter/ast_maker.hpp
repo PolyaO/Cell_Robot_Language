@@ -20,6 +20,7 @@ namespace ast {
 class AstMaker {
    public:
     using var_dict_t = std::vector<std::tuple<std::string, unsigned, unsigned>>;
+    using task_calls_t = std::vector<std::tuple<std::string, unsigned, unsigned>>;
     Ast get_ast();
     yy::location loc;
 
@@ -140,6 +141,7 @@ class AstMaker {
    private:
     Ast _ast;
     var_dict_t _variables_avaliable;
+    task_calls_t _unprocessed_task_calls;
     var_dict_t::const_iterator find_var(std::string_view var);
     var_dict_t::const_iterator find_var(unsigned assign_idx);
     var_dict_t::const_iterator check_for_var_unknown(std::string_view var,
@@ -151,6 +153,7 @@ class AstMaker {
                                           unsigned line);
     void remove_scope_variables(const std::vector<unsigned> &vec);
     variables_t make_task_variables(var_dict_t &&dict);
+    void process_task_calls(std::string_view task_name);
 };
 }  // namespace ast
 YY_DECL;

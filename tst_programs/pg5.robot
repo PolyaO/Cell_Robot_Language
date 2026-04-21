@@ -1,10 +1,20 @@
+TASK CHECKSWITCH V, RES(
+    VAR one = 1
+    VAR zero = 0
+    SWITCH MXTRUE V
+    TRUE (
+        RES = one
+    )
+    FALSE (
+        RES = zero
+    )
+    RESULT RES
+)
 TASK FINDEXIT (
-    VAR res = 0
-    VAR exe = 1
-    VAR A  = TRUE
-    VAR B  = FALSE
-    SWITCH A TRUE 
-    res = res + exe
-    SWITCH A OR B TRUE res = res + exe
-    FALSE res = exe 
+    VAR r = 5
+    VAR A [1,2,3] = TRUE
+    VAR b [3] = FALSE
+    A [1] = b
+    DO CHECKSWITCH A, r
+    VAR D = 0
 )

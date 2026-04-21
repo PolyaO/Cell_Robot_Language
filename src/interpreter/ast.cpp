@@ -49,9 +49,9 @@ unsigned ast::Ast::get_expr_idx(ast::expr *_expr) {
     return res;
 }
 
-std::optional<unsigned> ast::Ast::get_task_idx(std::string_view task_name) {
+unsigned ast::Ast::get_task_idx(std::string_view task_name) {
     auto it = find_task_metainf_by_name(task_name);
-    if (it == _tasks_metainf.end()) return std::optional<unsigned>();
+    if (it == _tasks_metainf.end()) return 0;
     return std::get<1>(*it);
 }
 

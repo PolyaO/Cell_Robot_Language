@@ -11,6 +11,7 @@ class Do {
    public:
     Do(unsigned task_idx, std::vector<unsigned> &&arg_list, unsigned line);
     void set_politely_asked() noexcept;
+    void set_task_idx(unsigned idx) noexcept;
     bool is_politely_asked() const noexcept;
     unsigned get_line() const noexcept;
     expr *execute(ExecCtx &ctx);

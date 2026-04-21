@@ -55,7 +55,7 @@ void ast::AstMaker::check_for_taskname_redeclaration(
     auto task_idx = _ast.get_task_idx(task_name);
     if (task_idx) {
         unsigned line = std::visit([](auto &task) { return task.get_line(); },
-                                   *_ast.get_expr(task_idx.value()));
+                                   *_ast.get_expr(task_idx));
         throw TaskRedeclare(task_name, line, line);
     }
 }
@@ -147,6 +147,7 @@ unsigned ast::AstMaker::make_task(
     _ast.add_task_metainf(task_name, task_idx,
                           make_task_variables(std::move(_variables_avaliable)));
     std::get<Task>(*_ast.get_expr(task_idx)).set_task_id(task_idx);
+    process_task_calls(task_name);
     return task_idx;
 }
 
@@ -157,6 +158,7 @@ unsigned ast::AstMaker::make_findexit(std::vector<unsigned> &&exprs,
     _ast.add_task_metainf("FINDEXIT", task_idx,
                           make_task_variables(std::move(_variables_avaliable)));
     std::get<Task>(*_ast.get_expr(task_idx)).set_task_id(task_idx);
+    process_task_calls("FINDEXIT");
     return task_idx;
 }
 
@@ -174,9 +176,12 @@ unsigned ast::AstMaker::make_do(
     std::string_view task_name,
     std::variant<unsigned, std::vector<unsigned>> &&arg_list, unsigned line) {
     auto idx = _ast.get_task_idx(task_name);
-    if (!idx) throw TaskUnknown(task_name, line);
-    return _ast.make_expr<Do>(idx.value(), std::move(std::get<1>(arg_list)),
+    auto do_idx =  _ast.make_expr<Do>(idx, std::move(std::get<1>(arg_list)),
                               line);
+    if (!idx) {
+        _unprocessed_task_calls.emplace_back(task_name, do_idx, line);
+    }
+    return do_idx;
 }
 
 unsigned ast::AstMaker::make_for(std::string_view counter,
@@ -319,7 +324,7 @@ unsigned ast::AstMaker::make_ref(std::string_view var_name, unsigned line) {
 unsigned ast::AstMaker::make_res(std::string_view task_name, unsigned line) {
     auto idx = _ast.get_task_idx(task_name);
     if (!idx) throw TaskUnknown(task_name, line);
-    return _ast.make_rval<Res>(idx.value(), line);
+    return _ast.make_rval<Res>(idx, line);
 }
 
 unsigned ast::AstMaker::make_env(unsigned line) {
@@ -330,5 +335,18 @@ unsigned ast::AstMaker::make_idx(unsigned rval_idx,
                                  std::vector<unsigned> &&dim_list,
                                  unsigned line) {
     return _ast.make_rval<Idx>(rval_idx, std::move(dim_list), line);
+}
+
+void ast::AstMaker::process_task_calls(std::string_view task_name) {
+    for (auto &call : _unprocessed_task_calls) {
+        if (std::get<0>(call) != task_name) {
+            throw TaskUnknown(std::get<0>(call),std::get<2>(call));
+        }
+        else {
+            ast::Do & do_ = std::get<ast::Do>(*_ast.get_expr(std::get<1>(call)));
+            do_.set_task_idx(_ast.get_task_idx(task_name));
+        }
+    }
+    _unprocessed_task_calls.clear();
 }
 

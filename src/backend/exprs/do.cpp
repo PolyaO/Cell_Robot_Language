@@ -17,6 +17,7 @@ ast::Do::Do(unsigned task_idx, std::vector<unsigned> &&arg_list, unsigned line)
 
 bool ast::Do::is_politely_asked() const noexcept { return _is_politely_asked; }
 void ast::Do::set_politely_asked() noexcept { _is_politely_asked = true; }
+void ast::Do::set_task_idx(unsigned idx) noexcept { _task_idx = idx; }
 ast::expr *ast::Do::execute(ExecCtx &ctx) {
     if (_is_executed) {
         _is_executed = false;

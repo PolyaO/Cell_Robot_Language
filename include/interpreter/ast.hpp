@@ -25,7 +25,7 @@ class Ast {
                           variables_t &&map);
     unsigned get_expr_idx(expr *_expr);
 
-    std::optional<unsigned> get_task_idx(std::string_view task_name);
+    unsigned  get_task_idx(std::string_view task_name);
     std::string_view get_task_name(unsigned task_idx);
     std::optional<var::var_type> get_variable(std::string_view var_name,
                                               unsigned task_idx);

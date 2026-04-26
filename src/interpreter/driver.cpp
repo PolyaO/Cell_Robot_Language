@@ -99,16 +99,6 @@ unsigned Driver::exec_next() {
     _exec_stack.push(next);
     return stack_top_line();
 }
-// unsigned Driver::exec_next() {
-//     auto next = stack_top_exe();
-//     while (!next) {
-//         _exec_stack.pop();
-//         if (_exec_stack.empty()) return 0;
-//         next = stack_top_exe();
-//     }
-//     _exec_stack.push(next);
-//     return stack_top_line();
-// }
 
 void Driver::scan_begin(bool trace_scanning) {
     yyset_debug(trace_scanning);

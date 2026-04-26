@@ -12,13 +12,13 @@
 #undef CTRL
 
 // clang-format off
-#include "robot/winutil/window_maze.hpp"
+#include "robot/windows/window_maze.hpp"
 #include "robot/ideal_robot.hpp"
 #include "var/var.hpp"
 #include "var/bool.hpp"
 #include "var/var_ops.hpp"
 
-#include "robot/winutil/window_maze.hpp"
+#include "robot/windows/window_maze.hpp"
 #include "robot/ideal_robot.hpp"
 
 #include "winutil/engine/colors.hpp"

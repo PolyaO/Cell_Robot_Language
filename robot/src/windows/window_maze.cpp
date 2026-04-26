@@ -1,5 +1,4 @@
-#include <robot/winutil/window_maze.hpp>
-
+#include "robot/windows/window_maze.hpp"
 #include "robot/maze.hpp"
 #include "winutil/engine/colors.hpp"
 

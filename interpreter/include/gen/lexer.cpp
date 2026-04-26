@@ -1,6 +1,6 @@
-#line 1 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 1 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 
-#line 3 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 3 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -577,8 +577,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "src/interpreter/lexer.l"
-#line 2 "src/interpreter/lexer.l"
+#line 1 "src/lexer.l"
+#line 2 "src/lexer.l"
 
 #include <string>
 #include <cerrno>
@@ -592,9 +592,9 @@ using par = yy::parser;
 
 par::symbol_type make_INTEGER(const std::string& s, int base,
                               const par::location_type& loc);
-#line 595 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 595 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 #define YY_NO_INPUT 1
-#line 597 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 597 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 
 #define INITIAL 0
 
@@ -809,16 +809,16 @@ YY_DECL
 		}
 
 	{
-#line 26 "src/interpreter/lexer.l"
+#line 26 "src/lexer.l"
 
 
 
-#line 30 "src/interpreter/lexer.l"
+#line 30 "src/lexer.l"
   yy::location &loc = ast.loc;
   loc.step ();
 
 
-#line 821 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 821 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -883,242 +883,242 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 34 "src/interpreter/lexer.l"
+#line 34 "src/lexer.l"
 return par::make_TASK(loc);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 35 "src/interpreter/lexer.l"
+#line 35 "src/lexer.l"
 return par::make_FINDEXIT(loc);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 36 "src/interpreter/lexer.l"
+#line 36 "src/lexer.l"
 return par::make_DO(loc);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 37 "src/interpreter/lexer.l"
+#line 37 "src/lexer.l"
 return par::make_GET(loc);
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 38 "src/interpreter/lexer.l"
+#line 38 "src/lexer.l"
 return par::make_RESULT(loc);
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 40 "src/interpreter/lexer.l"
+#line 40 "src/lexer.l"
 return par::make_FOR(loc);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 41 "src/interpreter/lexer.l"
+#line 41 "src/lexer.l"
 return par::make_BOUNDARY(loc);
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 42 "src/interpreter/lexer.l"
+#line 42 "src/lexer.l"
 return par::make_STEP(loc);
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 44 "src/interpreter/lexer.l"
+#line 44 "src/lexer.l"
 return par::make_SWITCH(loc);
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 46 "src/interpreter/lexer.l"
+#line 46 "src/lexer.l"
 return par::make_VAR(loc);
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 47 "src/interpreter/lexer.l"
+#line 47 "src/lexer.l"
 return par::make_SIZE(loc);
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 48 "src/interpreter/lexer.l"
+#line 48 "src/lexer.l"
 return par::make_LOGITIZE(loc);
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "src/interpreter/lexer.l"
+#line 49 "src/lexer.l"
 return par::make_DIGITIZE(loc);
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "src/interpreter/lexer.l"
+#line 50 "src/lexer.l"
 return par::make_REDUCE(loc);
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 51 "src/interpreter/lexer.l"
+#line 51 "src/lexer.l"
 return par::make_EXTEND(loc);
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 53 "src/interpreter/lexer.l"
+#line 53 "src/lexer.l"
 return par::make_MXEQ(loc);
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 54 "src/interpreter/lexer.l"
+#line 54 "src/lexer.l"
 return par::make_MXLT(loc);
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 55 "src/interpreter/lexer.l"
+#line 55 "src/lexer.l"
 return par::make_MXGT(loc);
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 56 "src/interpreter/lexer.l"
+#line 56 "src/lexer.l"
 return par::make_MXLTE(loc);
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "src/interpreter/lexer.l"
+#line 57 "src/lexer.l"
 return par::make_MXGTE(loc);
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 59 "src/interpreter/lexer.l"
+#line 59 "src/lexer.l"
 return par::make_ELEQ(loc);
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 60 "src/interpreter/lexer.l"
+#line 60 "src/lexer.l"
 return par::make_ELLT(loc);
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 61 "src/interpreter/lexer.l"
+#line 61 "src/lexer.l"
 return par::make_ELGT(loc);
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 62 "src/interpreter/lexer.l"
+#line 62 "src/lexer.l"
 return par::make_ELLTE(loc);
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 63 "src/interpreter/lexer.l"
+#line 63 "src/lexer.l"
 return par::make_ELGTE(loc);
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 65 "src/interpreter/lexer.l"
+#line 65 "src/lexer.l"
 return par::make_AND(loc);
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 66 "src/interpreter/lexer.l"
+#line 66 "src/lexer.l"
 return par::make_OR(loc);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 68 "src/interpreter/lexer.l"
+#line 68 "src/lexer.l"
 return par::make_MXTRUE(loc);
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 69 "src/interpreter/lexer.l"
+#line 69 "src/lexer.l"
 return par::make_MXFALSE(loc);
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 71 "src/interpreter/lexer.l"
+#line 71 "src/lexer.l"
 return par::make_MOVE(loc);
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 72 "src/interpreter/lexer.l"
+#line 72 "src/lexer.l"
 return par::make_ROTATE_LEFT(loc);
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 73 "src/interpreter/lexer.l"
+#line 73 "src/lexer.l"
 return par::make_ROTATE_RIGHT(loc);
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 74 "src/interpreter/lexer.l"
+#line 74 "src/lexer.l"
 return par::make_GET_ENVIRONMENT(loc);
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 76 "src/interpreter/lexer.l"
+#line 76 "src/lexer.l"
 return par::make_PLEASE(loc);
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 77 "src/interpreter/lexer.l"
+#line 77 "src/lexer.l"
 return par::make_THANKS(loc);
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 79 "src/interpreter/lexer.l"
+#line 79 "src/lexer.l"
 return par::make_BOOLEAN(true, loc);
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 80 "src/interpreter/lexer.l"
+#line 80 "src/lexer.l"
 return par::make_BOOLEAN(false, loc);
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 82 "src/interpreter/lexer.l"
+#line 82 "src/lexer.l"
 return make_INTEGER(yytext, 8, loc);
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 83 "src/interpreter/lexer.l"
+#line 83 "src/lexer.l"
 return make_INTEGER(yytext, 10, loc);
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 84 "src/interpreter/lexer.l"
+#line 84 "src/lexer.l"
 return make_INTEGER(yytext, 16, loc);
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 86 "src/interpreter/lexer.l"
+#line 86 "src/lexer.l"
 return par::make_IDENTIFIER(yytext, loc);
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 87 "src/interpreter/lexer.l"
+#line 87 "src/lexer.l"
 return par::symbol_type(*yytext, loc);
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 88 "src/interpreter/lexer.l"
+#line 88 "src/lexer.l"
 loc.step();
 	YY_BREAK
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 89 "src/interpreter/lexer.l"
+#line 89 "src/lexer.l"
 loc.lines(yyleng); loc.step(); return par::symbol_type(*yytext, loc);
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 90 "src/interpreter/lexer.l"
+#line 90 "src/lexer.l"
 { throw par::syntax_error
                         (loc, "Flex: invalid character: " + std::string(yytext));
 }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 93 "src/interpreter/lexer.l"
+#line 93 "src/lexer.l"
 return par::make_YYEOF(loc);
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 96 "src/interpreter/lexer.l"
+#line 96 "src/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1121 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.cpp"
+#line 1121 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2093,7 +2093,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 96 "src/interpreter/lexer.l"
+#line 96 "src/lexer.l"
 
 
 par::symbol_type make_INTEGER(const std::string &s, int base,

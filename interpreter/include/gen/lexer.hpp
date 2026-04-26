@@ -2,9 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 5 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.hpp"
+#line 5 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.hpp"
 
-#line 7 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.hpp"
+#line 7 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.hpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -469,9 +469,9 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 96 "src/interpreter/lexer.l"
+#line 96 "src/lexer.l"
 
 
-#line 475 "/home/paleman/polka/repos/TA/lab3/include/gen/lexer.hpp"
+#line 475 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.hpp"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

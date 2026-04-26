@@ -14,9 +14,9 @@
 // clang-format off
 #include "robot/winutil/window_maze.hpp"
 #include "robot/ideal_robot.hpp"
-#include "backend/rvals/var/var.hpp"
-#include "backend/rvals/var/bool.hpp"
-#include "backend/rvals/var/var_ops.hpp"
+#include "var/var.hpp"
+#include "var/bool.hpp"
+#include "var/var_ops.hpp"
 
 #include "winutil/engine/colors.hpp"
 #include "winutil/main-window.hpp"

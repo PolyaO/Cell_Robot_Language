@@ -22,7 +22,7 @@
 
 %code {
     #include "interpreter/ast_maker.hpp"
-    #include "backend/rvals/var/bool.hpp"
+    #include "var/bool.hpp"
 }
 %define api.token.prefix {TOK_}
 %left LOWEST
@@ -67,10 +67,10 @@ find_exit
     : TASK FINDEXIT '('newline_opt stmts')' newline_opt {$$ = ast.make_findexit(std::move($5), @1.begin.line);}
     ;
 expr
-    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_var<int>($2, {}, $4, @1.begin.line);}
-    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var<bool_t>($2, {}, $4, @1.begin.line);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var<int>($2, $4, $7, @1.begin.line);}
-    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var<bool_t>($2, $4, $7, @1.begin.line);}
+    : VAR IDENTIFIER '=' INTEGER                     {$$ = ast.make_var_declaration<int>($2, {}, $4, @1.begin.line);}
+    | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var_declaration<bool_t>($2, {}, $4, @1.begin.line);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var_declaration<int>($2, $4, $7, @1.begin.line);}
+    | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var_declaration<bool_t>($2, $4, $7, @1.begin.line);}
     | LOGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Logitize>($2, @1.begin.line);}
     | DIGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Digitize>($2, @1.begin.line);}
     | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3, @1.begin.line);}

@@ -45,7 +45,7 @@
 #line 23 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
 
     #include "interpreter/ast_maker.hpp"
-    #include "backend/rvals/var/bool.hpp"
+    #include "var/bool.hpp"
 
 #line 51 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
 
@@ -756,25 +756,25 @@ namespace yy {
 
   case 10: // expr: VAR "identifier" '=' "integer"
 #line 70 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                     {yylhs.value.as < unsigned > () = ast.make_var<int>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < int > (), yystack_[3].location.begin.line);}
+                                                     {yylhs.value.as < unsigned > () = ast.make_var_declaration<int>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < int > (), yystack_[3].location.begin.line);}
 #line 761 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
   case 11: // expr: VAR "identifier" '=' "boolean"
 #line 71 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                     {yylhs.value.as < unsigned > () = ast.make_var<bool_t>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < bool > (), yystack_[3].location.begin.line);}
+                                                     {yylhs.value.as < unsigned > () = ast.make_var_declaration<bool_t>(yystack_[2].value.as < std::string > (), {}, yystack_[0].value.as < bool > (), yystack_[3].location.begin.line);}
 #line 767 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
   case 12: // expr: VAR "identifier" '[' dim_list ']' '=' "integer"
 #line 72 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                     {yylhs.value.as < unsigned > () = ast.make_var<int>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[6].location.begin.line);}
+                                                     {yylhs.value.as < unsigned > () = ast.make_var_declaration<int>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::vector<unsigned> > (), yystack_[0].value.as < int > (), yystack_[6].location.begin.line);}
 #line 773 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 
   case 13: // expr: VAR "identifier" '[' dim_list ']' '=' "boolean"
 #line 73 "/home/paleman/polka/repos/TA/lab3/src/interpreter/parse.yy"
-                                                     {yylhs.value.as < unsigned > () = ast.make_var<bool_t>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::vector<unsigned> > (), yystack_[0].value.as < bool > (), yystack_[6].location.begin.line);}
+                                                     {yylhs.value.as < unsigned > () = ast.make_var_declaration<bool_t>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::vector<unsigned> > (), yystack_[0].value.as < bool > (), yystack_[6].location.begin.line);}
 #line 779 "/home/paleman/polka/repos/TA/lab3/include/gen/parser.cpp"
     break;
 

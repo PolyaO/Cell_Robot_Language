@@ -1,34 +1,39 @@
 #pragma once
-#include <backend/exprs.hpp>
-#include <backend/rvals.hpp>
 #include <concepts>
-#include <optional>
+#include <interpreter/exprs.hpp>
+#include <interpreter/rvals.hpp>
+#include <interpreter/rvals/rval.hpp>
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <backend/rvals/rval.hpp>
-
-#include "interpreter/defs.hpp"
 
 namespace ast {
 class Ast {
    public:
-    using metainf_vector_t =
-        std::vector<std::tuple<std::string, unsigned, variables_t>>;
+    struct VarMetainf {
+        std::string var_name;
+        unsigned ref_idx;
+        unsigned real_idx;
+    };
 
-    Ast();
+    using vars_metainf_t = std::vector<VarMetainf>;
+    struct TaskMetainf {
+        std::string task_name;
+        vars_metainf_t vars_metainf;
+        unsigned decl_line;
+        unsigned task_idx;
+        unsigned args_number;
+        unsigned res_ref_idx;
+        unsigned ctx_vars_number;
+        unsigned ctx_scope_counters_number;
+    };
+    using tasks_metainf_t = std::vector<TaskMetainf>;
+
+    Ast() = default;
 
     expr *get_expr(unsigned expr_idx);
-    expr *get_find_exit();
     rval &get_rval(unsigned rval_idx);
-    void add_task_metainf(std::string_view task_name, unsigned task_idx,
-                          variables_t &&map);
-    unsigned get_expr_idx(expr *_expr);
-
-    unsigned  get_task_idx(std::string_view task_name);
-    std::string_view get_task_name(unsigned task_idx);
-    std::optional<var::var_type> get_variable(std::string_view var_name,
-                                              unsigned task_idx);
+    void add_task_metainf(TaskMetainf &&task_metainf);
 
     template <ExprType T, class... Args>
         requires(std::constructible_from<T, Args...>)
@@ -44,14 +49,13 @@ class Ast {
         return _rvals.size() - 1;
     }
 
-    metainf_vector_t::const_iterator find_task_metainf_by_idx(
-        unsigned task_idx) noexcept;
-    metainf_vector_t::const_iterator find_task_metainf_by_name(
-        std::string_view task_name) noexcept;
+    const TaskMetainf *find_task_metainf(unsigned task_idx) const noexcept;
+    const TaskMetainf *find_task_metainf(
+        std::string_view task_name) const noexcept;
 
    private:
     std::vector<expr> _exprs;
     std::vector<rval> _rvals;
-    metainf_vector_t _tasks_metainf;
+    tasks_metainf_t _tasks_metainf;
 };
 }  // namespace ast

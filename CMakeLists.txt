@@ -33,25 +33,24 @@ add_flex_bison_dependency(Lexer Parser)
      src/interpreter/ast_maker.cpp
  )
 
-#add_executable(tst_variables tst_var.cpp src/backend/rvals/var_ops.cpp)
+#add_executable(tst_variables tst_var.cpp src/interpreter/rvals/var_ops.cpp)
 include_directories(include)
 include_directories(include/gen)
 include_directories(winutil/include)
+include_directories(var/include)
 
 add_subdirectory(winutil)
+add_subdirectory(var)
 
-file(GLOB_RECURSE EXP_SOURCES "${PROJECT_SOURCE_DIR}/src/backend/exprs/*.cpp")
-file(GLOB_RECURSE RVAL_SOURCES "${PROJECT_SOURCE_DIR}/src/backend/rvals/*.cpp")
 file(GLOB_RECURSE INTERPR_SOURCES "${PROJECT_SOURCE_DIR}/src/interpreter/*.cpp")
 file(GLOB_RECURSE ROBOT_SOURCES "${PROJECT_SOURCE_DIR}/src/robot/*.cpp")
+file(GLOB_RECURSE INTERPR_SOURCES "${PROJECT_SOURCE_DIR}/src/interpreter/*.cpp")
 
-file(GLOB_RECURSE VAR_SOURCES "${PROJECT_SOURCE_DIR}/src/backend/rvals/var_ops.cpp")
 
 
-add_executable(tst_no_robot tst_no_robot.cpp ${EXP_SOURCES} ${RVAL_SOURCES} ${ROBOT_SOURCES} ${INTERPR_SOURCES})
-add_executable(tst_maze winutil_test.cpp ${ROBOT_SOURCES} ${VAR_SOURCES})
+add_executable(tst_no_robot tst_no_robot.cpp ${ROBOT_SOURCES} ${INTERPR_SOURCES})
+add_executable(tst_maze winutil_test.cpp ${ROBOT_SOURCES} )
 add_executable(tst_file_view tst_file_view.cpp)
-target_link_libraries(tst_no_robot PRIVATE winutil)
-target_link_libraries(tst_no_robot PRIVATE parser_lib)
-target_link_libraries(tst_maze PRIVATE winutil)
-target_link_libraries(tst_file_view PRIVATE winutil)
+target_link_libraries(tst_no_robot PRIVATE winutil parser_lib var)
+target_link_libraries(tst_maze PRIVATE winutil var)
+target_link_libraries(tst_file_view PRIVATE winutil var)

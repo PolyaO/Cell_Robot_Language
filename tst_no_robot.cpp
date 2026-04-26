@@ -5,9 +5,9 @@
 #include <string_view>
 #include <variant>
 
-#include "backend/rvals/rval.hpp"
-#include "backend/rvals/var/var.hpp"
-#include "interpreter/driver.hpp"
+#include "interpreter/rvals/rval.hpp"
+#include "var/var.hpp"
+#include "interpreter/exec/driver.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
 #include "winutil/main-window.hpp"
 #include "winutil/window-file-view.hpp"
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
                   << std::endl;
         return 1;
     }
-    driver::Driver drv;
+    exec::Driver drv;
     unsigned lineno = drv.initialize(argv[1], argv[2]);
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     debug_w.write(L"DEBUG WINDOW HERE!\n");
     robot_w.write(L"ROBOT HERE!\n");
-    file_w.select({lineno, 0}, {lineno, Winutil::MainWindow::max_width() / 2});
+    //file_w.select({lineno, 0}, {lineno, Winutil::MainWindow::max_width() / 2});
     main_w.update();
     //  file_w.select({lineno - 1, 0}, {lineno - 1,
     //  Winutil::MainWindow::max_width() / 2});
@@ -117,7 +117,8 @@ int main(int argc, char *argv[]) {
         if (line == L"n") {
             auto next_l = drv.exec_next();
             debug_w.write(std::to_wstring(lineno));
-            debug_w.write(L" successfully executed\n");
+            debug_w.write(L", ");
+            main_w.update();
             if (!next_l)
                 return 0;
             else {
@@ -136,8 +137,8 @@ int main(int argc, char *argv[]) {
                 print_variable(var.value(), line, debug_w);
             }
         }
-        file_w.select({lineno, 0},
-                      {lineno, Winutil::MainWindow::max_width() / 2});
+        //file_w.select({lineno, 0},
+        //              {lineno, Winutil::MainWindow::max_width() / 2});
         main_w.update();
         //  file_w.select({lineno - 1, 0},
         //               {lineno - 1, Winutil::MainWindow::max_width() / 2});

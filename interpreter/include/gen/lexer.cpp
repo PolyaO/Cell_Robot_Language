@@ -1,6 +1,6 @@
-#line 1 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 1 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 
-#line 3 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 3 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -592,9 +592,9 @@ using par = yy::parser;
 
 par::symbol_type make_INTEGER(const std::string& s, int base,
                               const par::location_type& loc);
-#line 595 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 595 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 #define YY_NO_INPUT 1
-#line 597 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 597 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 
 #define INITIAL 0
 
@@ -818,7 +818,7 @@ YY_DECL
   loc.step ();
 
 
-#line 821 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 821 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1118,7 +1118,7 @@ YY_RULE_SETUP
 #line 96 "src/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1121 "/home/roma004/Documents/Projects/labs/polina/Cell_Robot_Language/interpreter/include/interpreter/gen/lexer.cpp"
+#line 1121 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.cpp"
 
 	case YY_END_OF_BUFFER:
 		{

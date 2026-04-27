@@ -14,6 +14,7 @@ class Driver {
                     std::string_view program_filename,
                     bool trace_parsing = false, bool trace_scanning = false);
     unsigned exec_next();
+    unsigned get_next_lineno() const noexcept;
     std::optional<var::var_type> get_var(std::string_view var_name);
     std::string_view get_curr_task_name();
 
@@ -22,7 +23,7 @@ class Driver {
     void scan_begin(bool trace_scanning);
     void scan_end();
     ast::expr *stack_top_exe();
-    unsigned stack_top_line();
+    unsigned stack_top_line() const noexcept;
 
     std::stack<ast::expr *> _exec_stack;
     GlobalCtx _ctx;

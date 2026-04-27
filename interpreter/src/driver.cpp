@@ -71,9 +71,14 @@ ast::expr *Driver::stack_top_exe() {
                       *_exec_stack.top());
 }
 
-unsigned Driver::stack_top_line() {
+unsigned Driver::stack_top_line() const noexcept {
     return std::visit([](auto &_expr) { return _expr.get_line(); },
                       *_exec_stack.top());
+}
+
+unsigned Driver::get_next_lineno() const noexcept {
+    if (_exec_stack.empty()) return 0;
+    return stack_top_line();
 }
 
 unsigned Driver::exec_next() {

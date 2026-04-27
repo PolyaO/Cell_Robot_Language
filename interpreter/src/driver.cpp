@@ -48,6 +48,7 @@ ast::Ast Driver::parse(bool trace_parsing, bool trace_scanning) {
 }
 
 std::optional<var::var_type> Driver::get_var(std::string_view var_name) {
+    if (_exec_stack.empty()) return std::nullopt;
     auto curr_task_inf =
         *_ctx.ast.find_task_metainf(_ctx.get_curr_ctx().get_task_idx());
     auto var_inf = std::find_if(
@@ -61,7 +62,7 @@ std::optional<var::var_type> Driver::get_var(std::string_view var_name) {
 }
 
 std::string_view Driver::get_curr_task_name() {
-    auto curr_task_inf =
+    auto &curr_task_inf =
         *_ctx.ast.find_task_metainf(_ctx.get_curr_ctx().get_task_idx());
     return curr_task_inf.task_name;
 }

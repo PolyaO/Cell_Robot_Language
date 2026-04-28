@@ -1,9 +1,7 @@
-#include <algorithm>
 #include <clocale>
 #include <csignal>
 #include <cstdlib>
 #include <cwchar>
-#include <functional>
 #include <iostream>
 #include <ostream>
 #include <ranges>
@@ -12,7 +10,9 @@
 #include <variant>
 
 #include "interpreter/exec/driver.hpp"
+#include "var/bool.hpp"
 #include "var/var.hpp"
+#include "var/var_ops.hpp"
 
 // cland-format off
 #include <readline/readline.h>
@@ -40,38 +40,62 @@
 #define LEMONADE COLOR_RGB(242, 214, 161)
 #define LIMONCH  COLOR_RGB(241, 168, 5)
 
+namespace std {
+wstring to_wstring(bool_t b) { return b ? L"T" : L"F"; }
+} // namespace std
+
+template <class T>
+void print_variable_value(const var::Var<T> &var, Winutil::WindowOutput &w) {
+    const var::dim_t &dim = var.get_dim();
+    if (dim.size() == 1 && dim[0] == 1) {
+        w.write(std::to_wstring(var[0]));
+        return;
+    }
+    w.write(L"{");
+    for (unsigned i = 1; i < dim[0]; ++i) {
+        print_variable_value(var._idx({i}), w);
+        w.write(L",");
+    }
+    print_variable_value(var._idx({dim[0]}), w);
+    w.write(L"}");
+}
+
+void print_variable_value(const var::var_type &var, Winutil::WindowOutput &w) {
+    if (std::holds_alternative<var::Var<int>>(var)) {
+        print_variable_value(std::get<var::Var<int>>(var), w);
+    } else {
+        print_variable_value(std::get<var::Var<bool_t>>(var), w);
+    }
+}
+
 void print_variable(
-    const var::var_type &a, std::wstring_view var, Winutil::WindowOutput &w
+    const var::var_type &var, std::wstring_view name, Winutil::WindowOutput &w
 ) {
-    if (std::holds_alternative<var::Var<int>>(a)) {
-        w.write(L"IntVar ");
-    } else w.write(L"BoolVar ");
-    std::visit(
-        [&](auto &v) {
-            auto val = v.get_val();
-            auto dim = v.get_dim();
-            w.write(var);
-            w.write(L"\n");
-            w.write(L"val: ");
-            std::visit(
-                [&](auto &mx) {
-                    for (auto &e : mx) {
-                        w.write(std::to_wstring(e));
-                        w.write(L", ");
-                    }
-                    w.write(L"\n");
-                },
-                val
-            );
-            w.write(L"dim: ");
-            for (auto &e : dim) {
-                w.write(std::to_wstring(e));
-                w.write(L", ");
-            }
-            w.write(L"\n");
-        },
-        a
-    );
+    if (std::holds_alternative<var::Var<int>>(var)) {
+        w.write(L"IntVar: ");
+    } else {
+        w.write(L"BoolVar: ");
+    }
+
+    const var::dim_t &dim = var::get_dim(var);
+
+    w.write(name);
+    w.write(L" [");
+    for (int i = 0; i < dim.size() - 1; ++i) {
+        w.write(std::to_wstring(dim[i]));
+        w.write(L", ");
+    }
+    w.write(std::to_wstring(dim.back()));
+    if (dim.size() < 3) {
+        w.write(L"] = {");
+        print_variable_value(var, w);
+        w.write(L"}");
+    } else {
+        w.write(L"] = {\n");
+        print_variable_value(var, w);
+        w.write(L"\n}");
+    }
+    w.write(L"\n");
 }
 
 #define CLEAR_CMD L"clear"

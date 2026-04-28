@@ -18,24 +18,24 @@
         [&](auto &_name_a) {                                 \
             return std::visit([&](auto &_name_b) _body, _b); \
         },                                                   \
-        _a)
+        _a                                                   \
+    )
 
-#define DOUBLEVISIT(_a, _name_a, _b, _name_b, _body) \
-    std::visit(                                      \
-        [&](auto &_name_a) { std::visit([&](auto &_name_b) _body, _b); }, _a)
+#define DOUBLEVISIT(_a, _name_a, _b, _name_b, _body)                         \
+    std::visit(                                                              \
+        [&](auto &_name_a) { std::visit([&](auto &_name_b) _body, _b); }, _a \
+    )
 
 #define THROW(_msg) throw std::runtime_error(_msg)
 
 namespace var {
 
-template <class T>
-class Var;
+template <class T> class Var;
 using var_type = std::variant<Var<int>, Var<bool_t>>;
 using dim_t = std::vector<unsigned>;
 
-template <class T>
-class Var {
-   public:
+template <class T> class Var {
+  public:
     using iterator = T *;
     using const_iterator = const T *;
     using dim_t = var::dim_t;
@@ -59,10 +59,8 @@ class Var {
         return *(begin() + idx);
     }
 
-    template <class U>
-    var_type assign(const Var<U> &other);
-    template <class U>
-    var_type assign_v(U other);
+    template <class U> var_type assign(const Var<U> &other);
+    template <class U> var_type assign_v(U other);
 
     template <IntegerBinaryOp Op, class U>
     var_type operation(const Var<U> &other) const;
@@ -70,16 +68,12 @@ class Var {
     template <LogicalBinaryOp Op, class U>
     var_type operation(const Var<U> &other) const;
 
-    template <IntegerUnaryOp Op>
-    var_type operation() const;
+    template <IntegerUnaryOp Op> var_type operation() const;
 
-    template <LogicalUnaryOp Op>
-    var_type operation() const;
+    template <LogicalUnaryOp Op> var_type operation() const;
 
-    template <LogicalUnaryOp Op>
-    var_type mx_operation() const;
-    template <IntegerUnaryOp Op>
-    var_type mx_operation() const;
+    template <LogicalUnaryOp Op> var_type mx_operation() const;
+    template <IntegerUnaryOp Op> var_type mx_operation() const;
     var_type copy_ref();
 
     const var_type _idx(const dim_t &idx) const;
@@ -96,12 +90,10 @@ class Var {
     const dim_t &get_dim() const;
     const val_t &get_val() const;
 
-    template <class U>
-    bool operator==(const Var<U> &other) const;
+    template <class U> bool operator==(const Var<U> &other) const;
 
-   private:
-    template <class U>
-    Var(Var<U>::dim_t &&dim, Var<U>::val_t &&val);
+  private:
+    template <class U> Var(Var<U>::dim_t &&dim, Var<U>::val_t &&val);
     void check_dims_zeroes(const dim_t &dim, std::string_view msg) const;
     void check_diff_dims(const dim_t &dim, std::string_view msg) const;
     void check_idx(const dim_t &idx) const;
@@ -128,11 +120,11 @@ template <class T>
 void Var<T>::check_diff_dims(const dim_t &dim, std::string_view msg) const {
     if (_dim != dim)
         THROW(
-            std::format("Variables with different dimensions used in {}", msg));
+            std::format("Variables with different dimensions used in {}", msg)
+        );
 }
 
-template <class T>
-void Var<T>::check_idx(const dim_t &idx) const {
+template <class T> void Var<T>::check_idx(const dim_t &idx) const {
     if (idx.size() > _dim.size())
         THROW("Idx sequence is longer than dimensions list");
     for (auto [real_idx, idx_seq] : std::views::enumerate(idx)) {
@@ -147,12 +139,12 @@ void Var<T>::check_dim_idx(unsigned dim_idx, std::string_view msg) const {
     if (dim_idx > _dim.size())
         THROW(std::format("Dimension idx is out of range in {}", msg));
     if (dim_idx == 0)
-        THROW(std::format("Zero used as dimension in {}. Idx starts from 1",
-                          msg));
+        THROW(
+            std::format("Zero used as dimension in {}. Idx starts from 1", msg)
+        );
 }
 
-template <class T>
-void Var<T>::delete_extra_ones(dim_t &dim) const {
+template <class T> void Var<T>::delete_extra_ones(dim_t &dim) const {
     std::erase(dim, 1);
     if (dim.empty()) dim.emplace_back(1);
 }
@@ -161,25 +153,23 @@ template <class T>
 Var<T>::dim_t Var<T>::make_dim_drop_1(const dim_t &dim) const {
     if (dim.size() == 1) {
         return {1};
-    } else
-        return dim_t(dim.begin() + 1, dim.end());
+    } else return dim_t(dim.begin() + 1, dim.end());
 }
 
 template <class T>
 template <class InputIt>
 unsigned Var<T>::mul_dims(InputIt first, InputIt last) const {
-    return std::accumulate(first, last, 1,
-                           [](unsigned a, unsigned b) { return a * b; });
+    return std::accumulate(first, last, 1, [](unsigned a, unsigned b) {
+        return a * b;
+    });
 }
 
-template <class T>
-unsigned Var<T>::_val_size() const {
+template <class T> unsigned Var<T>::_val_size() const {
     return std::visit([](auto &v) { return v.size(); }, _val);
 }
 
 // основные методы Var
-template <class T>
-Var<T>::Var(T def_val, const dim_t &dim) {
+template <class T> Var<T>::Var(T def_val, const dim_t &dim) {
     check_dims_zeroes(dim, "var declaration");
     _dim = dim;
     delete_extra_ones(_dim);
@@ -188,8 +178,8 @@ Var<T>::Var(T def_val, const dim_t &dim) {
 }
 
 template <class T>
-Var<T>::Var(T def_val, std::span<const unsigned> dim)
-    : _dim(dim.begin(), dim.end()) {
+Var<T>::Var(T def_val, std::span<const unsigned> dim) :
+    _dim(dim.begin(), dim.end()) {
     check_dims_zeroes(_dim, "var declaration");
     delete_extra_ones(_dim);
     unsigned val_size = mul_dims(_dim.begin(), _dim.end());
@@ -212,43 +202,41 @@ var_type Var<T>::assign(const Var<U> &other) {
         THROW("different types in assignement");
     else {
         check_diff_dims(other._dim, "assignement");
-        DOUBLEVISIT(_val, v1, other._val, v2,
-                    { std::ranges::copy(v2, v1.begin()); });
+        DOUBLEVISIT(_val, v1, other._val, v2, {
+            std::ranges::copy(v2, v1.begin());
+        });
         _dim = other._dim;
         return (*this).copy_ref();
     }
 }
 
-template <class T>
-template <class U>
-var_type Var<T>::assign_v(U other) {
+template <class T> template <class U> var_type Var<T>::assign_v(U other) {
     if constexpr (!std::is_same_v<T, U>)
         THROW("different types in assignement");
     std::visit(
         [other](auto &v) {
             for (auto &el : v) el = other;
         },
-        _val);
+        _val
+    );
     return (*this).copy_ref();
 }
-template <class T>
-Var<T>::iterator Var<T>::begin() {
-    return std::visit([](auto &v) { return v.data(); }, _val);
+template <class T> Var<T>::iterator Var<T>::begin() {
+    return std::visit([](auto &v) { return (T *)v.data(); }, _val);
 }
 
-template <class T>
-Var<T>::iterator Var<T>::end() {
-    return std::visit([](auto &v) { return v.data() + v.size(); }, _val);
+template <class T> Var<T>::iterator Var<T>::end() {
+    return std::visit([](auto &v) { return (T *)v.data() + v.size(); }, _val);
 }
 
-template <class T>
-Var<T>::const_iterator Var<T>::begin() const {
-    return std::visit([](auto &v) { return v.data(); }, _val);
+template <class T> Var<T>::const_iterator Var<T>::begin() const {
+    return std::visit([](auto &v) { return (const T *)v.data(); }, _val);
 }
 
-template <class T>
-Var<T>::const_iterator Var<T>::end() const {
-    return std::visit([](auto &v) { return v.data() + v.size(); }, _val);
+template <class T> Var<T>::const_iterator Var<T>::end() const {
+    return std::visit(
+        [](auto &v) { return (const T *)v.data() + v.size(); }, _val
+    );
 }
 
 template <class T>
@@ -298,7 +286,8 @@ var_type Var<T>::operation() const {
                     r = Op::fn(e);
                 }
             },
-            _val);
+            _val
+        );
         return Var<bool_t>(dim_t(_dim), std::move(res));
     }
 }
@@ -314,13 +303,12 @@ var_type Var<T>::mx_operation() const {
         std::visit(
             [&](auto &v) {
                 for (auto &e : v) {
-                    if (Op::fn(e))
-                        count_1++;
-                    else
-                        count_2++;
+                    if (Op::fn(e)) count_1++;
+                    else count_2++;
                 }
             },
-            _val);
+            _val
+        );
         bool res = count_1 > count_2;
         return Var<bool_t>({1}, std::vector<bool_t>(1, res));
     }
@@ -337,60 +325,57 @@ var_type Var<T>::mx_operation() const {
         std::visit(
             [&](auto &v) {
                 for (auto &e : v) {
-                    if (Op::fn(e))
-                        count_1++;
-                    else
-                        count_2++;
+                    if (Op::fn(e)) count_1++;
+                    else count_2++;
                 }
             },
-            _val);
+            _val
+        );
         bool res = count_1 > count_2;
         return Var<bool_t>({1}, std::vector<bool_t>(1, res));
     }
 }
 
-template <class T>
-var_type Var<T>::_not() const {
+template <class T> var_type Var<T>::_not() const {
     if constexpr (!std::is_same_v<T, bool_t>)
         THROW("Integer Matrix used in not");
     else {
         std::vector<bool_t> res(_val_size(), false);
         std::visit(
             [&res](auto &v) {
-                for (auto &&[e, r] : std::ranges::zip_view(v, res)) {
-                    r = !e;
-                }
+                for (auto &&[e, r] : std::ranges::zip_view(v, res)) { r = !e; }
             },
-            _val);
+            _val
+        );
         return Var<bool_t>(dim_t(_dim), std::move(res));
     }
 }
 
-template <class T>
-var_type Var<T>::copy_ref() {
+template <class T> var_type Var<T>::copy_ref() {
     dim_t dim = _dim;
     return std::visit(
         [&](auto &v) {
             return Var<T>(std::move(dim), std::span<T>(v.begin(), v.end()));
         },
-        _val);
+        _val
+    );
 }
 
-template <class T>
-var_type Var<T>::idx(unsigned idx) {
+template <class T> var_type Var<T>::idx(unsigned idx) {
     unsigned cell_size = _val_size() / _dim[0];
     unsigned offset = cell_size * (idx - 1);
     dim_t dim = std::move(make_dim_drop_1(_dim));
     return std::visit(
         [&](auto &v) {
-            return Var<T>(std::move(dim),
-                          std::span<T>(v.begin() + offset, cell_size));
+            return Var<T>(
+                std::move(dim), std::span<T>(v.begin() + offset, cell_size)
+            );
         },
-        _val);
+        _val
+    );
 }
 
-template <class T>
-var_type Var<T>::_idx(const dim_t &idx) {
+template <class T> var_type Var<T>::_idx(const dim_t &idx) {
     check_idx(idx);
     auto res(std::move((*this).idx(idx[0])));
     for (auto i : idx | std::views::drop(1)) {
@@ -399,8 +384,7 @@ var_type Var<T>::_idx(const dim_t &idx) {
     return res;
 }
 
-template <class T>
-const var_type Var<T>::_idx(const dim_t &idx) const {
+template <class T> const var_type Var<T>::_idx(const dim_t &idx) const {
     return const_cast<Var<T> *>(this)->_idx(idx);
 }
 
@@ -420,8 +404,8 @@ var_type Var<T>::_reduce(unsigned dim_idx, unsigned change) const {
     unsigned n = del_cell_size * _dim[dim_idx - 1];
     unsigned m = _val_size() / n;
 
-    if ((dim[dim_idx - 1] = dim[dim_idx - 1] - change) == 1 &&
-        dim.size() != 1) {
+    if ((dim[dim_idx - 1] = dim[dim_idx - 1] - change) == 1
+        && dim.size() != 1) {
         dim.erase(dim.begin() + dim_idx - 1);
     }
     val.reserve(m * (n - k));
@@ -434,7 +418,8 @@ var_type Var<T>::_reduce(unsigned dim_idx, unsigned change) const {
                 val.insert(val.end(), row_start, row_end);
             }
         },
-        _val);
+        _val
+    );
 
     return Var<T>(std::move(dim), std::move(val));
 }
@@ -467,52 +452,39 @@ var_type Var<T>::_extend(unsigned dim_idx, unsigned change) const {
                 val.insert(val.end(), k, def);
             }
         },
-        _val);
+        _val
+    );
 
     return Var<T>(std::move(dim), std::move(val));
 }
 
-template <class T>
-var_type Var<T>::_size() const {
+template <class T> var_type Var<T>::_size() const {
     dim_t dim = {(unsigned)_dim.size()};
     std::vector<int> val(_dim.begin(), _dim.end());
     return Var<int>(std::move(dim), std::move(val));
 }
 
-template <class T>
-var_type Var<T>::_logitize() const {
-    if constexpr (std::is_same_v<T, bool_t>)
-        return *this;
-    else {
-        return (*this).template operation<IntegerNeq>();
-    }
+template <class T> var_type Var<T>::_logitize() const {
+    if constexpr (std::is_same_v<T, bool_t>) return *this;
+    else { return (*this).template operation<IntegerNeq>(); }
 }
 
-template <class T>
-var_type Var<T>::_digitize() const {
-    if constexpr (std::is_same_v<T, int>)
-        return *this;
+template <class T> var_type Var<T>::_digitize() const {
+    if constexpr (std::is_same_v<T, int>) return *this;
     else {
         std::vector<int> res(_val_size(), 0);
         std::visit(
             [&res](auto &v) {
-                for (auto &&[e, r] : std::ranges::zip_view(v, res)) {
-                    r = e;
-                }
+                for (auto &&[e, r] : std::ranges::zip_view(v, res)) { r = e; }
             },
-            _val);
+            _val
+        );
         return Var<int>(dim_t(_dim), std::move(res));
     }
 }
-template <class T>
-const Var<T>::val_t &Var<T>::get_val() const {
-    return _val;
-}
+template <class T> const Var<T>::val_t &Var<T>::get_val() const { return _val; }
 
-template <class T>
-const Var<T>::dim_t &Var<T>::get_dim() const {
-    return _dim;
-}
+template <class T> const Var<T>::dim_t &Var<T>::get_dim() const { return _dim; }
 
 template <class T>
 template <class U>
@@ -520,8 +492,9 @@ bool Var<T>::operator==(const Var<U> &other) const {
     if constexpr (!std::is_same_v<T, U>)
         THROW("Variables of different types cannot be compared\n");
     else {
-        return RETDOUBLEVISIT(_val, v1, other._val, v2,
-                              { return std::ranges::equal(v1, v2); });
+        return RETDOUBLEVISIT(_val, v1, other._val, v2, {
+            return std::ranges::equal(v1, v2);
+        });
     }
 }
-}  // namespace var
+} // namespace var

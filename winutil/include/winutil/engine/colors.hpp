@@ -19,8 +19,7 @@
     CTRL CTRL_FG(_fg)   \
     CTRL_DELIM CTRL_BG(_bg) CTRL_END
 
-#define COLOR_RGB(_r, _g, _b) \
-    L"8;2;" #_r CTRL_DELIM #_g CTRL_DELIM #_b
+#define COLOR_RGB(_r, _g, _b) L"8;2;" #_r CTRL_DELIM #_g CTRL_DELIM #_b
 
 #define COLOR_FG(_fg) CTRL CTRL_FG(_fg) CTRL_END
 #define COLOR_BG(_bg) CTRL CTRL_BG(_bg) CTRL_END

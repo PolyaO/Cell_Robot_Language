@@ -80,4 +80,4 @@ _Win &WindowsColumn::make_window() {
     return res;
 }
 
-}
+} // namespace Winutil

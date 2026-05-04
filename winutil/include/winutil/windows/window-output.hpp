@@ -5,7 +5,7 @@ namespace Winutil {
 
 /// @brief Window wich implements base serial output protocol.
 class WindowOutput : public BaseWindow {
-   public:
+  public:
     WINDOW_CONSTRUCTOR(WindowOutput)
 
     /// @brief put string at the write position
@@ -16,12 +16,13 @@ class WindowOutput : public BaseWindow {
 
     void clear() override;
 
-   private:
-    void update_line(std::wstring_view);
+  private:
+    void write_line(std::wstring_view);
+    void write_char(wchar_t);
     void insert_color(std::wstring_view);
     void newline();
 
     engine::WindowPos _cursor = {};
 };
 
-}  // namespace Winutil
+} // namespace Winutil

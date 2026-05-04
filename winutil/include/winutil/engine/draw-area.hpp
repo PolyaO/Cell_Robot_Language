@@ -7,6 +7,10 @@ namespace Winutil::engine {
 
 class DrawArea {
   public:
+    using lines_t = std::vector<color_string_view>;
+    using iterator = lines_t::iterator;
+    using const_iterator = lines_t::const_iterator;
+
     DrawArea() = default;
 
     DrawArea subarea(WindowPos at, unsigned width, unsigned height);
@@ -14,6 +18,12 @@ class DrawArea {
 
     color_string_view get_line(unsigned line_no);
     const color_string_view get_line(unsigned line_no) const;
+
+    const_iterator begin() const noexcept { return _lines.begin(); }
+    const_iterator end() const noexcept { return _lines.end(); }
+
+    iterator begin() noexcept { return _lines.begin(); }
+    iterator end() noexcept { return _lines.end(); }
 
     void clear() noexcept;
 
@@ -51,7 +61,6 @@ class MainDrawArea {
     color_string_view get_line(unsigned line_no);
 
   private:
-
     std::vector<color_string> _lines;
     WindowDesc _desc;
 };

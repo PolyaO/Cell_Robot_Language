@@ -1,6 +1,6 @@
 #pragma once
-#include <winutil/window.hpp>
 #include <winutil/engine/draw-area.hpp>
+#include <winutil/window.hpp>
 
 namespace Winutil {
 

@@ -1,4 +1,5 @@
 #include "winutil/windows/window-output.hpp"
+#include "winutil/engine/common.hpp"
 #include "winutil/engine/draw-area.hpp"
 #include <ranges>
 #include <stdexcept>
@@ -6,18 +7,16 @@
 
 namespace Winutil {
 
-void WindowOutput::update_line(std::wstring_view str) {
+void WindowOutput::write_line(std::wstring_view str) {
+    for (wchar_t chr : str) write_char(chr);
+}
+
+void WindowOutput::write_char(wchar_t chr) {
     auto area = get_area();
     auto desc = area.get_info();
     if (_cursor.row >= desc.height || _cursor.col >= desc.width) return;
-    auto line = area.get_line(_cursor.row);
-    auto to_write = str.substr(0, line.size() - _cursor.col);
-    for (auto &&[line_chr, chr] : std::ranges::zip_view(
-             line.substr(_cursor.col), str.substr(0, line.size() - _cursor.col)
-         )) {
-        line_chr.set_char(chr);
-    }
-    _cursor.col += to_write.size();
+    area.get_line(_cursor.row)[_cursor.col].set(chr);
+    _cursor.col += 1;
 }
 
 void WindowOutput::clear() {
@@ -35,37 +34,49 @@ void WindowOutput::insert_color(std::wstring_view color) {
 void WindowOutput::newline() {
     auto area = get_area();
     auto desc = area.get_info();
-    if (_cursor.row == desc.height - 1) return;
     _cursor.col = 0;
-    _cursor.row += 1;
+    if (_cursor.row == desc.height - 1) {
+        for (int i = 1; i < desc.height; ++i) {
+            for (auto &&[c1, c2] :
+                 std::views::zip(area.get_line(i - 1), area.get_line(i))) {
+                c1.set(c2);
+            }
+        }
+        for (auto &c : area.get_line(desc.height - 1)) {
+            c.set(WINUTIL_EMPTY_CHAR);
+        }
+    } else {
+        _cursor.row += 1;
+    }
 }
 
 void WindowOutput::write(std::wstring_view str) {
     auto area = get_area();
     auto desc = area.get_info();
-    if (_cursor.row == desc.height) return;
-    while (!str.empty()) {
-        auto br_pos = str.find(L'\n');
-        auto line = str.substr(0, br_pos);
-
-        auto e_pos = line.find(L'\033');
-        while (e_pos != std::string_view::npos) {
-            update_line(line.substr(0, e_pos));
-            line = line.substr(e_pos);
-            auto m_pos = line.find(L'm');
+    size_t escape_pos = 0;
+    size_t npos = std::wstring_view::npos;
+    size_t m_pos;
+    if (_cursor.row >= desc.height) return;
+    while ((escape_pos = str.find_first_of(L"\n\t\e\r")) != npos) {
+        write_line(str.substr(0, escape_pos));
+        str = str.substr(escape_pos);
+        switch (str[0]) {
+        case L'\n': newline(); break;
+        case L'\033':
+            m_pos = str.find(L'm');
             if (m_pos == std::string_view::npos)
                 throw std::runtime_error("Invalid color escape!");
-            insert_color(line.substr(0, m_pos + 1));
-            line = line.substr(m_pos + 1);
-            e_pos = line.find(L'\033');
+            insert_color(str.substr(0, m_pos + 1));
+            str = str.substr(m_pos);
+            break;
+        case L'\r': _cursor.col = 0; break;
+        case L'\t': do { write_char(WINUTIL_EMPTY_CHAR);
+            } while (_cursor.col % WINUTIL_TAB_SIZE != 0);
+            break;
         }
-
-        update_line(line);
-        if (br_pos != std::string_view::npos) {
-            newline();
-            str = str.substr(br_pos + 1);
-        } else str = L"";
+        str = str.substr(1);
     }
+    write_line(str);
 }
 
 }; // namespace Winutil

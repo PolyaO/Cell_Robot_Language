@@ -1,7 +1,7 @@
 #pragma once
-#include "winutil/windows/base-window.hpp"
 #include "winutil/engine/common.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
+#include "winutil/windows/base-window.hpp"
 #include <functional>
 #include <optional>
 #include <vector>

@@ -17,6 +17,10 @@
 #define WINUTIL_EMPTY_CHAR L' '
 #endif
 
+#ifndef WINUTIL_TAB_SIZE
+#define WINUTIL_TAB_SIZE 8
+#endif
+
 namespace Winutil::engine {
 
 struct WindowPos {

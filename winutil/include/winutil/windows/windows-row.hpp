@@ -81,4 +81,4 @@ _Win &WindowsRow::make_window() {
     return res;
 }
 
-}
+} // namespace Winutil

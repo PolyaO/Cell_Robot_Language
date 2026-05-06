@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <string>
+#include <vector>
 #include <winutil/engine/main-draw-area.hpp>
 #include <winutil/window.hpp>
 
@@ -39,6 +41,7 @@ class Screen {
 
     /// @brief input text and echo it into the OutputWindow
     std::wstring input(OutputWindow &w);
+    std::wstring input(OutputWindow &w, std::vector<std::wstring> &histroy);
 
   private:
     std::unique_ptr<Window> _main;

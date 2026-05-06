@@ -1,3 +1,4 @@
+#include "winutil/engine/common.hpp"
 #include <asm-generic/ioctls.h>
 #include <cstdlib>
 #include <iostream>
@@ -34,23 +35,19 @@
 static std::wostream &out = std::wcout;
 static bool alternative_screen_enabled = false;
 
-static struct termios oldt, newt;
-static int oldf;
-
 static inline void disable_echo() {
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
+    termios term;
+    tcgetattr(STDIN_FILENO, &term);
+    term.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
 
 static inline void enable_echo() {
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
+    termios term;
+    tcgetattr(STDIN_FILENO, &term);
+    term.c_lflag |= ICANON | ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
-
 
 namespace Winutil {
 
@@ -130,15 +127,143 @@ void Screen::update() {
 }
 
 std::wstring Screen::input(OutputWindow &w) {
-    auto cursor = w.get_cursor();
+    auto initial_cursor_pos = w.get_cursor();
+    auto global_pos = w.get_area().get_info().global_pos + initial_cursor_pos;
+    int str_idx = 0;
+
+    auto place_cursor = [global_pos, &w](int str_pos) {
+        out << L"\e[" << global_pos.row + 1 << L';'
+            << global_pos.col + str_pos + 1 << L'H';
+    };
+
+    auto output =
+        [global_pos, &w, &place_cursor, this](std::wstring &str, int str_pos) {
+            place_cursor(0);
+            out << str;
+            update();
+            place_cursor(str_pos);
+        };
+
     std::wstring str;
+
+    disable_echo();
+    out << CURSOR_SAVE;
+    update();
+    place_cursor(0);
+
+    wchar_t ch;
+
+    while (std::wcin.get(ch) && ch != L'\n') {
+        if (ch == L'\x1B') {
+            std::wcin.get(ch);
+            if (ch != L'[') continue;
+            std::wcin.get(ch);
+            switch (ch) {
+            case L'A': break;
+            case L'B': break;
+            case L'C': str_idx = std::min((int)str.size(), str_idx + 1); break;
+            case L'D': str_idx = std::max(0, str_idx - 1); break;
+            }
+            output(str, str_idx);
+        } else {
+            switch (ch) {
+            case L'\t': break;
+            case L'\b':
+            case 127:
+                str_idx -= 1;
+                str.erase(str.begin() + str_idx);
+                break;
+            default:
+                str.insert(str.begin() + str_idx, ch);
+                str_idx += 1;
+                break;
+            }
+            output(str, str_idx);
+        }
+    }
+
+    enable_echo();
+    out << CURSOR_RESTORE;
+
+    w.write(str);
+    w.write(L"\n");
+    update();
 
     return str;
 }
 
-Window &Screen::get_window() {
-    return *_main;
+std::wstring
+Screen::input(OutputWindow &w, std::vector<std::wstring> &history) {
+    auto initial_cursor_pos = w.get_cursor();
+    auto global_pos = w.get_area().get_info().global_pos + initial_cursor_pos;
+    int str_idx = 0;
+
+    auto place_cursor = [global_pos, &w](int str_pos) {
+        out << L"\e[" << global_pos.row << L';' << global_pos.col + str_pos
+            << L'H';
+    };
+
+    auto output =
+        [global_pos, &w, &place_cursor, this](std::wstring &str, int str_pos) {
+            place_cursor(0);
+            out << str;
+            place_cursor(str_pos);
+        };
+
+    std::wstring input_str;
+    std::wstring *str = &input_str;
+
+    disable_echo();
+    out << CURSOR_SAVE;
+    place_cursor(0);
+    update();
+
+    wchar_t ch;
+    int history_idx = history.size();
+
+    while (std::wcin.get(ch) && ch != L'\n') {
+        if (ch == L'\x1B') {
+            std::wcin.get(ch);
+            if (ch != L'[') continue;
+            std::wcin.get(ch);
+            switch (ch) {
+            case L'A':
+                history_idx = std::max(0, history_idx - 1);
+                str = &history[history_idx];
+                str_idx = str->size();
+                break;
+            case L'B':
+                history_idx = std::min((int)history.size(), history_idx + 1);
+                if (history_idx == history.size()) str = &input_str;
+                else str = &history[history_idx];
+                str_idx = str->size();
+                break;
+            case L'C': str_idx = std::min((int)str->size(), str_idx + 1); break;
+            case L'D': str_idx = std::max(0, str_idx - 1); break;
+            }
+        } else {
+            if (history_idx != history.size()) {
+                input_str = *str;
+                str = &input_str;
+            }
+            if (ch == L'\t') continue;
+            str->insert(str->begin() + str_idx, ch);
+            str_idx += 1;
+        }
+        output(*str, str_idx);
+    }
+
+    enable_echo();
+    out << CURSOR_RESTORE;
+
+    w.write(*str);
+    w.write(L"\n");
+    update();
+
+    return *str;
 }
+
+Window &Screen::get_window() { return *_main; }
 
 void Screen::resize(unsigned width, unsigned height) {
     main_area.resize(width, height);

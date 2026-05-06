@@ -21,3 +21,6 @@ target_link_libraries(tst_maze PRIVATE winutil var interpreter robot)
 target_link_libraries(tst_no_robot PRIVATE winutil var interpreter robot)
 target_link_libraries(tst_file_view PRIVATE winutil)
 target_link_libraries(tst_window_resize PRIVATE winutil)
+
+add_executable(asd asd.cpp)
+target_link_libraries(asd PRIVATE winutil)

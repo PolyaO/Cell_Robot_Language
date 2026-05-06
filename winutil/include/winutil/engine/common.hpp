@@ -27,7 +27,12 @@ struct WindowPos {
     unsigned row;
     unsigned col;
 
-    WindowPos operator+(WindowPos o) { return {row + o.row, col + o.col}; }
+    WindowPos operator+(WindowPos o) noexcept {
+        return {row + o.row, col + o.col};
+    }
+    const WindowPos operator+(WindowPos o) const noexcept {
+        return {row + o.row, col + o.col};
+    }
 };
 
 struct WindowDesc {

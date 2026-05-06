@@ -60,7 +60,7 @@ std::optional<var::var_type> Driver::get_var(std::string_view var_name) {
 }
 
 std::optional<var::var_type> Driver::get_env() {
-    if (_ctx.robot) return _ctx.robot->get_env();
+    if (_ctx.robot) return _ctx.robot->get_env(true);
     return std::nullopt;
 }
 

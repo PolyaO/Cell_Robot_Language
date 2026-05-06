@@ -3,13 +3,25 @@
 #include <robot/robot.hpp>
 
 // clang-format off
-var::var_type
-robot::Robot::get_env(const Maze &maze, unsigned radius) noexcept {
+void robot::Robot::get_env(
+        const Maze &maze, var::var_type &env, unsigned radius
+) noexcept {
     unsigned diameter = radius * 2 + 1;
-    var::var_type env = var::Var<bool_t>(false, {diameter, diameter, 2});
+    unsigned rng_start = (VIEW_DIAMETER - diameter) / 2;
+    unsigned rng_end = VIEW_DIAMETER - rng_end;
 
-    for (unsigned y = 0; y < diameter; ++y) {
-        for (unsigned x = 0; x < diameter; ++x) {
+    for (unsigned y = 0; y < VIEW_DIAMETER; ++y) {
+        for (unsigned x = 0; x < VIEW_DIAMETER; ++x) {
+            auto env_cell = std::get<var::Var<bool_t>>(
+                    var::idx(env, {y + 1, x + 1})
+                );
+
+            if (x < rng_start || x >= rng_end || y < rng_start || y >= rng_end) {
+                env_cell[0] = true;
+                env_cell[1] = false;
+                continue;
+            }
+
             auto shift_x = maze.get_robot_direction()
                                .get_couner_clockwize()
                                .get_vector()
@@ -21,9 +33,6 @@ robot::Robot::get_env(const Maze &maze, unsigned radius) noexcept {
 
             auto pos = maze.get_robot_position().add(shift_x).add(shift_y);
 
-            auto env_cell = std::get<var::Var<bool_t>>(
-                    var::idx(env, {y + 1, x + 1})
-                );
             switch (maze.get_position_state(pos)) {
             case Maze::INVALID:
             case Maze::WALL:  env_cell[0] = true;  env_cell[1] = false; break;
@@ -32,6 +41,4 @@ robot::Robot::get_env(const Maze &maze, unsigned radius) noexcept {
             }
         }
     }
-
-    return env;
 }

@@ -1,40 +1,80 @@
 #include "debugger/debugger.hpp"
+#include "var/var.hpp"
+#include "var/var_ops.hpp"
 #include <debugger/handlers.hpp>
+#include <ranges>
+#include <regex>
+#include <string>
 
 namespace debug::handlers {
 
-// clang-format off
-std::vector<std::tuple<std::wstring, handler_t, std::wstring>> handlers = {
-    {CLEAR_CMD,      &clear_handler,      L"clear output window"         },
-    {CONTINUE_CMD,   &continue_handler,   L"continue till the next break"},
-    {BREAKPOINT_CMD, &breakpoint_handler, L"set breakpoint at line"      },
-    {HELP_CMD,       &help_handler,       L"print this help"             },
-    {NEXT_CMD,       &next_handler,       L"do the step"                 },
-    {PRINT_CMD,      &print_handler,      L"print variable by name"      },
-    {QUIT_CMD,       &quit_handler,       L"quit debugger"               },
-};
-// clang-format on
+#define CLEAR_CMD      L"clear"
+#define CONTINUE_CMD   L"continue"
+#define BREAKPOINT_CMD L"breakpoint"
+#define HELP_CMD       L"help"
+#define NEXT_CMD       L"next"
+#define PRINT_CMD      L"print"
+#define QUIT_CMD       L"quit"
 
-Debugger::op_result continue_handler(Debugger &d, std::wstring_view) {
+#define PARENT(_match) L"(?:" _match L")"
+#define WS             L"\\s*"
+#define OR             L"|"
+#define UNSIGNED       L"[1-9][0-9]*"
+#define DECIMAL        L"-?" UNSIGNED
+#define HEX            L"0x[0-9a-fA-F]+"
+#define ID             L"[a-zA-Z_][a-zA-Z0-9_]*"
+#define EMPTY          L""
+#define INDEX          L"\\[" WS PARENT(UNSIGNED L"," WS) L"*" UNSIGNED WS L"\\]"
+
+#define MATCH(_match)  L"(" _match L")"
+#define MATCH_ANY      WS MATCH(ANY)
+
+#define COMMAND_HANDLER(_cmd) \
+    Debugger::op_result _cmd##_handler(Debugger &d, std::wstring_view args_line)
+
+#define REGISTER_COMMAND(_cmd, _desc) {L## #_cmd, _cmd##_handler, L##_desc}
+
+#define ARGPARSE(_content)                              \
+    static std::wregex re(                              \
+        WS PARENT(_content) WS,                         \
+        std::wregex::ECMAScript | std::wregex::optimize \
+    );                                                  \
+    std::wstring __args_line_str(args_line);            \
+    std::wsmatch args;                                  \
+    if (!std::regex_match(__args_line_str, args, re))   \
+        return Debugger::INVALID_FORMAT;
+
+var::dim_t parse_idx(const std::wstring &idx_str) {
+    static std::wregex re(
+        UNSIGNED, std::wregex::ECMAScript | std::wregex::optimize
+    );
+
+    std::wsregex_iterator it(idx_str.begin(), idx_str.end(), re);
+    std::wsregex_iterator end;
+
+    var::dim_t res;
+    for (; it != end; ++it) {
+        res.push_back(std::stoi(it->str()));
+    }
+
+    return res;
+}
+
+COMMAND_HANDLER(continue) {
+    ARGPARSE(MATCH(EMPTY));
     d.step_continue(3000);
     if (d.is_end_of_execution()) return Debugger::EXIT_FOUND;
     return Debugger::OK;
 }
 
-Debugger::op_result breakpoint_handler(Debugger &d, std::wstring_view arg) {
-    auto first_arg = *(arg | std::views::split(L' ')).begin();
-    std::wstring line_arg(first_arg.begin(), first_arg.end());
-    int line_no;
-    try {
-        line_no = std::stoi(line_arg);
-    } catch (const std::exception &e) {
-        d.get_debug_w() << L"Invalid numeric: " << arg << L"\n";
-        return Debugger::INVALID_FORMAT;
-    }
+COMMAND_HANDLER(break) {
+    ARGPARSE(MATCH(UNSIGNED) OR MATCH(EMPTY));
 
-    if (line_no <= 0) {
-        d.get_debug_w() << L"Line number must be positive!\n";
-        return Debugger::INVALID_FORMAT;
+    unsigned line_no = 0;
+    if (!args[1].str().empty()) {
+        line_no = std::stoi(args[1]);
+    } else {
+        line_no = d.get_exec_line();
     }
 
     d.set_breakpoint(line_no);
@@ -42,11 +82,14 @@ Debugger::op_result breakpoint_handler(Debugger &d, std::wstring_view arg) {
     return Debugger::OK;
 }
 
-Debugger::op_result quit_handler(Debugger &, std::wstring_view) {
+COMMAND_HANDLER(quit) {
+    ARGPARSE(MATCH(EMPTY));
     return Debugger::QUIT;
 }
 
-Debugger::op_result help_handler(Debugger &d, std::wstring_view) {
+COMMAND_HANDLER(help) {
+    ARGPARSE(MATCH(EMPTY));
+
     d.get_debug_w() << L"help:\n";
     for (auto &&[cmd, handler, desc] : handlers) {
         d.get_debug_w() << L"  " << cmd << L"\t" << desc << L"\n";
@@ -54,30 +97,62 @@ Debugger::op_result help_handler(Debugger &d, std::wstring_view) {
     return Debugger::OK;
 }
 
-Debugger::op_result clear_handler(Debugger &d, std::wstring_view) {
+COMMAND_HANDLER(clear) {
+    ARGPARSE(MATCH(EMPTY));
+
     d.clear_output();
     return Debugger::OK;
 }
 
-Debugger::op_result print_handler(Debugger &d, std::wstring_view arg) {
-    auto w_var_name = arg.substr(0, arg.find(L' '));
+COMMAND_HANDLER(print) {
+    ARGPARSE(MATCH(ID) WS PARENT(MATCH(INDEX) OR MATCH(EMPTY)));
+
+    auto w_var_name = args[1].str();
     auto var_name =
         w_var_name
         | std::views::transform([](wchar_t c) -> char { return (char)c; })
         | std::ranges::to<std::string>();
-    auto var = d.get_var(var_name);
-    if (!var) {
+    auto opt_variable = d.get_var(var_name);
+    if (!opt_variable) {
         d.get_debug_w() << L"no such vaiable: `"
-                    << std::wstring(var_name.begin(), var_name.end())
-                    << (L"`\n");
-    } else d.print_variable(var.value(), w_var_name);
+                        << std::wstring(var_name.begin(), var_name.end())
+                        << (L"`\n");
+        return Debugger::INVALID_FORMAT;
+    }
+
+    var::var_type variable = opt_variable.value();
+    if (!args[2].str().empty()) {
+        var::dim_t idx = parse_idx(args[2].str());
+        variable = var::idx(opt_variable.value(), idx);
+    }
+
+    d.print_variable(variable, w_var_name);
     return Debugger::OK;
 }
 
-Debugger::op_result next_handler(Debugger &d, std::wstring_view arg) {
-    d.step_into();
-    if (d.is_end_of_execution()) return Debugger::EXIT_FOUND;
+COMMAND_HANDLER(next) {
+    ARGPARSE(MATCH(UNSIGNED) OR MATCH(EMPTY));
+
+    unsigned lines = 1;
+    if (!args[1].str().empty()) lines = std::stoi(args[1]);
+
+    while (lines-- != 0) {
+        d.step_into();
+        if (d.is_end_of_execution()) return Debugger::EXIT_FOUND;
+    }
     return Debugger::OK;
 }
 
+// clang-format off
+std::vector<std::tuple<std::wstring, handler_t, std::wstring>> handlers = {
+    REGISTER_COMMAND(clear,    "clear output window"         ),
+    REGISTER_COMMAND(continue, "continue till the next break"),
+    REGISTER_COMMAND(break,    "set breakpoint at line"      ),
+    REGISTER_COMMAND(help,     "print this help"             ),
+    REGISTER_COMMAND(next,     "do the step"                 ),
+    REGISTER_COMMAND(print,    "print variable by name"      ),
+    REGISTER_COMMAND(quit,     "quit debugger"               ),
 };
+// clang-format on
+
+}; // namespace debug::handlers

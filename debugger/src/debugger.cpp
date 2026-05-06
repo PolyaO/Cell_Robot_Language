@@ -5,6 +5,7 @@
 #include "winutil/engine/syntax-highlighter.hpp"
 #include <iostream>
 #include <string>
+#include <string_view>
 
 // GIRLIE PALLETTE
 #define LIGHT_BLUE COLOR_RGB(179, 222, 226)
@@ -132,39 +133,6 @@ void Debugger::print_env() {
     }
 }
 
-Debugger::op_result Debugger::execute_cmd(std::wstring_view input) {
-    std::vector<bool> matches(handlers::handlers.size(), true);
-
-    auto space_pos = input.find(L' ');
-
-    // determine which command is matched
-    for (auto [chr_idx, chr] :
-         std::views::enumerate(input.substr(0, space_pos))) {
-        for (auto &&[hdl_idx, hdl_entry] :
-             std::views::enumerate(handlers::handlers)) {
-            auto &&[cmd, handler, desc] = hdl_entry;
-            if (chr_idx >= cmd.length() || cmd[chr_idx] != chr)
-                matches[hdl_idx] = false;
-        }
-    }
-
-    // check that exactly one command is matched
-    handlers::handler_t hdl = nullptr;
-    for (auto &&[hdl_idx, hdl_entry] :
-         std::views::enumerate(handlers::handlers)) {
-        auto &&[cmd, handler, desc] = hdl_entry;
-        if (matches[hdl_idx] == true) {
-            if (hdl == nullptr) hdl = handler;
-            else return INVALID_COMMAND;
-        }
-    }
-
-    if (hdl == nullptr) return INVALID_COMMAND;
-    while (space_pos < input.size() && input[space_pos] == L' ') space_pos += 1;
-    if (space_pos == std::wstring::npos) return hdl(*this, L"");
-    return hdl(*this, input.substr(space_pos));
-}
-
 bool Debugger::check_run_status() const noexcept {
     if (prog_ended) {
         *debug_w << L"Programm's ended already\n";
@@ -212,6 +180,7 @@ void Debugger::step_continue(int robot_move_delay) {
 void Debugger::set_breakpoint(unsigned line) noexcept {
     auto pos = std::ranges::find(breaks, line);
     if (pos == breaks.end()) breaks.push_back(line);
+    *debug_w << L"Set breakpoint as line " << std::to_wstring(line) << L"\n";
 }
 
 void Debugger::clear_breakpoint(unsigned line) noexcept {
@@ -260,30 +229,68 @@ void Debugger::redraw_screen() noexcept {
     screen.update();
 }
 
-std::wstring input_line(std::wstring_view prompt) {
-    char *line;
-    size_t len;
-    std::wstring res;
+bool input_line(std::wstring_view prompt, std::wstring &line) {
     std::wcout << prompt << std::flush;
-    std::getline(std::wcin, res);
-    return std::move(res);
+    std::getline(std::wcin, line);
+    return !std::wcin.eof() && !std::wcin.bad() && !std::wcin.fail();
+}
+
+Debugger::op_result Debugger::execute_cmd(std::wstring_view input) {
+    using namespace std::views;
+    static std::wstring prev_cmd = L"";
+    std::wstring cmd(input);
+    std::vector<bool> matches(handlers::handlers.size(), true);
+    op_result res;
+
+    auto space_pos = cmd.find(L' ');
+
+    if (space_pos == std::wstring_view::npos && cmd.empty()) {
+        if (prev_cmd.empty()) return OK;
+        space_pos = (cmd = prev_cmd).find(L' ');
+    }
+
+    // determine which command is matched
+    for (auto [chr_idx, chr] : enumerate(cmd.substr(0, space_pos))) {
+        for (auto &&[hdl_idx, hdl_entry] : enumerate(handlers::handlers)) {
+            auto &&[cmd, handler, desc] = hdl_entry;
+            if (chr_idx >= cmd.length() || cmd[chr_idx] != chr)
+                matches[hdl_idx] = false;
+        }
+    }
+
+    // check that exactly one command is matched
+    handlers::handler_t hdl = nullptr;
+    for (auto &&[hdl_idx, hdl_entry] : enumerate(handlers::handlers)) {
+        auto &&[cmd, handler, desc] = hdl_entry;
+        if (matches[hdl_idx] == true) {
+            if (hdl == nullptr) hdl = handler;
+            else return INVALID_COMMAND;
+        }
+    }
+
+    if (hdl == nullptr) return INVALID_COMMAND;
+    if (space_pos == std::wstring::npos) res = hdl(*this, L"");
+    else res = hdl(*this, cmd.substr(space_pos));
+
+    if (res == OK) prev_cmd = cmd;
+    return res;
 }
 
 void Debugger::start_interactive_execution() {
     std::wstring prompt = L"\r\e[2K> ";
+    std::wstring line;
 
     redraw_screen();
 
-    while (true) {
-        std::wstring line = input_line(prompt);
+    while (input_line(prompt, line)) {
         switch (execute_cmd(line)) {
         case INVALID_COMMAND:
-            *debug_w << L"unknown command `" << line
+            *debug_w << L"Unknown command `" << line
                      << L"`, enter `h` or `help` for help\n";
             break;
         case EXIT_FOUND: *debug_w << L"Exit was found!\n"; break;
+        case INVALID_FORMAT: *debug_w << L"Invalid command arguments!\n"; break;
         case QUIT: return;
-        case INVALID_FORMAT: break;
         case OK: break;
         }
         redraw_screen();

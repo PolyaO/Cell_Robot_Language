@@ -26,7 +26,7 @@ class WindowFileView : public BaseWindow {
 
     void move(engine::DrawArea &&new_area) override;
 
-    void open(const std::string &filename);
+    void open(std::string_view filename);
 
     void scroll(signed nrows) noexcept;
     void scroll_to(unsigned line, bool at_center = false) noexcept;

@@ -11,8 +11,8 @@
 
 namespace Winutil {
 
-void WindowFileView::open(const std::string &filename) {
-    std::ifstream fin(filename, std::ios::binary);
+void WindowFileView::open(std::string_view filename) {
+    std::ifstream fin(std::string(filename), std::ios::binary);
     std::string raw_line_buf;
 
     if (!fin.is_open() || fin.fail())

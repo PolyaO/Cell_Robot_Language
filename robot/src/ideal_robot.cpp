@@ -7,8 +7,10 @@
 namespace robot {
 IdealRobot::IdealRobot(Maze &maze) : maze(maze) {};
 
-var::var_type IdealRobot::get_env() {
-    return Robot::get_env(maze, VIEW_RADIUS);
+var::var_type IdealRobot::get_env(bool debug_call) {
+    var::var_type env = var::Var<bool_t>(false, {11, 11, 2});
+    Robot::get_env(maze, env, 5);
+    return env;
 }
 
 void IdealRobot::move() {

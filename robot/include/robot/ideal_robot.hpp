@@ -9,7 +9,7 @@ class IdealRobot : public Robot {
    public:
     IdealRobot(Maze &maze);
     ~IdealRobot() override = default;
-    var::var_type get_env() override;
+    var::var_type get_env(bool debug_call = false) override;
     void move() override;
     void rotate_r() override;
     void rotate_l() override;
@@ -17,7 +17,6 @@ class IdealRobot : public Robot {
 
    private:
     Maze &maze;
-    constexpr const static int VIEW_RADIUS = 5;
 };
 
 }  // namespace robot

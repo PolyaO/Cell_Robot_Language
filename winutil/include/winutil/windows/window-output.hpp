@@ -14,6 +14,11 @@ class WindowOutput : public BaseWindow {
     /// @brief set cursor and put string at position set
     void write(engine::WindowPos pos, std::wstring_view);
 
+    WindowOutput &operator<<(std::wstring_view str) {
+        write(str);
+        return *this;
+    }
+
     void clear() override;
 
   private:

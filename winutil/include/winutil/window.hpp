@@ -20,6 +20,19 @@ class Window {
     /// Every windows is allowed to change content of it's DrawArea
     /// either in this method or everywhere else outside it.
     virtual void update() = 0;
+
+    /// @brief get draw area of this window
+    virtual const engine::DrawArea &get_area() const noexcept = 0;
+};
+
+/// @brief Output window interface
+class OutputWindow : virtual public Window {
+  public:
+    /// @brief put string at the write position and move the cursor
+    virtual void write(std::wstring_view) = 0;
+
+    /// @brief get current cursor position
+    virtual engine::WindowPos get_cursor() const noexcept = 0;
 };
 
 } // namespace Winutil

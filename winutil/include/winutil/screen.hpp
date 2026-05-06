@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <winutil/engine/main-draw-area.hpp>
 #include <winutil/window.hpp>
 
 namespace Winutil {
@@ -35,6 +36,9 @@ class Screen {
     static void destroy_handler(int signal) noexcept;
 
     void resize(unsigned width, unsigned height);
+
+    /// @brief input text and echo it into the OutputWindow
+    std::wstring input(OutputWindow &w);
 
   private:
     std::unique_ptr<Window> _main;

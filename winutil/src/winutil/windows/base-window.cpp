@@ -21,5 +21,7 @@ void BaseWindow::move(engine::DrawArea &&new_area) {
 
 void BaseWindow::update() {}
 
+const engine::DrawArea &BaseWindow::get_area() const noexcept { return area; };
+
 }; // namespace Winutil
 

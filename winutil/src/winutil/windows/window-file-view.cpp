@@ -47,7 +47,7 @@ void WindowFileView::scroll(signed nrows) noexcept {
 void WindowFileView::scroll_to(unsigned line_no, bool at_center) noexcept {
     if (line_no >= _lines.size()) line_no = _lines.size() - 1;
     if (at_center) {
-        unsigned from_top = get_area().get_info().height / 2;
+        unsigned from_top = area.get_info().height / 2;
         if (from_top > line_no) line_no = 0;
         else line_no -= from_top;
     }
@@ -65,12 +65,12 @@ void WindowFileView::scroll_horizontal(signed ncols) noexcept {
 }
 
 void WindowFileView::write_content() noexcept {
-    auto desc = get_area().get_info();
+    auto desc = area.get_info();
 
     if (_first_screen_col > desc.width) return;
 
     for (int line_no = 0; line_no < desc.height; ++line_no) {
-        auto screen_line = get_area().get_line(line_no);
+        auto screen_line = area.get_line(line_no);
         if (line_no + _first_line >= _lines.size()) {
             for (auto &chr : screen_line) chr.set_char(WINUTIL_EMPTY_CHAR);
             continue;
@@ -104,7 +104,7 @@ void WindowFileView::write_content() noexcept {
 }
 
 void WindowFileView::apply_selection() noexcept {
-    auto desc = get_area().get_info();
+    auto desc = area.get_info();
     auto select_from = linepos2winpos(_select_from);
     auto select_to = linepos2winpos(_select_to);
 
@@ -118,7 +118,7 @@ void WindowFileView::apply_selection() noexcept {
                 to = tmp;
             } else if (from == to) return;
 
-            auto line = get_area().get_line(row);
+            auto line = area.get_line(row);
             engine::invert_color(
                 line.substr(_first_screen_col + from, to - from + 1)
             );
@@ -150,7 +150,7 @@ engine::WindowPos WindowFileView::linepos2winpos(LinePos pos) noexcept {
     if (pos.line_no != 0) pos.line_no -= 1;
 
     signed screen_line = pos.line_no - _first_line;
-    auto desc = get_area().get_info();
+    auto desc = area.get_info();
     if (screen_line < 0) return {0, 0};
     if (screen_line >= desc.height)
         return {.row = desc.height - 1, .col = desc.width - 1};

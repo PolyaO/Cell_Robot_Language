@@ -1,20 +1,26 @@
 #pragma once
+#include "winutil/window.hpp"
 #include "winutil/windows/base-window.hpp"
 
 namespace Winutil {
 
 /// @brief Window wich implements base serial output protocol.
-class WindowOutput : public BaseWindow {
+class WindowOutput : public BaseWindow, public OutputWindow {
   public:
     WINDOW_CONSTRUCTOR(WindowOutput)
 
-    /// @brief put string at the write position
-    void write(std::wstring_view);
-
-    /// @brief set cursor and put string at position set
-    void write(engine::WindowPos pos, std::wstring_view);
-
     void clear() override;
+
+    /// @brief put string at the write position and move the cursor
+    void write(std::wstring_view) override;
+
+    /// @brief get current cursor position
+    engine::WindowPos get_cursor() const noexcept override;
+
+    WindowOutput &operator<<(std::wstring_view str) {
+        write(str);
+        return *this;
+    }
 
   private:
     void write_line(std::wstring_view);

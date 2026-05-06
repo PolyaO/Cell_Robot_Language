@@ -1,15 +1,27 @@
-#include "winutil/window.hpp"
-#include "winutil/screen.hpp"
-#include "winutil/engine/color-string.hpp"
-#include "winutil/engine/draw-area.hpp"
-#include "winutil/engine/strdiff.hpp"
 #include <asm-generic/ioctls.h>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
 #include <ranges>
+#include <string>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#include <fcntl.h>
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+
+#undef COLOR
+#undef CTRL
+
+// clang-format off
+#include "winutil/window.hpp"
+#include "winutil/screen.hpp"
+#include "winutil/engine/color-string.hpp"
+#include "winutil/engine/draw-area.hpp"
+#include "winutil/engine/strdiff.hpp"
+// clang-format on
 
 #define CURSOR_AT_START          L"\e[1;1f"
 #define CURSOR_SAVE              L"\e[s"
@@ -20,7 +32,25 @@
 #define ALTERNATE_SCREEN_DISABLE L"\e[?1049l"
 
 static std::wostream &out = std::wcout;
-bool alternative_screen_enabled = false;
+static bool alternative_screen_enabled = false;
+
+static struct termios oldt, newt;
+static int oldf;
+
+static inline void disable_echo() {
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+}
+
+static inline void enable_echo() {
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+}
+
 
 namespace Winutil {
 
@@ -97,6 +127,13 @@ void Screen::update() {
     out << CURSOR_UNHIDE;
     out.flush();
     repl_area = main_area.copy();
+}
+
+std::wstring Screen::input(OutputWindow &w) {
+    auto cursor = w.get_cursor();
+    std::wstring str;
+
+    return str;
 }
 
 Window &Screen::get_window() {

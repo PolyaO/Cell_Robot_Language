@@ -12,7 +12,6 @@ void WindowOutput::write_line(std::wstring_view str) {
 }
 
 void WindowOutput::write_char(wchar_t chr) {
-    auto area = get_area();
     auto desc = area.get_info();
     if (_cursor.row >= desc.height || _cursor.col >= desc.width) return;
     area.get_line(_cursor.row)[_cursor.col].set(chr);
@@ -24,15 +23,15 @@ void WindowOutput::clear() {
     _cursor = {};
 }
 
+engine::WindowPos WindowOutput::get_cursor() const noexcept { return _cursor; }
+
 void WindowOutput::insert_color(std::wstring_view color) {
-    auto area = get_area();
     auto desc = area.get_info();
     if (_cursor.row >= desc.height || _cursor.col >= desc.width) return;
     area.get_line(_cursor.row)[_cursor.col].set_color(color);
 }
 
 void WindowOutput::newline() {
-    auto area = get_area();
     auto desc = area.get_info();
     _cursor.col = 0;
     if (_cursor.row == desc.height - 1) {
@@ -51,7 +50,6 @@ void WindowOutput::newline() {
 }
 
 void WindowOutput::write(std::wstring_view str) {
-    auto area = get_area();
     auto desc = area.get_info();
     size_t escape_pos = 0;
     size_t npos = std::wstring_view::npos;

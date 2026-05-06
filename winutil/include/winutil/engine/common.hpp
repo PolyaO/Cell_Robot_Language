@@ -26,9 +26,12 @@ namespace Winutil::engine {
 struct WindowPos {
     unsigned row;
     unsigned col;
+
+    WindowPos operator+(WindowPos o) { return {row + o.row, col + o.col}; }
 };
 
 struct WindowDesc {
+    WindowPos global_pos;
     unsigned width;
     unsigned height;
 };

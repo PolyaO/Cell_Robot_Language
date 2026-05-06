@@ -10,30 +10,21 @@ namespace Winutil {
     _cls(_cls &&) = default;
 
 /// @brief Base Window class
-class BaseWindow : public Window {
+class BaseWindow : virtual public Window {
   public:
     BaseWindow(engine::DrawArea &&area);
     BaseWindow(const BaseWindow &) = delete;
     BaseWindow(BaseWindow &&) = default;
 
-    /// @brief Clear content of the window at next screen redraw
     void clear() override;
-
-    /// @brief Change the area of where window draws content
     void move(engine::DrawArea &&new_area) override;
-
-    /// @brief Screen update operation
-    ///
-    /// Every time this method called, content of the screen is being updated.
-    /// Every windows is allowed to change content of it's DrawArea
-    /// either in this method or everywhere else outside it.
     void update() override;
+    const engine::DrawArea &get_area() const noexcept override;
 
     /// @brief get window size imformation
-    engine::WindowDesc get_size() const noexcept { return area.get_info(); };
-
-    /// @brief get draw area of this window
-    const engine::DrawArea &get_area() const noexcept { return area; };
+    const engine::WindowDesc &get_size() const noexcept {
+        return area.get_info();
+    };
 
   protected:
     engine::DrawArea area;

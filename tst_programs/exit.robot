@@ -1,0 +1,76 @@
+TASK TURN_AROUND RES (
+    VAR C = 2
+    VAR B = 0
+    VAR S = -1
+    FOR C BOUNDARY B STEP S ROTATE LEFT
+    RESULT RES
+)
+
+TASK IS_WALL_RIGHT RES, ENV(
+    SWITCH ENV[6,7,1] TRUE RES = TRUE
+    FALSE RES = FALSE
+    RESULT RES
+)
+
+TASK IS_WALL_LEFT RES, ENV(
+    SWITCH ENV[6,5,1] TRUE RES = TRUE
+    FALSE RES = FALSE
+    RESULT RES
+)
+
+TASK IS_WALL_AHEAD RES, ENV(
+    SWITCH ENV[5,6,1] TRUE RES = TRUE
+    FALSE RES = FALSE
+    RESULT RES
+)
+
+TASK IS_EXIT_AHEAD RES, ENV(
+    SWITCH ENV[5,6,2] TRUE RES = TRUE
+    FALSE RES = FALSE
+    RESULT RES
+)
+
+TASK FINDEXIT (
+    VAR C = 1
+    VAR B = 10000
+    VAR S = 1
+    VAR ENV [11,11,2] = FALSE
+    VAR RES = FALSE
+    VAR CONTINUE = FALSE
+
+    FOR C BOUNDARY B STEP S (
+
+        ENV = GET ENVIRONMENT
+        CONTINUE = FALSE
+
+        DO IS_EXIT_AHEAD RES, ENV
+        SWITCH RES TRUE (
+            C = B
+            CONTINUE = TRUE
+        )
+
+        DO IS_WALL_RIGHT RES, ENV
+        SWITCH (NOT RES) AND (NOT CONTINUE) TRUE (
+            ROTATE RIGHT
+            CONTINUE = TRUE
+        )
+
+        DO IS_WALL_AHEAD RES, ENV
+        SWITCH (NOT RES) AND (NOT CONTINUE) TRUE (
+            CONTINUE = TRUE
+        )
+
+        DO IS_WALL_LEFT RES, ENV
+        SWITCH (NOT RES) AND (NOT CONTINUE) TRUE (
+            ROTATE LEFT
+            CONTINUE = TRUE
+        )
+
+        SWITCH NOT CONTINUE TRUE (
+        DO TURN_AROUND RES
+        )
+
+        MOVE
+    )
+    RES = TRUE
+)

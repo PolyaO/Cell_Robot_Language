@@ -11,19 +11,20 @@
 #include "interpreter/exceptions/build_exceptions.hpp"
 #include "interpreter/exprs/expr.hpp"
 #include "interpreter/exprs/for.hpp"
-#include "interpreter/exprs/switch.hpp"
 #include "interpreter/exprs/task.hpp"
 #include "interpreter/rvals/rval.hpp"
+#include "robot/robot.hpp"
 #include "var/var.hpp"
 
 namespace exec {
 
-unsigned Driver::initialize(std::string_view robot_filename,
-                            std::string_view program_filename,
+unsigned Driver::initialize(std::string_view program_filename,
+                            std::unique_ptr<robot::Robot> robot,
                             bool trace_parsing, bool trace_scanning) {
-    //_ctx.robot.initialize(robot_filename);
     _pg = program_filename;
     _ctx.ast = parse(trace_parsing, trace_scanning);
+    _ctx.robot = std::move(robot);
+
     auto find_exit_info = _ctx.ast.find_task_metainf("FINDEXIT");
     if (!find_exit_info)
         throw InterpreterBuildError("No task with name \"FINDEXIT\" found\n");
@@ -61,6 +62,11 @@ std::optional<var::var_type> Driver::get_var(std::string_view var_name) {
     return *var_ptr;
 }
 
+std::optional<var::var_type> Driver::get_env() {
+    if (_ctx.robot) return _ctx.robot->get_env();
+    return std::nullopt;
+}
+
 std::string_view Driver::get_curr_task_name() {
     auto &curr_task_inf =
         *_ctx.ast.find_task_metainf(_ctx.get_curr_ctx().get_task_idx());
@@ -93,13 +99,6 @@ unsigned Driver::exec_next() {
         std::holds_alternative<ast::Scope>(*next) |
         std::holds_alternative<ast::For>(*next)) {
         _exec_stack.push(next);
-        return exec_next();
-    }
-    if (std::holds_alternative<ast::Do>(*next) |
-        std::holds_alternative<ast::Switch>(*next)) {
-        next = std::visit([this](auto &n) { return n.execute(this->_ctx); },
-                          *next);
-        if (next) _exec_stack.push(next);
         return exec_next();
     }
     _exec_stack.push(next);

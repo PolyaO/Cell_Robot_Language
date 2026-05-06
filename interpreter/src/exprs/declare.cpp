@@ -16,6 +16,7 @@ bool Declare::is_politely_asked() const noexcept { return _is_politely_asked; }
 void Declare::set_politely_asked() noexcept { _is_politely_asked = true; }
 
 expr *Declare::execute(exec::GlobalCtx &ctx) const {
+    ctx.robot->ask(_is_politely_asked);
     auto &curr_ctx = ctx.get_curr_ctx();
     if (std::holds_alternative<bool_t>(_val)) {
         curr_ctx.set_var(var::var_type(var::Var<bool_t>(

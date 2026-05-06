@@ -63,6 +63,7 @@ BLANC       [ \t\r]
 
 "AND"              return par::make_AND(loc);
 "OR"              return par::make_OR(loc);
+"NOT"              return par::make_NOT(loc);
 
 "MXTRUE"           return par::make_MXTRUE(loc);
 "MXFALSE"          return par::make_MXFALSE(loc);

@@ -1,11 +1,11 @@
-#include <clocale>
-#include <csignal>
-#include <cstdio>
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+
+#include <clocale>
+#include <csignal>
+#include <cstdio>
 #include <vector>
 
 #undef COLOR
@@ -30,18 +30,18 @@
 #define COLOR_KEYWORDS COLOR_RGB(160, 149, 16)
 // #define ASD COLOR_RGB(100, 100, 100)
 // #define ASD COLOR_RGB(150, 120, 10)
-#define OCEAN  COLOR_RGB(10, 160, 170)
+#define OCEAN COLOR_RGB(10, 160, 170)
 #define BUTTER COLOR_RGB(245, 215, 156)
 // GIRLIE PALLETTE
 #define LIGHT_BLUE COLOR_RGB(179, 222, 226)
 #define PINK_FROST COLOR_RGB(239, 207, 227)
-#define ZEMLINIKA  COLOR_RGB(226, 115, 150)
-#define PINK_MIST  COLOR_RGB(235, 154, 178)
-#define BEIGE      COLOR_RGB(236, 242, 216)
+#define ZEMLINIKA COLOR_RGB(226, 115, 150)
+#define PINK_MIST COLOR_RGB(235, 154, 178)
+#define BEIGE COLOR_RGB(236, 242, 216)
 
 // SUMMER PALLETTE
 #define LEMONADE COLOR_RGB(242, 214, 161)
-#define LIMONCH  COLOR_RGB(241, 168, 5)
+#define LIMONCH COLOR_RGB(241, 168, 5)
 
 int kbhit(void) {
     struct termios oldt, newt;
@@ -76,8 +76,10 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
         for (unsigned j = 0; j < dim[1]; ++j) {
             auto val =
                 std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
-            if (i == dim[0] / 2 && j == dim[1] / 2) w.write(L"()");
-            else w.write(val[0] ? L"##" : L"  ");
+            if (i == dim[0] / 2 && j == dim[1] / 2)
+                w.write(L"()");
+            else
+                w.write(val[0] ? L"##" : L"  ");
         }
         w.write(L" ]\n");
     }
@@ -87,8 +89,10 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
         for (unsigned j = 0; j < dim[1]; ++j) {
             auto val =
                 std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
-            if (i == dim[0] / 2 && j == dim[1] / 2) w.write(L"()");
-            else w.write(val[1] ? L"##" : L"  ");
+            if (i == dim[0] / 2 && j == dim[1] / 2)
+                w.write(L"()");
+            else
+                w.write(val[1] ? L"##" : L"  ");
         }
         w.write(L" ]\n");
     }
@@ -97,10 +101,8 @@ void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
 int main(void) {
     std::setlocale(LC_ALL, "en_US.utf8");
 
-    Winutil::Screen screen(
-        Winutil::Screen::max_width(),
-        Winutil::Screen::max_height() - 30
-    );
+    Winutil::Screen screen(Winutil::Screen::max_width(),
+                           Winutil::Screen::max_height() - 30);
 
     std::signal(SIGINT, Winutil::Screen::destroy_handler);
 
@@ -113,7 +115,7 @@ int main(void) {
     using direction = Maze::direction;
     using position = Maze::position;
 
-    maze_w.open("asd.maze");
+    maze_w.open("../asd.maze");
 
     auto &maze = maze_w.get_maze();
     IdealRobot rb(maze);
@@ -123,7 +125,7 @@ int main(void) {
 
     screen.update();
 
-#define MV  move = true;
+#define MV move = true;
 #define UPD update = true;
 
     direction dir;

@@ -7,8 +7,12 @@
 #include "interpreter/exec/local_ctx.hpp"
 #include "var/var.hpp"
 namespace ast {
-Do::Do(unsigned task_idx, std::vector<unsigned> &&arg_list, unsigned line)
-    : _args_num(arg_list.size()), _task_idx(task_idx), _line(line) {
+Do::Do(unsigned task_idx, unsigned is_executed_idx,
+       std::vector<unsigned> &&arg_list, unsigned line)
+    : _args_num(arg_list.size()),
+      _task_idx(task_idx),
+      _is_executed_idx(is_executed_idx),
+      _line(line) {
     _arg_list = std::make_unique<unsigned[]>(_args_num);
     std::copy(arg_list.begin(), arg_list.end(), _arg_list.get());
 }
@@ -19,12 +23,18 @@ void Do::set_politely_asked() noexcept { _is_politely_asked = true; }
 void Do::set_task_idx(unsigned idx) noexcept { _task_idx = idx; }
 
 expr *Do::execute(exec::GlobalCtx &ctx) const {
+    ctx.robot->ask(_is_politely_asked);
+    auto &curr_ctx = ctx.get_curr_ctx();
+    if (curr_ctx.get_counter(_is_executed_idx)) {
+        curr_ctx.set_counter(0, _is_executed_idx);
+        return nullptr;
+    }
+    curr_ctx.set_counter(1, _is_executed_idx);
     const auto &task_info = *ctx.ast.find_task_metainf(_task_idx);
     throw_if_wrong_args_num(task_info.args_number);
     exec::LocalCtx new_ctx(task_info.ctx_vars_number,
                            task_info.ctx_scope_counters_number);
     new_ctx.set_task_idx(_task_idx);
-    auto &curr_ctx = ctx.get_curr_ctx();
     var::var_type *var_ptr;
 
     for (auto &&[new_idx, curr_idx] :

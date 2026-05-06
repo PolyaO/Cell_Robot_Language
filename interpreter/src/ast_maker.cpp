@@ -117,7 +117,7 @@ unsigned AstMaker::make_task(
 
 unsigned AstMaker::make_task(std::string_view task_name,
                              std::vector<unsigned> &&exprs, unsigned args_num,
-                             unsigned res_ref_idx, unsigned line) {
+                             unsigned res_idx, unsigned line) {
     auto task_inf_ptr = _ast.find_task_metainf(task_name);
     if (task_inf_ptr)
         throw TaskRedeclare(task_name, task_inf_ptr->decl_line, line);
@@ -127,7 +127,7 @@ unsigned AstMaker::make_task(std::string_view task_name,
     m.task_name = task_name;
     m.decl_line = line;
     m.args_number = args_num;
-    m.res_ref_idx = res_ref_idx;
+    m.res_idx = res_idx;
     m.ctx_vars_number = _vars_number;
     m.ctx_scope_counters_number = ++_counters_number;
     _task_vars.append_range(_variables_avaliable.clear());
@@ -174,7 +174,7 @@ unsigned AstMaker::make_do(
     auto m_ptr = _ast.find_task_metainf(task_name);
     if (m_ptr) idx = m_ptr->task_idx;
     auto do_idx =
-        _ast.make_expr<Do>(idx, std::move(std::get<1>(arg_list)), line);
+        _ast.make_expr<Do>(idx, _counters_number++, std::move(std::get<1>(arg_list)), line);
     if (!idx) {
         _unprocessed_task_calls.emplace_back(
             TaskCallInfo(do_idx, line, std::string(task_name)));
@@ -205,10 +205,10 @@ unsigned AstMaker::make_switch(unsigned rval_idx, bool condition1,
                                unsigned line) {
     if (condition1) {
         if (condition2) throw DoubleLogicLiteral("TRUE", line);
-        return _ast.make_expr<Switch>(rval_idx, stmt1, stmt2, line);
+        return _ast.make_expr<Switch>(rval_idx, _counters_number++, stmt1, stmt2, line);
     }
     if (!condition2 && stmt2) throw DoubleLogicLiteral("FALSE", line);
-    return _ast.make_expr<Switch>(rval_idx, stmt2, stmt1, line);
+    return _ast.make_expr<Switch>(rval_idx, _counters_number++, stmt2, stmt1, line);
 }
 
 unsigned AstMaker::make_scope(std::vector<unsigned> &&exprs, unsigned line) {

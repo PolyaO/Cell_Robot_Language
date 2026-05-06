@@ -1,4 +1,5 @@
 #pragma once
+#include "var/var.hpp"
 #include <concepts>
 #include <interpreter/exprs.hpp>
 #include <interpreter/rvals.hpp>
@@ -23,7 +24,7 @@ class Ast {
         unsigned decl_line;
         unsigned task_idx;
         unsigned args_number;
-        unsigned res_ref_idx;
+        unsigned res_idx;
         unsigned ctx_vars_number;
         unsigned ctx_scope_counters_number;
     };

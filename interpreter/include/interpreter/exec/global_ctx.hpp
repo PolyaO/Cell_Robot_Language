@@ -4,6 +4,7 @@
 
 #include "interpreter/ast.hpp"
 #include "interpreter/exec/local_ctx.hpp"
+#include "robot/robot.hpp"
 namespace exec {
 class GlobalCtx {
    public:
@@ -13,6 +14,7 @@ class GlobalCtx {
     void pop_curr_ctx();
 
     ast::Ast ast;
+    std::unique_ptr<robot::Robot> robot;
    private:
     std::list<LocalCtx> ctx_stack;
 };

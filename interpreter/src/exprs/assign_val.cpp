@@ -19,6 +19,7 @@ bool AssignVal::is_politely_asked() const noexcept {
 
 expr *AssignVal::execute(exec::GlobalCtx &ctx) const {
     try {
+        ctx.robot->ask(_is_politely_asked);
         if (std::holds_alternative<int>(_val))
             var::assign_val<int>(exec::execute_rval(ctx, _idx),
                                  std::get<int>(_val));

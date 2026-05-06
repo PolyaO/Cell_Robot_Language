@@ -6,7 +6,7 @@ namespace ast {
 
 class Switch {
    public:
-    Switch(unsigned condition_idx, unsigned expr_true, unsigned expr_false,
+    Switch(unsigned condition_idx, unsigned is_executed_idx, unsigned expr_true, unsigned expr_false,
            unsigned line);
     unsigned get_line() const noexcept;
     expr *execute(exec::GlobalCtx &ctx) const;
@@ -15,6 +15,7 @@ class Switch {
     unsigned _expr_true;
     unsigned _expr_false;
     unsigned _condition_idx;
+    unsigned _is_executed_idx;
     unsigned _line;
 };
 }  // namespace ast

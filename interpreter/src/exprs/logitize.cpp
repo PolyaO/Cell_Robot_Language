@@ -15,6 +15,7 @@ void Logitize::set_politely_asked() noexcept { _is_politely_asked = true; }
 
 expr *Logitize::execute(exec::GlobalCtx &ctx) const {
     try {
+        ctx.robot->ask(_is_politely_asked);
         var::logitize(exec::execute_rval(ctx, _idx));
     } catch (const std::runtime_error &e) {
         throw InterpreterRuntimeError(std::format("[{}] {}", _line, e.what()));

@@ -469,7 +469,7 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 96 "src/lexer.l"
+#line 97 "src/lexer.l"
 
 
 #line 475 "/home/paleman/polka/repos/TA/lab3/interpreter/include/gen/lexer.hpp"

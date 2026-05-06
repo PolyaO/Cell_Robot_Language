@@ -18,6 +18,7 @@ void Assign::set_politely_asked() noexcept { _is_politely_asked = true; }
 
 expr *Assign::execute(exec::GlobalCtx &ctx) const {
     try {
+        ctx.robot->ask(_is_politely_asked);
         var::assign(exec::execute_rval(ctx, _idx1),
                     exec::execute_rval(ctx, _idx2));
     } catch (const std::runtime_error &e) {

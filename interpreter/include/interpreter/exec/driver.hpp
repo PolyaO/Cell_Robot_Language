@@ -2,20 +2,24 @@
 #include <stack>
 #include <string_view>
 
-#include "interpreter/rvals/rval.hpp"
 #include "interpreter/ast.hpp"
 #include "interpreter/exec/global_ctx.hpp"
+#include "interpreter/rvals/rval.hpp"
+#include "robot/robot.hpp"
+#include "var/var.hpp"
 
 namespace exec {
 class Driver {
    public:
     Driver() = default;
-    unsigned initialize(std::string_view robot_filename,
-                    std::string_view program_filename,
-                    bool trace_parsing = false, bool trace_scanning = false);
+    unsigned initialize(std::string_view program_filename,
+                        std::unique_ptr<robot::Robot> robot,
+                        bool trace_parsing = false,
+                        bool trace_scanning = false);
     unsigned exec_next();
     unsigned get_next_lineno() const noexcept;
     std::optional<var::var_type> get_var(std::string_view var_name);
+    std::optional<var::var_type> get_env();
     std::string_view get_curr_task_name();
 
    private:
@@ -29,4 +33,4 @@ class Driver {
     GlobalCtx _ctx;
     std::string _pg;
 };
-}  // namespace driver
+}  // namespace exec

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cwchar>
 #include <iostream>
+#include <memory>
 #include <ostream>
 #include <ranges>
 #include <string>
@@ -10,6 +11,7 @@
 #include <variant>
 
 #include "interpreter/exec/driver.hpp"
+#include "robot/robot.hpp"
 #include "var/bool.hpp"
 #include "var/var.hpp"
 #include "var/var_ops.hpp"
@@ -20,6 +22,8 @@
 #undef COLOR
 #undef CTRL
 
+#include "robot/ideal_robot.hpp"
+#include "robot/windows/window_maze.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
 #include "winutil/screen.hpp"
 #include "winutil/windows/window-file-view.hpp"
@@ -32,17 +36,17 @@
 // GIRLIE PALLETTE
 #define LIGHT_BLUE COLOR_RGB(179, 222, 226)
 #define PINK_FROST COLOR_RGB(239, 207, 227)
-#define ZEMLINIKA  COLOR_RGB(226, 115, 150)
-#define PINK_MIST  COLOR_RGB(235, 154, 178)
-#define BEIGE      COLOR_RGB(236, 242, 216)
+#define ZEMLINIKA COLOR_RGB(226, 115, 150)
+#define PINK_MIST COLOR_RGB(235, 154, 178)
+#define BEIGE COLOR_RGB(236, 242, 216)
 
 // SUMMER PALLETTE
 #define LEMONADE COLOR_RGB(242, 214, 161)
-#define LIMONCH  COLOR_RGB(241, 168, 5)
+#define LIMONCH COLOR_RGB(241, 168, 5)
 
 namespace std {
 wstring to_wstring(bool_t b) { return b ? L"T" : L"F"; }
-} // namespace std
+}  // namespace std
 
 template <class T>
 void print_variable_value(const var::Var<T> &var, Winutil::WindowOutput &w) {
@@ -68,9 +72,8 @@ void print_variable_value(const var::var_type &var, Winutil::WindowOutput &w) {
     }
 }
 
-void print_variable(
-    const var::var_type &var, std::wstring_view name, Winutil::WindowOutput &w
-) {
+void print_variable(const var::var_type &var, std::wstring_view name,
+                    Winutil::WindowOutput &w) {
     if (std::holds_alternative<var::Var<int>>(var)) {
         w.write(L"IntVar: ");
     } else {
@@ -98,11 +101,41 @@ void print_variable(
     w.write(L"\n");
 }
 
+void print_env(Winutil::WindowOutput &w, const var::var_type &env) {
+    auto &dim = var::get_dim(env);
+    w.write(L"Walls:\n");
+    for (unsigned i = 0; i < dim[0]; ++i) {
+        w.write(L"[ ");
+        for (unsigned j = 0; j < dim[1]; ++j) {
+            auto val =
+                std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
+            if (i == dim[0] / 2 && j == dim[1] / 2)
+                w.write(L"()");
+            else
+                w.write(val[0] ? L"##" : L"  ");
+        }
+        w.write(L" ]\n");
+    }
+    w.write(L"Exits:\n");
+    for (unsigned i = 0; i < dim[0]; ++i) {
+        w.write(L"[ ");
+        for (unsigned j = 0; j < dim[1]; ++j) {
+            auto val =
+                std::get<var::Var<bool_t>>(var::idx(env, {i + 1, j + 1}));
+            if (i == dim[0] / 2 && j == dim[1] / 2)
+                w.write(L"()");
+            else
+                w.write(val[1] ? L"##" : L"  ");
+        }
+        w.write(L" ]\n");
+    }
+}
+
 #define CLEAR_CMD L"clear"
-#define HELP_CMD  L"help"
-#define NEXT_CMD  L"next"
+#define HELP_CMD L"help"
+#define NEXT_CMD L"next"
 #define PRINT_CMD L"print"
-#define QUIT_CMD  L"quit"
+#define QUIT_CMD L"quit"
 
 enum handle_result { OK, INVALID_FORMAT, INVALID_COMMAND, QUIT };
 struct handler_context {
@@ -151,15 +184,16 @@ handle_result clear_handler(std::wstring_view, handler_context &ctx) {
 handle_result print_handler(std::wstring_view arg, handler_context &ctx) {
     auto w_var_name = arg.substr(0, arg.find(L' '));
     auto var_name =
-        w_var_name
-        | std::views::transform([](wchar_t c) -> char { return (char)c; })
-        | std::ranges::to<std::string>();
+        w_var_name |
+        std::views::transform([](wchar_t c) -> char { return (char)c; }) |
+        std::ranges::to<std::string>();
     auto var = ctx.drv.get_var(var_name);
     if (!var) {
         ctx.debug_w.write(L"no such vaiable: `");
         ctx.debug_w.write(std::wstring(var_name.begin(), var_name.end()));
         ctx.debug_w.write(L"`\n");
-    } else print_variable(var.value(), w_var_name, ctx.debug_w);
+    } else
+        print_variable(var.value(), w_var_name, ctx.debug_w);
     return OK;
 }
 
@@ -200,8 +234,10 @@ handle_result handle_input(const std::wstring &input, handler_context &ctx) {
     for (auto &&[hdl_idx, hdl_entry] : std::views::enumerate(handlers)) {
         auto &&[cmd, handler, desc] = hdl_entry;
         if (matches[hdl_idx] == true) {
-            if (hdl == nullptr) hdl = handler;
-            else return INVALID_FORMAT;
+            if (hdl == nullptr)
+                hdl = handler;
+            else
+                return INVALID_FORMAT;
         }
     }
 
@@ -222,46 +258,47 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    exec::Driver drv;
-    unsigned lineno = drv.initialize(argv[1], argv[2]);
     unsigned screen_width = Winutil::Screen::max_width();
     unsigned screen_height = Winutil::Screen::max_height() - 2;
-
     Winutil::Screen screen(screen_width, screen_height);
     std::signal(SIGINT, Winutil::Screen::destroy_handler);
 
     auto &main_row_w = screen.make_window<Winutil::WindowsRow>();
     auto &debug_w = main_row_w.make_window<Winutil::WindowOutput>();
     auto &right_side_w = main_row_w.make_window<Winutil::WindowsColumn>();
-    auto &robot_w = right_side_w.make_window<Winutil::WindowOutput>();
+    auto &upper_row_w = right_side_w.make_window<Winutil::WindowsRow>();
+    auto &maze_w = upper_row_w.make_window<robot::WindowMaze>();
+    auto &walls_exits_w = upper_row_w.make_window<Winutil::WindowOutput>();
     auto &file_w = right_side_w.make_window<Winutil::WindowFileView>();
+
+    maze_w.open(argv[1]);
+    exec::Driver drv;
+    drv.initialize(argv[2], std::make_unique<robot::IdealRobot>(maze_w.get_maze()));
 
     SyntaxHighlighter standard_highlight(
         {
             {Pattern::word(
-                 L"TASK|FINDEXIT|RESULT|DO|GET|FOR|BOUNDARY|STEP|SWITCH"
-             ),
+                 L"TASK|FINDEXIT|RESULT|DO|GET|FOR|BOUNDARY|STEP|SWITCH"),
              COLOR(ZEMLINIKA, BLACK)},
             {Pattern::word(
                  L"NOT|MXTRUE|MXFALSE|MXEQ|MXLT|MXGT|MXLTE|MXGTE|ELEQ|ELLT|"
                  L"ELGT|ELLTE|ELGTE|GET|SIZE|REDUCE|EXTEND|OR|AND|FALSE|TRUE|["
-                 L"0-9]+"
-             ),
+                 L"0-9]+"),
              COLOR(LIMONCH, BLACK)},
             {Pattern::wild(L"VAR|SIZE|LOGITIZE|DIGITIZE|REDUCE|EXTEND"),
              COLOR(LIGHT_BLUE, BLACK)},
-            {Pattern::wild(
-                 L"MOVE|ROTATE_LEFT|ROTATE_RIGHT|GET_ENVIRONMENT|PLEASE|THANKS"
-             ),
+            {Pattern::wild(L"MOVE|ROTATE_LEFT|ROTATE_RIGHT|GET_ENVIRONMENT|"
+                           L"PLEASE|THANKS"),
              COLOR(PINK_FROST, BLACK)},
         },
-        COLOR(BEIGE, BLACK)
-    );
+        COLOR(BEIGE, BLACK));
+
+    maze_w.draw_maze();
+    print_env(walls_exits_w, drv.get_env().value());
 
     file_w.set_highlighter(standard_highlight);
     file_w.open(argv[2]);
 
-    robot_w.write(L"ROBOT HERE!\n");
     screen.update();
 
     std::wstring prompt = L"\r\e[2K> ";
@@ -271,15 +308,21 @@ int main(int argc, char *argv[]) {
     while (true) {
         std::wstring line = input_line(prompt);
         switch (handle_input(line, ctx)) {
-        case INVALID_COMMAND:
-            debug_w.write(L"unknown command `");
-            debug_w.write(line);
-            debug_w.write(L"`, enter `h` or `help` for help\n");
-            break;
-        case INVALID_FORMAT: debug_w.write(L"invalid arguments\n"); break;
-        case QUIT: return 0;
-        case OK: break;
+            case INVALID_COMMAND:
+                debug_w.write(L"unknown command `");
+                debug_w.write(line);
+                debug_w.write(L"`, enter `h` or `help` for help\n");
+                break;
+            case INVALID_FORMAT:
+                debug_w.write(L"invalid arguments\n");
+                break;
+            case QUIT:
+                return 0;
+            case OK:
+                break;
         }
+        walls_exits_w.clear();
+        print_env(walls_exits_w, drv.get_env().value());
         screen.update();
     }
 }

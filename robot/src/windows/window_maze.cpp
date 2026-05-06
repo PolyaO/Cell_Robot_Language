@@ -1,4 +1,5 @@
 #include "robot/windows/window_maze.hpp"
+
 #include "robot/maze.hpp"
 #include "winutil/engine/colors.hpp"
 
@@ -23,9 +24,15 @@ void WindowMaze::draw_maze() {
         for (int x = 0; x < maze.get_width(); ++x) {
             if (x * 2 + 1 >= desc.width) break;
             switch (maze.get_position_state({x, y})) {
-            case Maze::WALL: set_wall({x, y}); break;
-            case Maze::EXIT: set_exit({x, y}); break;
-            default: set_empty({x, y}); break;
+                case Maze::WALL:
+                    set_wall({x, y});
+                    break;
+                case Maze::EXIT:
+                    set_exit({x, y});
+                    break;
+                default:
+                    set_empty({x, y});
+                    break;
             }
         }
     }
@@ -125,8 +132,10 @@ void WindowMaze::draw_robot() {
 
     auto screen_line = area.get_line(robot_pos.y);
 
-    if (maze.is_exit(robot_pos)) set_exit(robot_pos);
-    else set_empty(robot_pos);
+    if (maze.is_exit(robot_pos))
+        set_exit(robot_pos);
+    else
+        set_empty(robot_pos);
 
     robot_pos = maze.get_robot_position();
     if (robot_pos.x * 2 + 1 >= desc.width || robot_pos.y >= desc.height) return;
@@ -134,23 +143,24 @@ void WindowMaze::draw_robot() {
     screen_line = area.get_line(robot_pos.y);
 
     switch ((Maze::direction::dir_e)maze.get_robot_direction()) {
-    case Maze::direction::UP:
-        screen_line[robot_pos.x * 2].set(L'𜸉');
-        screen_line[robot_pos.x * 2 + 1].set(ROBOT_CHAR);
-        break;
-    case Maze::direction::DOWN:
-        screen_line[robot_pos.x * 2].set(ROBOT_CHAR);
-        screen_line[robot_pos.x * 2 + 1].set(L'𜸊');
-        break;
-    case Maze::direction::RIGHT:
-        screen_line[robot_pos.x * 2].set(ROBOT_CHAR);
-        screen_line[robot_pos.x * 2 + 1].set(L'>');
-        break;
-    case Maze::direction::LEFT:
-        screen_line[robot_pos.x * 2].set(L'<');
-        screen_line[robot_pos.x * 2 + 1].set(ROBOT_CHAR);
-        break;
-    default: break;
+        case Maze::direction::UP:
+            screen_line[robot_pos.x * 2].set(L'𜸉');
+            screen_line[robot_pos.x * 2 + 1].set(ROBOT_CHAR);
+            break;
+        case Maze::direction::DOWN:
+            screen_line[robot_pos.x * 2].set(ROBOT_CHAR);
+            screen_line[robot_pos.x * 2 + 1].set(L'𜸊');
+            break;
+        case Maze::direction::RIGHT:
+            screen_line[robot_pos.x * 2].set(ROBOT_CHAR);
+            screen_line[robot_pos.x * 2 + 1].set(L'>');
+            break;
+        case Maze::direction::LEFT:
+            screen_line[robot_pos.x * 2].set(L'<');
+            screen_line[robot_pos.x * 2 + 1].set(ROBOT_CHAR);
+            break;
+        default:
+            break;
     }
 }
 
@@ -162,4 +172,4 @@ unsigned WindowMaze::get_optimal_height() const noexcept {
     return maze.get_height();
 }
 
-} // namespace robot
+}  // namespace robot

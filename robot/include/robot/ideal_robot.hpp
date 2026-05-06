@@ -5,17 +5,19 @@
 
 namespace robot {
 
-class IdealRobot : Robot {
-  public:
+class IdealRobot : public Robot {
+   public:
     IdealRobot(Maze &maze);
-    var::var_type get_env(bool is_politely_asked = false) override;
-    void move(bool is_politely_asked = false) override;
-    void rotate_r(bool is_politely_asked = false) override;
-    void rotate_l(bool is_politely_asked = false) override;
+    ~IdealRobot() override = default;
+    var::var_type get_env() override;
+    void move() override;
+    void rotate_r() override;
+    void rotate_l() override;
+    void ask(bool is_politely_asked = false) override;
 
-  private:
+   private:
     Maze &maze;
-    const static int VIEW_RADIUS = 5;
+    constexpr const static int VIEW_RADIUS = 5;
 };
 
-} // namespace robot
+}  // namespace robot

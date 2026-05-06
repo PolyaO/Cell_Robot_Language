@@ -8,11 +8,11 @@ namespace robot {
 
 class Maze {
   public:
-    const static char ROBOT_CHAR = 'R';
-    const static char WALL_CHAR = '#';
-    const static char EMPTY_CHAR = ' ';
-    const static unsigned MINIMAL_MAZE_WIDTH = 5;
-    const static unsigned MINIMAL_MAZE_HEIGHT = 5;
+    constexpr const static char ROBOT_CHAR = 'R';
+    constexpr const static char WALL_CHAR = '#';
+    constexpr const static char EMPTY_CHAR = ' ';
+    constexpr const static unsigned MINIMAL_MAZE_WIDTH = 5;
+    constexpr const static unsigned MINIMAL_MAZE_HEIGHT = 5;
 
     struct vector2;
     using position = vector2;

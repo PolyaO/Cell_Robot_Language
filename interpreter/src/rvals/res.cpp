@@ -10,7 +10,7 @@ Res::Res(unsigned task_idx, unsigned line) : _task_idx(task_idx), _line(line) {}
 var::var_type Res::execute(exec::GlobalCtx &ctx) const {
     auto metainf = *ctx.ast.find_task_metainf(_task_idx);
     if (metainf.task_name == "FINDEXIT") return var::FALSE;
-    auto res_idx = metainf.res_ref_idx;
+    auto res_idx = metainf.res_idx;
     try {
         return exec::execute_rval(ctx, res_idx);
     } catch (const std::runtime_error &e) {

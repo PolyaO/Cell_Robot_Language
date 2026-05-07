@@ -6,12 +6,13 @@ TASK MULT_RET A, B (
 TASK FINDEXIT (
     VAR A = TRUE
     VAR B = 5
+    VAR d = 0
     VAR C = FALSE
     DO MULT_RET A, B
     C = GET MULT_RET
     A = FALSE
     C = GET MULT_RET
     DO MULT_RET A, B
-    C = GET MULT_RET
+    d = GET MULT_RET
     DO MULT_RET B, A
 )

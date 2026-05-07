@@ -44,6 +44,7 @@ class Debugger {
     // void step_over();
 
     void print_env();
+    void print_robot_stats();
     void print_variable(const var::var_type &var, std::wstring_view name);
     void clear_output() noexcept;
 
@@ -71,6 +72,7 @@ class Debugger {
     Winutil::WindowFileView *file_w;
 
     exec::Driver drv;
+    robot::Robot *robot;
 
     std::vector<unsigned> breaks;
     std::string maze_filename;

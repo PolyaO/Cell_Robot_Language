@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
     robot::ParanoiaConfigGenerator gen(123);
 
     debug::Debugger dbg(screen, [&gen](robot::Maze &maze) {
-        return std::make_unique<robot::IdealRobot>(maze);
+        // return std::make_unique<robot::IdealRobot>(maze);
+        return std::make_unique<robot::Paranoid>(maze, gen);
     });
 
     dbg.load(argv[1], argv[2]);

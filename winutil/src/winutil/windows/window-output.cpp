@@ -75,4 +75,8 @@ void WindowOutput::write(std::wstring_view str) {
     write_line(str);
 }
 
+void WindowOutput::set_cursor(engine::WindowPos pos) { _cursor = pos; }
+
+engine::WindowPos WindowOutput::get_cursor() { return _cursor; };
+
 }; // namespace Winutil

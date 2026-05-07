@@ -26,8 +26,8 @@ namespace debug::handlers {
 #define EMPTY          L""
 #define INDEX          L"\\[" WS PARENT(UNSIGNED L"," WS) L"*" UNSIGNED WS L"\\]"
 
-#define MATCH(_match)  L"(" _match L")"
-#define MATCH_ANY      WS MATCH(ANY)
+#define MATCH(_match) L"(" _match L")"
+#define MATCH_ANY     WS MATCH(ANY)
 
 #define COMMAND_HANDLER(_cmd) \
     Debugger::op_result _cmd##_handler(Debugger &d, std::wstring_view args_line)
@@ -43,6 +43,11 @@ namespace debug::handlers {
     std::wsmatch args;                                  \
     if (!std::regex_match(__args_line_str, args, re))   \
         return Debugger::INVALID_FORMAT;
+#define CHECK_EXECUTION                                     \
+    if (d.is_end_of_execution()) {                          \
+        d.get_debug_w() << L"Programm is ended already!\n"; \
+        return Debugger::OK;                                \
+    }
 
 var::dim_t parse_idx(const std::wstring &idx_str) {
     static std::wregex re(
@@ -53,14 +58,13 @@ var::dim_t parse_idx(const std::wstring &idx_str) {
     std::wsregex_iterator end;
 
     var::dim_t res;
-    for (; it != end; ++it) {
-        res.push_back(std::stoi(it->str()));
-    }
+    for (; it != end; ++it) { res.push_back(std::stoi(it->str())); }
 
     return res;
 }
 
 COMMAND_HANDLER(continue) {
+    CHECK_EXECUTION
     ARGPARSE(MATCH(EMPTY));
     d.step_continue(3000);
     if (d.is_end_of_execution()) return Debugger::EXIT_FOUND;
@@ -68,6 +72,7 @@ COMMAND_HANDLER(continue) {
 }
 
 COMMAND_HANDLER(break) {
+    CHECK_EXECUTION
     ARGPARSE(MATCH(UNSIGNED) OR MATCH(EMPTY));
 
     unsigned line_no = 0;
@@ -131,6 +136,7 @@ COMMAND_HANDLER(print) {
 }
 
 COMMAND_HANDLER(next) {
+    CHECK_EXECUTION
     ARGPARSE(MATCH(UNSIGNED) OR MATCH(EMPTY));
 
     unsigned lines = 1;

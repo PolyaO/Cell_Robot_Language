@@ -8,7 +8,7 @@ void robot::Robot::get_env(
 ) noexcept {
     unsigned diameter = radius * 2 + 1;
     unsigned rng_start = (VIEW_DIAMETER - diameter) / 2;
-    unsigned rng_end = VIEW_DIAMETER - rng_end;
+    unsigned rng_end = VIEW_DIAMETER - rng_start;
 
     for (unsigned y = 0; y < VIEW_DIAMETER; ++y) {
         for (unsigned x = 0; x < VIEW_DIAMETER; ++x) {

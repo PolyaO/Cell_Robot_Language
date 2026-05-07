@@ -1,4 +1,5 @@
 #pragma once
+#include "winutil/engine/common.hpp"
 #include "winutil/windows/base-window.hpp"
 
 namespace Winutil {
@@ -11,11 +12,21 @@ class WindowOutput : public BaseWindow {
     /// @brief put string at the write position
     void write(std::wstring_view);
 
-    /// @brief set cursor and put string at position set
-    void write(engine::WindowPos pos, std::wstring_view);
+    /// @brief change write position
+    void set_cursor(engine::WindowPos);
 
+    /// @brief get current write position
+    engine::WindowPos get_cursor();
+
+    /// @brief same as write
     WindowOutput &operator<<(std::wstring_view str) {
         write(str);
+        return *this;
+    }
+
+    /// @brief same set_cursor
+    WindowOutput &operator<<(engine::WindowPos pos) {
+        set_cursor(pos);
         return *this;
     }
 

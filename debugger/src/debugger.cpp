@@ -1,8 +1,11 @@
 #include "debugger/debugger.hpp"
 #include "debugger/handlers.hpp"
+#include "robot/robot.hpp"
 #include "var/var.hpp"
 #include "var/var_ops.hpp"
+#include "winutil/engine/common.hpp"
 #include "winutil/engine/syntax-highlighter.hpp"
+#include <exception>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -104,6 +107,39 @@ void Debugger::print_variable(
     w << L"\n";
 }
 
+void Debugger::print_robot_stats() {
+    auto &w = *env_w;
+    auto stt = robot->get_stats();
+    auto conf = robot->get_paranoia();
+
+    Winutil::engine::WindowPos cursor = {0, 28};
+
+    *env_w << cursor << L"Robot Stats:";
+    cursor.row += 1;
+    *env_w << cursor << L"  happiness:\t"
+           << std::to_wstring(conf.minimal_happiness) << L"/"
+           << std::to_wstring(stt.happiness_score) << L"/"
+           << std::to_wstring(robot::Robot::robot_stats::MAXIMUM_HAPPINESS);
+    cursor.row += 1;
+    *env_w << cursor << L"  politeness:\t"
+           << std::to_wstring(conf.punnish_impoliteness_score) << L"/"
+           << std::to_wstring(stt.pleasure_ask_score) << L"/"
+           << std::to_wstring(conf.punnish_movements);
+    cursor.row += 1;
+    *env_w << cursor << L"  rotations:\t"
+           << std::to_wstring(stt.consequent_rotations) << L"/"
+           << std::to_wstring(conf.punnish_rotations);
+    cursor.row += 1;
+    *env_w << cursor << L"  env_asks: \t"
+           << std::to_wstring(stt.consequent_env_asks) << L"/"
+           << std::to_wstring(conf.punnish_env_asks);
+    cursor.row += 1;
+    *env_w << cursor << L"  movements:\t"
+           << std::to_wstring(stt.movements_count) << L"/"
+           << std::to_wstring(conf.punnish_movements);
+    cursor.row += 1;
+}
+
 void Debugger::print_env() {
     auto &w = *env_w;
     const var::var_type env = drv.get_env().value();
@@ -131,6 +167,7 @@ void Debugger::print_env() {
         }
         w << L" ]\n";
     }
+    print_robot_stats();
 }
 
 bool Debugger::check_run_status() const noexcept {
@@ -146,7 +183,6 @@ unsigned Debugger::get_exec_line() const noexcept {
 }
 
 void Debugger::step_into(int robot_move_delay) {
-    check_run_status();
     auto &maze = maze_w->get_maze();
     auto robot_pos = maze.get_robot_position();
     auto robot_dir = maze.get_robot_direction();
@@ -166,7 +202,6 @@ void Debugger::step_into(int robot_move_delay) {
 }
 
 void Debugger::step_continue(int robot_move_delay) {
-    check_run_status();
     while (true) {
         step_into(robot_move_delay);
         if (is_end_of_execution()) return;
@@ -208,7 +243,9 @@ void Debugger::stop_programm() noexcept { prog_ended = true; }
 
 void Debugger::load() {
     maze_w->open(maze_filename);
-    drv.initialize(prog_filename, robot_getter(maze_w->get_maze()));
+    auto robot_ptr = robot_getter(maze_w->get_maze());
+    robot = robot_ptr.get();
+    drv.initialize(prog_filename, std::move(robot_ptr));
     file_w->set_highlighter(standard_highlight);
     file_w->open(prog_filename);
     maze_w->draw_maze();
@@ -283,15 +320,24 @@ void Debugger::start_interactive_execution() {
     redraw_screen();
 
     while (input_line(prompt, line)) {
-        switch (execute_cmd(line)) {
-        case INVALID_COMMAND:
-            *debug_w << L"Unknown command `" << line
-                     << L"`, enter `h` or `help` for help\n";
-            break;
-        case EXIT_FOUND: *debug_w << L"Exit was found!\n"; break;
-        case INVALID_FORMAT: *debug_w << L"Invalid command arguments!\n"; break;
-        case QUIT: return;
-        case OK: break;
+        try {
+            switch (execute_cmd(line)) {
+            case INVALID_COMMAND:
+                *debug_w << L"Unknown command `" << line
+                         << L"`, enter `h` or `help` for help\n";
+                break;
+            case EXIT_FOUND: *debug_w << L"Exit was found!\n"; break;
+            case INVALID_FORMAT:
+                *debug_w << L"Invalid command arguments!\n";
+                break;
+            case QUIT: return;
+            case OK: break;
+            }
+        } catch (const std::exception &e) {
+            std::string_view what_str(e.what());
+            std::wstring what(what_str.begin(), what_str.end());
+            *debug_w << what << L"\n";
+            stop_programm();
         }
         redraw_screen();
     }

@@ -83,8 +83,8 @@ class WrongDim : public InterpreterBuildError {
 class WrongDimIdx : public InterpreterBuildError {
    public:
     WrongDimIdx(int dim, unsigned line)
-        : InterpreterBuildError(std::format(
-              "[{}] Wrong dimension idx: {} .", line, dim)) {}
+        : InterpreterBuildError(
+              std::format("[{}] Wrong dimension idx: {} .", line, dim)) {}
 };
 
 class WrongChange : public InterpreterBuildError {
@@ -92,4 +92,11 @@ class WrongChange : public InterpreterBuildError {
     WrongChange(int c, unsigned line)
         : InterpreterBuildError(std::format(
               "[{}] Wrong change: {} . Change should be >= 0", line, c)) {}
+};
+class NoRetRes : public InterpreterBuildError {
+   public:
+    NoRetRes(std::string_view task_name, unsigned line)
+        : InterpreterBuildError(
+              std::format("[{}] No operator RESULT IDENTIFIER found. In task {}.",
+                          line, task_name)) {}
 };

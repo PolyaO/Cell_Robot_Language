@@ -61,7 +61,7 @@ task
     | find_exit                        {$$ = $1;}
     ;
 any_task
-    : TASK IDENTIFIER arg_list '(' newline_opt stmts  RESULT IDENTIFIER '\n' ')' newline_opt {$$ = ast.make_task($2, $3, std::move($6), $8, @1.begin.line);}
+    : TASK IDENTIFIER arg_list '(' newline_opt stmts ')' newline_opt {$$ = ast.make_task($2, $3, std::move($6), @7.begin.line);}
     ;
 find_exit
     : TASK FINDEXIT '('newline_opt stmts')' newline_opt {$$ = ast.make_findexit(std::move($5), @1.begin.line);}
@@ -71,22 +71,23 @@ expr
     | VAR IDENTIFIER '=' BOOLEAN                     {$$ = ast.make_var_declaration<bool_t>($2, {}, $4, @1.begin.line);}
     | VAR IDENTIFIER '[' dim_list ']' '=' INTEGER    {$$ = ast.make_var_declaration<int>($2, $4, $7, @1.begin.line);}
     | VAR IDENTIFIER '[' dim_list ']' '=' BOOLEAN    {$$ = ast.make_var_declaration<bool_t>($2, $4, $7, @1.begin.line);}
-    | LOGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Logitize>($2, @1.begin.line);}
-    | DIGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::Digitize>($2, @1.begin.line);}
+    | LOGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::exprs::Logitize>($2, @1.begin.line);}
+    | DIGITIZE IDENTIFIER   {$$ = ast.make_transform<ast::exprs::Digitize>($2, @1.begin.line);}
     | IDENTIFIER '=' rval   {$$ = ast.make_assignement($1, {}, $3, @1.begin.line);}
     | IDENTIFIER '[' dim_list ']' '=' rval   {$$ = ast.make_assignement($1, std::move($3), $6, @1.begin.line);}
     | IDENTIFIER '=' INTEGER   {$$ = ast.make_val_assignement<int>($1, {}, $3, @1.begin.line);}
     | IDENTIFIER '[' dim_list ']' '=' INTEGER   {$$ = ast.make_val_assignement<int>($1, std::move($3), $6, @1.begin.line);}
     | IDENTIFIER '=' BOOLEAN   {$$ = ast.make_val_assignement<bool_t>($1, {}, $3, @1.begin.line);}
     | IDENTIFIER '[' dim_list ']' '=' BOOLEAN   {$$ = ast.make_val_assignement<bool_t>($1, std::move($3), $6, @1.begin.line);}
-    | MOVE                  {$$ = ast.make_robot_expr<ast::Move>( @1.begin.line);}
-    | ROTATE_LEFT           {$$ = ast.make_robot_expr<ast::RotateL>( @1.begin.line);}
-    | ROTATE_RIGHT          {$$ = ast.make_robot_expr<ast::RotateR>( @1.begin.line);}
+    | MOVE                  {$$ = ast.make_robot_expr<ast::exprs::Move>( @1.begin.line);}
+    | ROTATE_LEFT           {$$ = ast.make_robot_expr<ast::exprs::RotateL>( @1.begin.line);}
+    | ROTATE_RIGHT          {$$ = ast.make_robot_expr<ast::exprs::RotateR>( @1.begin.line);}
     | DO IDENTIFIER arg_list {$$ = ast.make_do($2, std::move($3), @1.begin.line);}
+    | RESULT IDENTIFIER {$$ = ast.make_ret_res($2, @1.begin.line);}
     ;
 complex_expr_stmt
     : FOR IDENTIFIER BOUNDARY IDENTIFIER STEP IDENTIFIER newline_opt stmt {$$ = ast.make_for($2, $4, $6, $8, @1.begin.line);}
-    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch($2, $4, $6, false, 0, @1.begin.line);}
+    | SWITCH rval newline_opt BOOLEAN newline_opt stmt                            %prec SWITCH_NO_TAIL {$$ = ast.make_switch_no_tail($2, $4, $6,  @1.begin.line);}
     | SWITCH rval newline_opt BOOLEAN newline_opt stmt BOOLEAN newline_opt stmt   %prec BOOLEAN        {$$ = ast.make_switch($2, $4, $6, $7, $9, @1.begin.line);}
     | '(' newline_opt stmts ')'                               {$$ = ast.make_scope(std::move($3), @1.begin.line);}
     ;
@@ -137,8 +138,8 @@ unary
     | ELLTE unary     {$$ = ast.make_ellte($2, @1.begin.line);}
     | ELGTE unary     {$$ = ast.make_elgte($2, @1.begin.line);}
     | SIZE unary      {$$ = ast.make_size($2, @1.begin.line);}
-    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::Reduce>($2, $4, $6, @1.begin.line);}
-    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::Extend>($2, $4, $6, @1.begin.line);}
+    | REDUCE unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::rvals::Reduce>($2, $4, $6, @1.begin.line);}
+    | EXTEND unary '[' INTEGER ',' INTEGER ']' {$$ = ast.make_change<ast::rvals::Extend>($2, $4, $6, @1.begin.line);}
     ;
 primary
     : IDENTIFIER                {$$ = ast.make_ref($1, @1.begin.line);}

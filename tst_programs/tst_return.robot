@@ -1,0 +1,17 @@
+TASK MULT_RET A, B (
+    SWITCH A TRUE RESULT A
+    FALSE RESULT B
+)
+
+TASK FINDEXIT (
+    VAR A = TRUE
+    VAR B = 5
+    VAR C = FALSE
+    DO MULT_RET A, B
+    C = GET MULT_RET
+    A = FALSE
+    C = GET MULT_RET
+    DO MULT_RET A, B
+    C = GET MULT_RET
+    DO MULT_RET B, A
+)

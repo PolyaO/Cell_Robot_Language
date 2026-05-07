@@ -52,6 +52,8 @@ var_type reduce(const var_type &a, unsigned dim_idx = 1, unsigned change = 1);
 var_type extend(const var_type &a, unsigned dim_idx = 1, unsigned change = 1);
 var_type size(const var_type &a);
 var_type copy_ref(var_type &a);
+var_type copy(var_type &a);
+var_type copy(var_type &&a);
 
 var_type idx(var_type &a, const std::vector<unsigned> &idx);
 const var_type idx(const var_type &a, const std::vector<unsigned> &idx);

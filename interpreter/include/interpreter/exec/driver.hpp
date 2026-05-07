@@ -4,7 +4,7 @@
 
 #include "interpreter/ast.hpp"
 #include "interpreter/exec/global_ctx.hpp"
-#include "interpreter/rvals/rval.hpp"
+#include "interpreter/expr/expr.hpp"
 #include "robot/robot.hpp"
 #include "var/var.hpp"
 
@@ -26,10 +26,10 @@ class Driver {
     ast::Ast parse(bool trace_parsing, bool trace_scanning);
     void scan_begin(bool trace_scanning);
     void scan_end();
-    ast::expr *stack_top_exe();
+    ast::Expr *stack_top_exe();
     unsigned stack_top_line() const noexcept;
 
-    std::stack<ast::expr *> _exec_stack;
+    std::stack<ast::Expr *> _exec_stack;
     GlobalCtx _ctx;
     std::string _pg;
 };

@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace exec {
-LocalCtx::LocalCtx(unsigned variables_size, unsigned scope_counters_size) {
+LocalCtx::LocalCtx(unsigned variables_size, unsigned scope_counters_size, unsigned task_idx) : _task_idx(task_idx) {
     _variables.resize(variables_size);
     _scope_counters.resize(scope_counters_size);
 }
@@ -19,7 +19,6 @@ unsigned LocalCtx::get_counter(unsigned idx) const {
     return _scope_counters[idx];
 }
 
-void LocalCtx::set_task_idx(unsigned idx) { _task_idx = idx; }
 void LocalCtx::set_counter(unsigned counter, unsigned idx) {
     _scope_counters[idx] = counter;
 }

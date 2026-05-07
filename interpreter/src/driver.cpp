@@ -9,10 +9,7 @@
 #include "interpreter/ast.hpp"
 #include "interpreter/ast_maker.hpp"
 #include "interpreter/exceptions/build_exceptions.hpp"
-#include "interpreter/exprs/expr.hpp"
-#include "interpreter/exprs/for.hpp"
-#include "interpreter/exprs/task.hpp"
-#include "interpreter/rvals/rval.hpp"
+#include "interpreter/expr/expr.hpp"
 #include "robot/robot.hpp"
 #include "var/var.hpp"
 
@@ -30,8 +27,8 @@ unsigned Driver::initialize(std::string_view program_filename,
         throw InterpreterBuildError("No task with name \"FINDEXIT\" found\n");
 
     exec::LocalCtx new_ctx(find_exit_info->ctx_vars_number,
-                           find_exit_info->ctx_scope_counters_number);
-    new_ctx.set_task_idx(find_exit_info->task_idx);
+                           find_exit_info->ctx_counters_number,
+                           find_exit_info->task_idx);
     _ctx.push_curr_ctx(std::move(new_ctx));
     _exec_stack.push(_ctx.ast.get_expr(find_exit_info->task_idx));
     return stack_top_line();
@@ -73,14 +70,12 @@ std::string_view Driver::get_curr_task_name() {
     return curr_task_inf.task_name;
 }
 
-ast::expr *Driver::stack_top_exe() {
-    return std::visit([this](auto &_expr) { return _expr.execute(this->_ctx); },
-                      *_exec_stack.top());
+ast::Expr *Driver::stack_top_exe() {
+    return _exec_stack.top()->execute(_ctx);
 }
 
 unsigned Driver::stack_top_line() const noexcept {
-    return std::visit([](auto &_expr) { return _expr.get_line(); },
-                      *_exec_stack.top());
+    return _exec_stack.top()->get_lineno();
 }
 
 unsigned Driver::get_next_lineno() const noexcept {
@@ -90,14 +85,21 @@ unsigned Driver::get_next_lineno() const noexcept {
 
 unsigned Driver::exec_next() {
     if (_exec_stack.empty()) return 0;
-    ast::expr *next = stack_top_exe();
+    ast::Expr *next = stack_top_exe();
     if (!next) {
         _exec_stack.pop();
         return exec_next();
     }
-    if (std::holds_alternative<ast::Task>(*next) |
-        std::holds_alternative<ast::Scope>(*next) |
-        std::holds_alternative<ast::For>(*next)) {
+    if ((long)next == 1) {
+        ast::Expr* task = _ctx.ast.get_expr(_ctx.get_curr_ctx().get_task_idx());
+        while (_exec_stack.top() != task) {
+            _exec_stack.pop();
+        }
+        _exec_stack.pop();
+        _ctx.pop_curr_ctx();
+        return exec_next();
+    }
+    if (next->is_scopelike_expr()) {
         _exec_stack.push(next);
         return exec_next();
     }

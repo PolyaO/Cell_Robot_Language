@@ -40,6 +40,12 @@ var_type size(const var_type &a) {
 var_type copy_ref(var_type &a) {
     return std::visit([](auto &v) { return v.copy_ref(); }, a);
 }
+var_type copy(var_type &a) {
+    return std::visit([](auto &v) { return v.copy(); }, a);
+}
+var_type copy(var_type &&a) {
+    return std::visit([](auto &v) { return v.copy(); }, a);
+}
 const std::vector<unsigned> &get_dim(const var_type &a) {
     return std::visit(
         [](auto &v) -> const std::vector<unsigned> & { return v.get_dim(); },

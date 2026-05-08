@@ -1,8 +1,9 @@
-#include "robot/ideal_robot.hpp"
-#include "robot/paranoid.hpp"
 #include <debugger/debugger.hpp>
 #include <iostream>
 #include <memory>
+
+#include "robot/ideal_robot.hpp"
+#include "robot/paranoid.hpp"
 
 int main(int argc, char *argv[]) {
     std::setlocale(LC_ALL, "en_US.utf8");
@@ -20,8 +21,13 @@ int main(int argc, char *argv[]) {
     robot::ParanoiaConfigGenerator gen(123);
 
     debug::Debugger dbg(screen, [&gen](robot::Maze &maze) {
-        // return std::make_unique<robot::IdealRobot>(maze);
+#if defined(USE_IDEAL_ROBOT)
+        return std::make_unique<robot::IdealRobot>(maze);
+#elif defined(USE_PARANOID)
         return std::make_unique<robot::Paranoid>(maze, gen);
+#else
+#error "Define USE_IDEAL_ROBOT or USE_PARANOID"
+#endif
     });
 
     dbg.load(argv[1], argv[2]);
